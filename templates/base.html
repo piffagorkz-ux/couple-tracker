@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Couple Tracker 💕{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🖤</text></svg>">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% if session.get('user_id') %}
+        <nav class="navbar">
+            <div class="navbar-brand">🖤 Couple Tracker</div>
+            <ul class="navbar-menu">
+                <li><a href="{{ url_for('dashboard') }}">📱 Главное</a></li>
+                <li><a href="{{ url_for('tree') }}">🌱 Деревце</a></li>
+                <li><a href="{{ url_for('diary') }}">📝 Дневник</a></li>
+                <li><a href="{{ url_for('goals') }}">🎯 Цели</a></li>
+                <li><a href="{{ url_for('challenges') }}">🎪 Челленджи</a></li>
+                <li><a href="{{ url_for('settings') }}">⚙️ Настройки</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout">Выход</a></li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        {% if session.get('user_id') %}
+        <footer class="footer">
+            <p>💕 Made with love for couples | Couple Tracker v3.0</p>
+        </footer>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

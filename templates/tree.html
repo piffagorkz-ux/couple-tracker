@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Деревце - Couple Tracker{% endblock %}
+
+{% block content %}
+<div class="tree-page">
+    <div class="tree-header">
+        <h1>🌱 {{ tree_name }}</h1>
+        <div class="tree-health">
+            <div class="health-label">Здоровье деревца:</div>
+            <div class="health-bar">
+                <div class="health-fill" style="width: {{ tree_health }}%"></div>
+            </div>
+            <div class="health-percent">{{ tree_health }}%</div>
+        </div>
+    </div>
+
+    <div class="tree-container">
+        <div class="tree-visualization">
+            <div id="tree-ascii" class="tree-ascii">
+                🌱
+            </div>
+            <div class="tree-message">
+                <p id="tree-message">Деревце счастливо, когда вы вместе 💕</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tree-actions">
+        <button class="btn btn-action" onclick="treeAction('water')">
+            <span>💧</span>
+            <span>Полить</span>
+        </button>
+        <button class="btn btn-action" onclick="treeAction('feed')">
+            <span>🍌</span>
+            <span>Накормить</span>
+        </button>
+        <button class="btn btn-action" onclick="treeAction('sing')">
+            <span>🎵</span>
+            <span>Спеть</span>
+        </button>
+    </div>
+
+    <div class="tree-options">
+        <form method="POST" action="{{ url_for('tree_rename') }}" class="rename-form">
+            <input 
+                type="text" 
+                name="new_name" 
+                placeholder="Новое имя для деревца"
+                maxlength="50"
+                required
+            >
+            <button type="submit" class="btn btn-secondary">✏️ Переименовать</button>
+        </form>
+    </div>
+
+    <div class="tree-history">
+        <h2>📜 История ухода</h2>
+        {% if actions %}
+        <div class="history-list">
+            {% for action in actions %}
+            <div class="history-item">
+                <span class="history-action">{{ action.action }}</span>
+                <span class="history-date">{{ action.date }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-message">Ещё нет действий. Начните ухаживать за деревцем! 🌱</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.tree-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.tree-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.tree-header h1 {
+    font-size: 2.5em;
+    margin: 0 0 30px 0;
+    color: #333;
+}
+
+.tree-health {
+    margin-top: 20px;
+}
+
+.health-label {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.health-bar {
+    width: 100%;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+}
+
+.health-percent {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.tree-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    padding: 60px 20px;
+    margin: 30px 0;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tree-visualization {
+    text-align: center;
+}
+
+.tree-ascii {
+    font-size: 6em;
+    margin-bottom: 20px;
+    animation: grow 2s ease-in-out infinite;
+}
+
+@keyframes grow {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.tree-message {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.tree-message p {
+    margin: 0;
+    color: #666;
+    font-size: 1em;
+}
+
+.tree-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.btn-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1em;
+}
+
+.btn-action:hover {
+    border-color: #667eea;
+    background: #f9f9f9;
+    transform: translateY(-3px);
+}
+
+.btn-action span:first-child {
+    font-size: 2.5em;
+}
+
+.tree-options {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 30px 0;
+}
+
+.rename-form {
+    display: flex;
+    gap: 10px;
+}
+
+.rename-form input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+.rename-form input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.tree-history {
+    margin-top: 40px;
+}
+
+.tree-history h2 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.history-list {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95em;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-action {
+    color: #333;
+    font-weight: 500;
+}
+
+.history-date {
+    color: #999;
+    font-size: 0.9em;
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+@media (max-width: 600px) {
+    .tree-ascii {
+        font-size: 4em;
+    }
+
+    .tree-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .rename-form {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function treeAction(action) {
+    try {
+        const response = await fetch('{{ url_for("tree_action") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: action })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            const messages = {
+                water: '💧 Деревце напоилось! 🌱',
+                feed: '🍌 Деревце поело! Вкусно! 😋',
+                sing: '🎵 Деревце слушает вашу песню и радуется! 💕'
+            };
+            
+            document.getElementById('tree-message').textContent = messages[action];
+            
+            // Обновляем здоровье
+            const healthPercent = document.querySelector('.health-percent');
+            healthPercent.textContent = data.health + '%';
+            
+            const healthFill = document.querySelector('.health-fill');
+            healthFill.style.width = data.health + '%';
+            
+            // Анимация
+            document.querySelector('.tree-ascii').style.animation = 'none';
+            setTimeout(() => {
+                document.querySelector('.tree-ascii').style.animation = 'grow 2s ease-in-out infinite';
+            }, 10);
+            
+            // Перезагружаем страницу через 2 секунды
+            setTimeout(() => location.reload(), 2000);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ошибка при выполнении действия');
+    }
+}
+</script>
+{% endblock %}

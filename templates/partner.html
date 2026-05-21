@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Партнёр - Couple Tracker{% endblock %}
+
+{% block content %}
+<div class="partner-page">
+    <div class="partner-header">
+        <h1>👥 Информация о партнёре</h1>
+    </div>
+
+    {% if partner_id %}
+    <div class="partner-info-card">
+        <div class="partner-avatar">👥</div>
+        <div class="partner-details">
+            <h2>Партнёр привязан</h2>
+            <p class="partner-id">ID: <code>{{ partner_id }}</code></p>
+            <div class="partner-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">💕 К дашборду</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="partner-setup">
+        <h2>Привяжите партнёра</h2>
+        <form id="partner-form" class="partner-form">
+            <div class="form-group">
+                <label for="partner_id">ID партнёра</label>
+                <input 
+                    type="number"
+                    id="partner_id"
+                    placeholder="Введите ID партнёра"
+                    required
+                >
+                <small>💡 Как найти ID партнёра? Напишите @username_to_id_bot в Telegram</small>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                ✅ Привязать партнёра
+            </button>
+        </form>
+
+        <div class="partner-info-box">
+            <h3>📋 Как это работает?</h3>
+            <ul>
+                <li>1. Попросите у партнёра его Telegram ID</li>
+                <li>2. Введите ID в форму выше</li>
+                <li>3. Партнёр должен сделать то же самое</li>
+                <li>4. После этого вы сможете вести дневник, цели и многое другое вместе! 💕</li>
+            </ul>
+        </div>
+
+        <div class="find-id-guide">
+            <h3>🔍 Как найти свой ID?</h3>
+            <ol>
+                <li>Откройте Telegram</li>
+                <li>Найдите бота @username_to_id_bot</li>
+                <li>Отправьте ему /start</li>
+                <li>Бот вернёт вам ваш ID</li>
+                <li>Поделитесь этим ID с партнёром</li>
+            </ol>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.partner-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.partner-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.partner-header h1 {
+    font-size: 2.5em;
+    margin: 0;
+    color: #333;
+}
+
+.partner-info-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 40px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.partner-avatar {
+    font-size: 5em;
+    margin-bottom: 20px;
+}
+
+.partner-info-card h2 {
+    font-size: 1.8em;
+    margin: 0 0 15px 0;
+}
+
+.partner-id {
+    font-size: 1.1em;
+    margin: 15px 0;
+    opacity: 0.95;
+}
+
+.partner-id code {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+}
+
+.partner-actions {
+    margin-top: 25px;
+}
+
+.partner-setup {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.partner-setup h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-top: 0;
+}
+
+.partner-form {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 1.05em;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+    font-size: 0.9em;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.partner-info-box,
+.find-id-guide {
+    background: #f5f5f5;
+    padding: 25px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.partner-info-box h3,
+.find-id-guide h3 {
+    font-size: 1.3em;
+    color: #333;
+    margin-top: 0;
+}
+
+.partner-info-box ul,
+.find-id-guide ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.partner-info-box li,
+.find-id-guide li {
+    margin: 10px 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    .partner-page {
+        padding: 10px;
+    }
+
+    .partner-header h1 {
+        font-size: 2em;
+    }
+
+    .partner-info-card {
+        padding: 30px 20px;
+    }
+
+    .partner-avatar {
+        font-size: 4em;
+    }
+
+    .partner-setup {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('partner-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const partnerId = document.getElementById('partner_id').value.trim();
+    if (!partnerId) {
+        alert('Введите ID партнёра');
+        return;
+    }
+
+    try {
+        const response = await fetch('{{ url_for("set_partner") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ partner_id: partnerId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Партнёр привязан! Теперь оба вы можете пользоваться приложением вместе 💕');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            alert('❌ Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ошибка при привязке партнёра');
+    }
+});
+</script>
+{% endblock %}

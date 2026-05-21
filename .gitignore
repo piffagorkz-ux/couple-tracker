@@ -1,0 +1,46 @@
+# Виртуальная среда Python
+venv/
+env/
+ENV/
+.venv
+
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Логи
+*.log
+
+# Данные
+data/
+couple_data.json
+*.db
+*.sqlite
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+
+# Node (если будет использоваться)
+node_modules/
+package-lock.json
+yarn.lock
+
+# OS
+Thumbs.db
+.DS_Store
