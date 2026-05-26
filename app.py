@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-💕 LOVIO - Веб-приложение для пар
-Все функции + персистентное сохранение данных
-"""
-
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 import json, os, random
@@ -111,7 +106,6 @@ def dashboard():
     data = load_data()
     user = get_user(data, session["user_id"])
     stats = {"name": session.get("name"), "partner_id": user.get("partner_id")}
-    
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["statistics"] = couple.get("statistics", {})
@@ -143,6 +137,17 @@ def tree_action():
         save_data(data)
         return jsonify({"success": True, "health": couple["tree_health"]})
     return jsonify({"error": "Unknown action"}), 400
+
+@app.route("/tree/rename", methods=["POST"])
+@login_required
+def tree_rename():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if user["partner_id"]:
+        couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+        couple["tree_name"] = request.form.get("new_name", "").strip()[:50]
+        save_data(data)
+    return redirect(url_for("tree"))
 
 @app.route("/diary")
 @login_required
@@ -381,6 +386,28 @@ def important_dates_add():
         return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["important_dates"].append({"title": request.json.get("title"), "date": request.json.get("date"), "created": str(date.today())})
+    save_data(data)
+    return jsonify({"success": True})
+
+@app.route("/challenges")
+@login_required
+def challenges():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]:
+        return redirect(url_for("partner"))
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    return render_template("challenges.html", challenges=couple["challenges"])
+
+@app.route("/api/challenges/add", methods=["POST"])
+@login_required
+def challenges_add():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]:
+        return jsonify({"error": ""}), 400
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    couple["challenges"].append({"text": request.json.get("text"), "date": str(date.today()), "completed": False})
     save_data(data)
     return jsonify({"success": True})
 
