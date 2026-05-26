@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Фон -->
+  <rect width="512" height="512" fill="#667eea"/>
+  
+  <!-- Декоративный градиент -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" fill="url(#grad)"/>
+  
+  <!-- Основное сердце (больше) -->
+  <path d="M256 450 C100 350, 50 280, 50 200 C50 130, 100 80, 150 80 C180 80, 210 95, 256 130 C302 95, 332 80, 362 80 C412 80, 462 130, 462 200 C462 280, 412 350, 256 450 Z" fill="#FF1493" opacity="0.9"/>
+  
+  <!-- Блик на сердце -->
+  <path d="M150 120 C120 120, 80 150, 80 200 C80 240, 110 280, 200 340" fill="none" stroke="white" stroke-width="8" opacity="0.3" stroke-linecap="round"/>
+  
+  <!-- Звёздочка сверху -->
+  <g transform="translate(256, 100)">
+    <circle cx="0" cy="0" r="25" fill="#FFD700"/>
+    <path d="M0,-15 L4,-5 L15,-5 L7,2 L10,12 L0,6 L-10,12 L-7,2 L-15,-5 L-4,-5 Z" fill="white"/>
+  </g>
+</svg>
