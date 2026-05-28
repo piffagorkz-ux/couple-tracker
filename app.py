@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""💕 LOVIO - Приложение для пар"""
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 import json, os, random
@@ -8,7 +7,7 @@ from functools import wraps
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "lovio-key")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "lovio")
 DATA_DIR = os.getenv("DATA_DIR", "data")
 DATA_FILE = os.path.join(DATA_DIR, "couple_data.json")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -366,7 +365,7 @@ def challenges_add():
 def random_date_api():
     ideas = [
         {"emoji": "🍽️", "text": "Романтический ужин дома"},
-        {"emoji": "🎬", "text": "Кино вечер с попкорном"},
+        {"emoji": "🎬", "text": "Кино вечер"},
         {"emoji": "🚶", "text": "Прогулка в парке"},
         {"emoji": "🎨", "text": "Арт-выставка"},
         {"emoji": "🎪", "text": "Концерт"},
