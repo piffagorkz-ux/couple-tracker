@@ -26,38 +26,8 @@
             {% endif %}
         </div>
 
-        {% if stats.stats %}
-        <h2 style="margin-top: 2rem;">📊 Статистика</h2>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.diary }}</div>
-                <div class="stat-label">Записей</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.goals }}</div>
-                <div class="stat-label">Целей</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.places }}</div>
-                <div class="stat-label">Мест</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.checkins }}</div>
-                <div class="stat-label">Чекинов</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.closeness }}%</div>
-                <div class="stat-label">Близость</div>
-            </div>
-        </div>
-        {% endif %}
-
         <h2 style="margin-top: 2rem;">Меню</h2>
         <div class="menu-grid">
-            <a href="/tree" class="menu-item">
-                <div class="menu-icon">🌱</div>
-                <div class="menu-title">Деревце</div>
-            </a>
             <a href="/diary" class="menu-item">
                 <div class="menu-icon">📝</div>
                 <div class="menu-title">Дневник</div>
@@ -107,10 +77,36 @@
                 <div class="menu-title">Партнёр</div>
             </a>
         </div>
+
+        {% if stats.stats %}
+        <h2 style="margin-top: 3rem;">📊 Статистика</h2>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">{{ stats.stats.diary }}</div>
+                <div class="stat-label">Записей</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ stats.stats.goals }}</div>
+                <div class="stat-label">Целей</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ stats.stats.places }}</div>
+                <div class="stat-label">Мест</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ stats.stats.checkins }}</div>
+                <div class="stat-label">Чекинов</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ stats.stats.closeness }}%</div>
+                <div class="stat-label">Близость</div>
+            </div>
+        </div>
+        {% endif %}
     </main>
 
     <footer>
-        <p>💕 LOVIO v6.0 - Made with love for couples</p>
+        <p>💕 LOVIO v7.0 - Made with love for couples</p>
     </footer>
 </body>
 </html>

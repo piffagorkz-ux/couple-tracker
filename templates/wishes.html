@@ -11,15 +11,15 @@
     <h2>🎁 Мой вишлист</h2>
     {% if wishes %}
     {% for w in wishes|reverse %}
-    <div style="padding: 1rem; margin: 1rem 0; background: white; border-left: 4px solid #FF1493; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="padding: 1rem; margin: 1rem 0; background: white; border-left: 4px solid #cd2a63; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
         <div style="flex: 1;">
-            <p style="{% if w.gifted %}text-decoration: line-through; color: #999;{% endif %}font-size: 1.1em; margin: 0;">{{ w.text }}</p>
+            <p style="{% if w.get('gifted') %}text-decoration: line-through; color: #999;{% endif %}font-size: 1.1em; margin: 0;">{{ w.text }}</p>
             {% if w.price %}
-            <p style="color: #FF1493; margin: 0.3rem 0; font-size: 1.1em;">💰 {{ w.price }} ₸</p>
+            <p style="color: #cd2a63; margin: 0.3rem 0; font-size: 1.1em;">💰 {{ w.price }} ₸</p>
             {% endif %}
             <small style="color: #999;">Добавлено: {{ w.date }}</small>
         </div>
-        {% if not w.gifted %}
+        {% if not w.get('gifted') %}
         <button onclick="markAsGifted('{{ w.text }}')" class="btn" style="width: 130px; padding: 10px; font-size: 0.9em;">🎀 Подарено</button>
         {% else %}
         <span style="color: #4caf50; font-weight: 600;">🎀 Подарено</span>
@@ -67,10 +67,17 @@ async function addWish() {
     }
 }
 
-async function markAsGifted(name) {
-    if (confirm('Отметить "' + name + '" как подаренное?')) {
-        alert('✅ Подарок отмечен!');
-        location.reload();
+async function markAsGifted(text) {
+    if (confirm('Отметить "' + text + '" как подаренное?')) {
+        const resp = await fetch('{{ url_for("wishes_gift") }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text})
+        });
+        if (resp.ok) {
+            alert('✅ Подарок отмечен!');
+            location.reload();
+        }
     }
 }
 </script>

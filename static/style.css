@@ -1,14 +1,14 @@
-/* 💕 LOVIO - Новый дизайн с цветами: e13d3c, ed6c72, 6c0414, 9c686b, d6a7b3, 2c4054 */
+/* 💕 LOVIO - Новый дизайн v7.0 */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 :root {
-    --primary: #e13d3c;
-    --secondary: #ed6c72;
-    --dark: #6c0414;
-    --muted: #9c686b;
-    --light: #d6a7b3;
-    --navy: #2c4054;
+    --primary: #cd2a63;
+    --secondary: #ef4284;
+    --dark: #830418;
+    --success: #74ab63;
+    --light: #98bc82;
+    --navy: #3f572c;
     --bg: #fafbfc;
 }
 
@@ -41,7 +41,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 12px rgba(225, 61, 60, 0.2);
+    box-shadow: 0 4px 12px rgba(205, 42, 99, 0.2);
 }
 
 .navbar-brand {
@@ -89,13 +89,13 @@ main {
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08);
-    border: 1px solid rgba(214, 167, 179, 0.2);
+    box-shadow: 0 4px 12px rgba(131, 4, 24, 0.08);
+    border: 1px solid rgba(152, 188, 130, 0.2);
     transition: all 0.3s;
 }
 
 .card:hover {
-    box-shadow: 0 8px 24px rgba(225, 61, 60, 0.12);
+    box-shadow: 0 8px 24px rgba(205, 42, 99, 0.12);
     transform: translateY(-2px);
 }
 
@@ -118,7 +118,7 @@ main {
 
 .btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(225, 61, 60, 0.3);
+    box-shadow: 0 8px 20px rgba(205, 42, 99, 0.3);
 }
 
 .btn:active {
@@ -132,11 +132,12 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="date"],
+input[type="time"],
 textarea,
 select {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid rgba(214, 167, 179, 0.4);
+    border: 2px solid rgba(152, 188, 130, 0.4);
     border-radius: 10px;
     font-size: 1em;
     font-family: 'Montserrat', sans-serif;
@@ -151,7 +152,7 @@ textarea:focus,
 select:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(225, 61, 60, 0.1);
+    box-shadow: 0 0 0 4px rgba(205, 42, 99, 0.1);
     background: white;
 }
 
@@ -173,7 +174,7 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     background: var(--primary);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(225, 61, 60, 0.3);
+    box-shadow: 0 2px 8px rgba(205, 42, 99, 0.3);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -183,7 +184,7 @@ input[type="range"]::-moz-range-thumb {
     background: var(--primary);
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 8px rgba(225, 61, 60, 0.3);
+    box-shadow: 0 2px 8px rgba(205, 42, 99, 0.3);
 }
 
 /* ════════════════════ ДОБРО ПОЖАЛОВАТЬ ════════════════════ */
@@ -194,7 +195,7 @@ input[type="range"]::-moz-range-thumb {
     padding: 2rem;
     border-radius: 16px;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 24px rgba(225, 61, 60, 0.2);
+    box-shadow: 0 8px 24px rgba(205, 42, 99, 0.2);
 }
 
 .welcome h1 {
@@ -211,7 +212,7 @@ input[type="range"]::-moz-range-thumb {
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 1rem;
     margin: 2rem 0;
 }
@@ -219,20 +220,20 @@ input[type="range"]::-moz-range-thumb {
 .stat {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
-    padding: 1.5rem;
+    padding: 1.2rem;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(225, 61, 60, 0.15);
+    box-shadow: 0 4px 12px rgba(205, 42, 99, 0.15);
 }
 
 .stat-num {
-    font-size: 2.2em;
+    font-size: 2em;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
 }
 
 .stat-label {
-    font-size: 0.95em;
+    font-size: 0.85em;
     opacity: 0.95;
     font-weight: 500;
 }
@@ -251,7 +252,7 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 14px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08);
+    box-shadow: 0 4px 12px rgba(131, 4, 24, 0.08);
     cursor: pointer;
     transition: all 0.3s;
     text-decoration: none;
@@ -266,7 +267,7 @@ input[type="range"]::-moz-range-thumb {
 
 .menu-item:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 28px rgba(225, 61, 60, 0.18);
+    box-shadow: 0 12px 28px rgba(205, 42, 99, 0.18);
     border-color: var(--primary);
 }
 
@@ -293,7 +294,7 @@ input[type="range"]::-moz-range-thumb {
     margin: 1rem 0;
     border-radius: 12px;
     border-left: 4px solid var(--primary);
-    box-shadow: 0 2px 8px rgba(108, 4, 20, 0.06);
+    box-shadow: 0 2px 8px rgba(131, 4, 24, 0.06);
     transition: all 0.3s;
 }
 
@@ -301,7 +302,7 @@ input[type="range"]::-moz-range-thumb {
 .item:hover,
 .goal-item:hover,
 .wish-item:hover {
-    box-shadow: 0 6px 16px rgba(225, 61, 60, 0.12);
+    box-shadow: 0 6px 16px rgba(205, 42, 99, 0.12);
     transform: translateX(4px);
 }
 
@@ -310,7 +311,7 @@ input[type="range"]::-moz-range-thumb {
 .goal-item.completed,
 .wish-item.completed {
     opacity: 0.65;
-    border-left-color: #4caf50;
+    border-left-color: var(--success);
 }
 
 .entry-header,
@@ -319,7 +320,7 @@ input[type="range"]::-moz-range-thumb {
     justify-content: space-between;
     margin-bottom: 0.8rem;
     padding-bottom: 0.8rem;
-    border-bottom: 1px solid rgba(214, 167, 179, 0.2);
+    border-bottom: 1px solid rgba(152, 188, 130, 0.2);
 }
 
 .entry-author,
@@ -330,7 +331,7 @@ input[type="range"]::-moz-range-thumb {
 
 .entry-date,
 .item-date {
-    color: var(--muted);
+    color: #999;
     font-size: 0.9em;
 }
 
@@ -344,32 +345,12 @@ input[type="range"]::-moz-range-thumb {
 /* ════════════════════ ОСОБЫЕ СТИЛИ ════════════════════ */
 
 .confession {
-    background: linear-gradient(135deg, rgba(225, 61, 60, 0.05) 0%, rgba(237, 108, 114, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(205, 42, 99, 0.05) 0%, rgba(239, 66, 132, 0.05) 100%);
     border-left-color: var(--primary);
 }
 
 .confession:hover {
-    background: linear-gradient(135deg, rgba(225, 61, 60, 0.08) 0%, rgba(237, 108, 114, 0.08) 100%);
-}
-
-.random-idea {
-    background: linear-gradient(135deg, #fff9e6 0%, rgba(237, 108, 114, 0.1) 100%);
-    border-left: 4px solid var(--primary);
-    padding: 2rem;
-    border-radius: 12px;
-    text-align: center;
-    margin: 1.5rem 0;
-}
-
-.random-idea-emoji {
-    font-size: 4em;
-    margin: 1rem 0;
-}
-
-.random-idea-text {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: var(--dark);
+    background: linear-gradient(135deg, rgba(205, 42, 99, 0.08) 0%, rgba(239, 66, 132, 0.08) 100%);
 }
 
 /* ════════════════════ ЗАГОЛОВКИ ════════════════════ */
@@ -402,36 +383,14 @@ h3 {
 footer {
     text-align: center;
     padding: 2rem;
-    color: var(--muted);
+    color: #999;
     margin-top: 3rem;
-    border-top: 1px solid rgba(214, 167, 179, 0.2);
+    border-top: 1px solid rgba(152, 188, 130, 0.2);
 }
 
 footer p {
     margin: 0;
     font-weight: 500;
-}
-
-/* ════════════════════ УТИЛИТЫ ════════════════════ */
-
-.text-center {
-    text-align: center;
-}
-
-.text-muted {
-    color: var(--muted);
-}
-
-.mt-2 {
-    margin-top: 2rem;
-}
-
-.mb-2 {
-    margin-bottom: 2rem;
-}
-
-.gap-1 {
-    gap: 1rem;
 }
 
 /* ════════════════════ АДАПТИВ ════════════════════ */
@@ -526,22 +485,4 @@ footer p {
 
 .card {
     animation: fadeIn 0.3s ease-out;
-}
-
-/* ════════════════════ CHECKBOX & RANGE ════════════════════ */
-
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--primary);
-}
-
-select {
-    cursor: pointer;
-}
-
-textarea {
-    resize: vertical;
-    min-height: 100px;
 }

@@ -21,7 +21,8 @@ def load_data():
     return {"users": {}, "couples": {}}
 
 def save_data(data):
-    json.dump(data, open(DATA_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def get_user(data, uid):
     uid = str(uid)
@@ -43,6 +44,14 @@ def get_couple(data, key):
             "wishes": [], "challenges": [],
             "stats": {"diary": 0, "goals": 0, "places": 0, "checkins": 0, "closeness": 50}
         }
+    else:
+        # Убедитесь что все ключи существуют (для обновления данных)
+        couple = data["couples"][key]
+        if "diary" not in couple: couple["diary"] = []
+        if "wishes" not in couple: couple["wishes"] = []
+        if "places" not in couple: couple["places"] = []
+        if "dates_plan" not in couple: couple["dates_plan"] = []
+        if "stats" not in couple: couple["stats"] = {"diary": 0, "goals": 0, "places": 0, "checkins": 0, "closeness": 50}
     return data["couples"][key]
 
 def login_required(f):
@@ -84,42 +93,6 @@ def dashboard():
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["stats"] = couple.get("stats", {})
     return render_template("dashboard.html", stats=stats)
-
-@app.route("/tree")
-@login_required
-def tree():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("tree.html", tree_name=couple["tree_name"], health=couple.get("tree_health", 100), actions=couple["tree_actions"][-10:])
-
-@app.route("/api/tree/action", methods=["POST"])
-@login_required
-def tree_action():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    action = request.json.get("action")
-    if action in {"water", "feed", "sing"}:
-        couple["tree_actions"].append({"action": {"water":"💧 полил(а)", "feed":"🍌 накормил(а)", "sing":"🎵 спел(а)"}[action], "date": str(date.today())})
-        couple["tree_health"] = min(100, couple.get("tree_health", 100) + 5)
-        couple["stats"]["closeness"] = min(100, couple["stats"].get("closeness", 50) + 2)
-        save_data(data)
-        return jsonify({"success": True, "health": couple["tree_health"]})
-    return jsonify({"error": ""}), 400
-
-@app.route("/tree/rename", methods=["POST"])
-@login_required
-def tree_rename():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if user["partner_id"]:
-        couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-        couple["tree_name"] = request.form.get("new_name", "").strip()[:50]
-        save_data(data)
-    return redirect(url_for("tree"))
 
 @app.route("/diary")
 @login_required
@@ -199,10 +172,26 @@ def places_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["places"].append({"name": request.json.get("name"), "type": request.json.get("type", "wishlist"), "visited": False, "date": str(date.today())})
-    couple["stats"]["places"] = len([p for p in couple["places"] if p.get("type") == "visited"])
+    couple["places"].append({"name": request.json.get("name"), "visited": False, "date": str(date.today())})
+    couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
     save_data(data)
     return jsonify({"success": True})
+
+@app.route("/api/places/visit", methods=["POST"])
+@login_required
+def places_visit():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]: return jsonify({"error": ""}), 400
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    name = request.json.get("name")
+    for p in couple["places"]:
+        if p.get("name") == name:
+            p["visited"] = True
+            couple["stats"]["places"] = len([x for x in couple["places"] if x.get("visited")])
+            save_data(data)
+            return jsonify({"success": True})
+    return jsonify({"error": ""}), 404
 
 @app.route("/dates")
 @login_required
@@ -220,7 +209,7 @@ def dates_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["dates_plan"].append({"title": request.json.get("title"), "date": request.json.get("date"), "created": str(date.today())})
+    couple["dates_plan"].append({"title": request.json.get("title"), "date": request.json.get("date"), "time": request.json.get("time", ""), "created": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -300,6 +289,21 @@ def wishes_add():
     save_data(data)
     return jsonify({"success": True})
 
+@app.route("/api/wishes/gift", methods=["POST"])
+@login_required
+def wishes_gift():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]: return jsonify({"error": ""}), 400
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    text = request.json.get("text")
+    for w in couple["wishes"]:
+        if w.get("text") == text:
+            w["gifted"] = True
+            save_data(data)
+            return jsonify({"success": True})
+    return jsonify({"error": ""}), 404
+
 @app.route("/confessions")
 @login_required
 def confessions():
@@ -360,7 +364,52 @@ def challenges_add():
     save_data(data)
     return jsonify({"success": True})
 
-
+@app.route("/api/random-date")
+@login_required
+def random_date_api():
+    ideas = [
+        {"emoji": "🍽️", "text": "Романтический ужин дома"},
+        {"emoji": "🎬", "text": "Кино вечер с попкорном"},
+        {"emoji": "🚶", "text": "Прогулка в парке"},
+        {"emoji": "🎨", "text": "Посещение арт-выставки"},
+        {"emoji": "🎪", "text": "Концерт или живая музыка"},
+        {"emoji": "🏖️", "text": "Пикник на природе"},
+        {"emoji": "🎮", "text": "Вечер видеоигр вместе"},
+        {"emoji": "📚", "text": "Литературный клуб дома"},
+        {"emoji": "🏃", "text": "Спортивная активность вместе"},
+        {"emoji": "🍜", "text": "Готовим новое блюдо вместе"},
+        {"emoji": "🏊", "text": "Поход в бассейн или на озеро"},
+        {"emoji": "🎭", "text": "Театральное представление"},
+        {"emoji": "🛍️", "text": "Шопинг и кофе после"},
+        {"emoji": "🚗", "text": "Спонтанная поездка на машине"},
+        {"emoji": "📸", "text": "Фотосессия в красивом месте"},
+        {"emoji": "🌙", "text": "Пикник под звёздами"},
+        {"emoji": "💆", "text": "Спа вечер дома с массажем"},
+        {"emoji": "🧘", "text": "Йога и медитация вместе"},
+        {"emoji": "🍰", "text": "Пекли торт вместе"},
+        {"emoji": "🎤", "text": "Караоке ночь"},
+        {"emoji": "🚴", "text": "Велосипедная прогулка"},
+        {"emoji": "⛰️", "text": "Поход в горы"},
+        {"emoji": "🎪", "text": "Цирк или парк развлечений"},
+        {"emoji": "🌸", "text": "Прогулка по цветущему саду"},
+        {"emoji": "🎨", "text": "Рисуем портреты друг друга"},
+        {"emoji": "🍜", "text": "Пробуем новый ресторан"},
+        {"emoji": "🧗", "text": "Скалолазание или парк аттракционов"},
+        {"emoji": "🌊", "text": "Серфинг или водные виды спорта"},
+        {"emoji": "📖", "text": "Читаем книгу вслух друг другу"},
+        {"emoji": "🎸", "text": "Домашний концерт друг для друга"},
+        {"emoji": "🌅", "text": "Встреча рассвета на природе"},
+        {"emoji": "🍕", "text": "Делаем пиццу дома с нуля"},
+        {"emoji": "🎓", "text": "Учимся чему-то новому вместе"},
+        {"emoji": "💍", "text": "Годовщина или особый ужин"},
+        {"emoji": "🚀", "text": "Планетарий или обсерватория"},
+        {"emoji": "🏛️", "text": "Посещение музея"},
+        {"emoji": "🌍", "text": "Виртуальное путешествие в другую страну"},
+        {"emoji": "🎉", "text": "Вечеринка для двоих с музыкой и танцами"},
+        {"emoji": "🧩", "text": "Собираем пазл или настольную игру"},
+        {"emoji": "☕", "text": "Кофе-дата с разговорами по душам"},
+    ]
+    return jsonify(random.choice(ideas))
 
 @app.route("/partner")
 @login_required
@@ -409,87 +458,6 @@ def server_error(e): return render_template("500.html"), 500
 @app.route("/health")
 def health(): return jsonify({"status": "ok"})
 
-@app.route("/api/random-date")
-@login_required
-def random_date_api():
-    ideas = [
-        {"emoji": "🍽️", "text": "Романтический ужин дома"},
-        {"emoji": "🎬", "text": "Кино вечер с попкорном"},
-        {"emoji": "🚶", "text": "Прогулка в парке"},
-        {"emoji": "🎨", "text": "Посещение арт-выставки"},
-        {"emoji": "🎪", "text": "Концерт или живая музыка"},
-        {"emoji": "🏖️", "text": "Пикник на природе"},
-        {"emoji": "🎮", "text": "Вечер видеоигр вместе"},
-        {"emoji": "📚", "text": "Литературный клуб дома"},
-        {"emoji": "🏃", "text": "Спортивная активность вместе"},
-        {"emoji": "🍜", "text": "Готовим новое блюдо вместе"},
-        {"emoji": "🏊", "text": "Поход в бассейн или на озеро"},
-        {"emoji": "🎭", "text": "Театральное представление"},
-        {"emoji": "🛍️", "text": "Шопинг и кофе после"},
-        {"emoji": "🚗", "text": "Спонтанная поездка на машине"},
-        {"emoji": "📸", "text": "Фотосессия в красивом месте"},
-        {"emoji": "🌙", "text": "Пикник под звёздами"},
-        {"emoji": "💆", "text": "Спа вечер дома с массажем"},
-        {"emoji": "🧘", "text": "Йога и медитация вместе"},
-        {"emoji": "🍰", "text": "Пекли торт вместе"},
-        {"emoji": "🎤", "text": "Караоке ночь"},
-        {"emoji": "🚴", "text": "Велосипедная прогулка"},
-        {"emoji": "⛰️", "text": "Поход в горы"},
-        {"emoji": "🎪", "text": "Цирк или парк развлечений"},
-        {"emoji": "🌸", "text": "Прогулка по цветущему саду"},
-        {"emoji": "🎨", "text": "Рисуем портреты друг друга"},
-        {"emoji": "🍜", "text": "Пробуем новый ресторан"},
-        {"emoji": "🧗", "text": "Скалолазание или парк аттракционов"},
-        {"emoji": "🌊", "text": "Серфинг или водные виды спорта"},
-        {"emoji": "📖", "text": "Читаем книгу вслух друг другу"},
-        {"emoji": "🎸", "text": "Домашний концерт друг для друга"},
-        {"emoji": "🌅", "text": "Встреча рассвета на природе"},
-        {"emoji": "🍕", "text": "Делаем пиццу дома с нуля"},
-        {"emoji": "🎓", "text": "Учимся чему-то новому вместе"},
-        {"emoji": "💍", "text": "Годовщина или особый ужин"},
-        {"emoji": "🚀", "text": "Планетарий или обсерватория"},
-        {"emoji": "🏛️", "text": "Посещение музея"},
-        {"emoji": "🌍", "text": "Виртуальное путешествие в другую страну"},
-        {"emoji": "🎉", "text": "Вечеринка для двоих с музыкой и танцами"},
-        {"emoji": "🧩", "text": "Собираем пазл или настольную игру"},
-        {"emoji": "☕", "text": "Кофе-дата с разговорами по душам"},
-    ]
-    return jsonify(random.choice(ideas))
-
-
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
-
-# Добавляем новые маршруты для обновлений
-
-@app.route("/api/places/visit", methods=["POST"])
-@login_required
-def places_visit():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    name = request.json.get("name")
-    for p in couple["places"]:
-        if p.get("name") == name:
-            p["visited"] = True
-            couple["stats"]["places"] = len([x for x in couple["places"] if x.get("visited")])
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/api/wishes/gift", methods=["POST"])
-@login_required
-def wishes_gift():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text")
-    for w in couple["wishes"]:
-        if w.get("text") == text:
-            w["gifted"] = True
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
