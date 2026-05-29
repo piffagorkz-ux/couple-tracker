@@ -3,50 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Couple Tracker 💕{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🖤</text></svg>">
-    {% block extra_css %}{% endblock %}
+    <title>{% block title %}LOVIO{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #FF1493 0%, #667eea 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        .navbar-links {
+            display: flex;
+            gap: 1rem;
+        }
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        .navbar-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .navbar-links a.logout {
+            background: rgba(255,100,100,0.3);
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #FF1493 0%, #667eea 100%);
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #FF1493;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            margin-top: 3rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        {% if session.get('user_id') %}
-        <nav class="navbar">
-            <div class="navbar-brand">🖤 Couple Tracker</div>
-            <ul class="navbar-menu">
-                <li><a href="{{ url_for('dashboard') }}">📱 Главное</a></li>
-                <li><a href="{{ url_for('tree') }}">🌱 Деревце</a></li>
-                <li><a href="{{ url_for('diary') }}">📝 Дневник</a></li>
-                <li><a href="{{ url_for('goals') }}">🎯 Цели</a></li>
-                <li><a href="{{ url_for('challenges') }}">🎪 Челленджи</a></li>
-                <li><a href="{{ url_for('settings') }}">⚙️ Настройки</a></li>
-                <li><a href="{{ url_for('logout') }}" class="logout">Выход</a></li>
-            </ul>
-        </nav>
-        {% endif %}
+    <nav class="navbar">
+        <div class="navbar-brand">💕 LOVIO</div>
+        <div class="navbar-links">
+            <a href="/dashboard">📱</a>
+            <a href="/settings">⚙️</a>
+            <a href="/logout" class="logout">Выход</a>
+        </div>
+    </nav>
 
-        <main class="main-content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
-            {% block content %}{% endblock %}
-        </main>
-
-        {% if session.get('user_id') %}
-        <footer class="footer">
-            <p>💕 Made with love for couples | Couple Tracker v3.0</p>
-        </footer>
-        {% endif %}
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    {% block extra_js %}{% endblock %}
+    <footer>
+        <p>💕 LOVIO v5.0</p>
+    </footer>
 </body>
 </html>

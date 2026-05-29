@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>😊 Настроение</h1>
+    <label>Оценка настроения (1-10):</label>
+    <input type="range" id="mood-level" min="1" max="10" value="5">
+    <span id="mood-display">5</span>/10
+    <br><br>
+    <textarea id="mood-note" placeholder="Заметка..." maxlength="200"></textarea>
+    <button onclick="addMood()" class="btn">➕ Сохранить</button>
+</div>
+<script>
+document.getElementById('mood-level').addEventListener('input', function() {
+    document.getElementById('mood-display').textContent = this.value;
+});
+async function addMood() {
+    const resp = await fetch('{{ url_for("mood_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({mood: parseInt(document.getElementById('mood-level').value), note: document.getElementById('mood-note').value})
+    });
+    if (resp.ok) { alert('✅ Настроение записано!'); location.reload(); }
+}
+</script>
+{% endblock %}

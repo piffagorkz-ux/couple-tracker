@@ -1,260 +1,30 @@
 {% extends "base.html" %}
-
-{% block title %}Дневник - Couple Tracker{% endblock %}
-
 {% block content %}
-<div class="diary-page">
-    <div class="diary-header">
-        <h1>📝 Наш дневник</h1>
-        <p>Записывайте ваши самые дорогие моменты</p>
-    </div>
-
-    <div class="diary-input">
-        <h2>Добавить запись</h2>
-        <form id="diary-form" class="diary-form">
-            <textarea 
-                id="diary-text"
-                placeholder="Что произошло интересного? 💭"
-                rows="6"
-                maxlength="1000"
-                required
-            ></textarea>
-            <div class="form-actions">
-                <span class="char-count"><span id="char-count">0</span>/1000</span>
-                <button type="submit" class="btn btn-primary">📝 Добавить запись</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="diary-entries">
-        <h2>💭 Записи ({{ entries|length }})</h2>
-        {% if entries %}
-        <div class="entries-list">
-            {% for entry in entries|reverse %}
-            <div class="entry">
-                <div class="entry-header">
-                    <span class="entry-author">{{ entry.author }}</span>
-                    <span class="entry-date">{{ entry.date }}</span>
-                </div>
-                <div class="entry-content">
-                    {{ entry.text }}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-message">
-            <p>📖 Дневник пока пуст. Начните записывать ваши моменты! 💕</p>
-        </div>
-        {% endif %}
-    </div>
+<div class="card">
+    <h1>📝 Дневник</h1>
+    <textarea id="diary-text" placeholder="Напишите запись в дневник..." maxlength="1000"></textarea>
+    <button onclick="addDiary()" class="btn">📝 Добавить</button>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-.diary-page {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.diary-header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.diary-header h1 {
-    font-size: 2.5em;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.diary-header p {
-    margin: 0;
-    color: #999;
-    font-size: 1.1em;
-}
-
-.diary-input {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 40px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #f0f0f0;
-}
-
-.diary-input h2 {
-    font-size: 1.3em;
-    color: #333;
-    margin-top: 0;
-}
-
-.diary-form {
-    margin-top: 20px;
-}
-
-.diary-form textarea {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1em;
-    font-family: inherit;
-    resize: vertical;
-    transition: border-color 0.3s;
-}
-
-.diary-form textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-.char-count {
-    color: #999;
-    font-size: 0.9em;
-}
-
-.diary-entries {
-    margin-top: 40px;
-}
-
-.diary-entries h2 {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.entries-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.entry {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #667eea;
-    transition: transform 0.2s;
-}
-
-.entry:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.entry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.entry-author {
-    font-weight: 600;
-    color: #333;
-}
-
-.entry-date {
-    color: #999;
-    font-size: 0.9em;
-}
-
-.entry-content {
-    color: #555;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.empty-message {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 10px;
-    padding: 40px 20px;
-    text-align: center;
-    color: #666;
-}
-
-.empty-message p {
-    margin: 0;
-    font-size: 1.1em;
-}
-
-@media (max-width: 768px) {
-    .diary-page {
-        padding: 10px;
-    }
-
-    .diary-input {
-        padding: 20px;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-        gap: 15px;
-    }
-
-    .form-actions button {
-        width: 100%;
-    }
-}
-</style>
-{% endblock %}
-
-{% block extra_js %}
+{% if entries %}
+<div class="card">
+    {% for entry in entries|reverse %}
+    <div style="background: #f5f5f5; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
+        <p>{{ entry.text }}</p>
+        <small style="color: #999;">{{ entry.author }} • {{ entry.date }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 <script>
-const textarea = document.getElementById('diary-text');
-const charCount = document.getElementById('char-count');
-
-textarea.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-});
-
-document.getElementById('diary-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const text = textarea.value.trim();
-    if (!text) {
-        alert('Запись не может быть пустой');
-        return;
-    }
-
-    try {
-        const response = await fetch('{{ url_for("diary_add") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: text })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            textarea.value = '';
-            charCount.textContent = '0';
-            alert('✅ Запись добавлена!');
-            setTimeout(() => location.reload(), 500);
-        } else {
-            alert('❌ Ошибка: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Ошибка при добавлении записи');
-    }
-});
+async function addDiary() {
+    const text = document.getElementById('diary-text').value.trim();
+    if (!text) return;
+    const resp = await fetch('{{ url_for("diary_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text})
+    });
+    if (resp.ok) { document.getElementById('diary-text').value = ''; alert('✅ Запись добавлена!'); location.reload(); }
+}
 </script>
 {% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>💌 Признания</h1>
+    <form id="add-confession-form">
+        <textarea id="confession-text" placeholder="Напишите ваше признание..." required maxlength="500"></textarea>
+        <button type="submit" class="btn">➕ Добавить</button>
+    </form>
+</div>
+
+{% if confessions %}
+<div class="card">
+    <h2>Ваши признания</h2>
+    {% for confession in confessions|reverse %}
+    <div style="background: #f5f5f5; padding: 1rem; margin: 1rem 0; border-radius: 8px; border-left: 4px solid #FF1493;">
+        <p>{{ confession.text }}</p>
+        <small style="color: #999;">{{ confession.author }} • {{ confession.date }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+document.getElementById('add-confession-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = document.getElementById('confession-text').value.trim();
+    if (!text) return;
+    
+    const resp = await fetch('{{ url_for("confessions_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text})
+    });
+    
+    if (resp.ok) {
+        document.getElementById('confession-text').value = '';
+        alert('✅ Признание добавлено!');
+        location.reload();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>📅 Важные даты</h1>
+    <input type="text" id="imp-title" placeholder="Событие...">
+    <input type="date" id="imp-date">
+    <button onclick="addImpDate()" class="btn">📅 Добавить</button>
+</div>
+{% if dates %}
+<div class="card">
+    {% for d in dates %}
+    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
+        <p>{{ d.title }} 🎉 {{ d.date }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<script>
+async function addImpDate() {
+    const title = document.getElementById('imp-title').value.trim();
+    const date = document.getElementById('imp-date').value;
+    if (!title || !date) return;
+    await fetch('{{ url_for("important_dates_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, date})
+    });
+    location.reload();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>🌙 Check-in</h1>
+    <textarea id="checkin-text" placeholder="Как дела? Что произошло сегодня?" maxlength="500"></textarea>
+    <button onclick="addCheckin()" class="btn">💬 Отправить</button>
+</div>
+{% if checkins %}
+<div class="card">
+    {% for c in checkins|reverse %}
+    <div style="padding: 1rem; margin: 1rem 0; border-left: 4px solid #FF1493; background: #f5f5f5;">
+        <p>{{ c.text }}</p>
+        <small style="color: #999;">{{ c.author }} • {{ c.date }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<script>
+async function addCheckin() {
+    const text = document.getElementById('checkin-text').value.trim();
+    if (!text) return;
+    const resp = await fetch('{{ url_for("checkin_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text})
+    });
+    if (resp.ok) { document.getElementById('checkin-text').value = ''; alert('✅ Check-in добавлен!'); location.reload(); }
+}
+</script>
+{% endblock %}

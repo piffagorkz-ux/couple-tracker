@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>🗺️ Места</h1>
+    <input type="text" id="place-name" placeholder="Название места">
+    <select id="place-type">
+        <option value="visited">✅ Посетили</option>
+        <option value="wish">🌟 Хотим посетить</option>
+    </select>
+    <button onclick="addPlace()" class="btn">🗺️ Добавить</button>
+</div>
+{% if places %}
+<div class="card">
+    {% for p in places|reverse %}
+    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
+        <p>{{ p.name }} {% if p.type == 'visited' %}✅{% else %}🌟{% endif %}</p>
+        <small style="color: #999;">{{ p.date }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<script>
+async function addPlace() {
+    const name = document.getElementById('place-name').value.trim();
+    const type = document.getElementById('place-type').value;
+    if (!name) return;
+    const resp = await fetch('{{ url_for("places_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, type})
+    });
+    if (resp.ok) { location.reload(); }
+}
+</script>
+{% endblock %}

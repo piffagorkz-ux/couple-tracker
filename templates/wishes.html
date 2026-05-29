@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>🎁 Вишлист</h1>
+    <input type="text" id="wish-text" placeholder="Желание...">
+    <input type="number" id="wish-price" placeholder="Цена (опционально)" min="0">
+    <button onclick="addWish()" class="btn">🎁 Добавить</button>
+</div>
+{% if wishes %}
+<div class="card">
+    {% for w in wishes|reverse %}
+    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
+        <p>{{ w.text }} {% if w.price %}<strong>${{ w.price }}</strong>{% endif %}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<script>
+async function addWish() {
+    const text = document.getElementById('wish-text').value.trim();
+    const price = document.getElementById('wish-price').value;
+    if (!text) return;
+    await fetch('{{ url_for("wishes_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text, price: parseInt(price) || 0})
+    });
+    location.reload();
+}
+</script>
+{% endblock %}

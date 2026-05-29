@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h1>💋 Свидания</h1>
+    <input type="text" id="date-title" placeholder="Название">
+    <input type="date" id="date-date">
+    <button onclick="addDate()" class="btn">➕ Добавить</button>
+    <button onclick="randomDate()" class="btn" style="background: #FF9800;">🎲 Случайная идея</button>
+</div>
+<div id="random-idea"></div>
+{% if dates %}
+<div class="card">
+    {% for d in dates|reverse %}
+    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
+        <p>{{ d.title }} 📅 {{ d.date }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<script>
+async function addDate() {
+    const title = document.getElementById('date-title').value.trim();
+    const date = document.getElementById('date-date').value;
+    if (!title || !date) return;
+    const resp = await fetch('{{ url_for("dates_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, date})
+    });
+    if (resp.ok) { location.reload(); }
+}
+async function randomDate() {
+    const resp = await fetch('{{ url_for("random_date_api") }}');
+    const data = await resp.json();
+    document.getElementById('random-idea').innerHTML = `<div class="card"><h2>🎲 Идея свидания</h2><p style="font-size: 2em;">${data.emoji}</p><p>${data.text}</p></div>`;
+}
+</script>
+{% endblock %}
