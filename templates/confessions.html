@@ -2,29 +2,36 @@
 {% block content %}
 <div class="card">
     <h1>💌 Признания</h1>
-    <form id="add-confession-form">
-        <textarea id="confession-text" placeholder="Напишите ваше признание..." required maxlength="500"></textarea>
-        <button type="submit" class="btn">➕ Добавить</button>
-    </form>
+    <textarea id="confession-text" placeholder="Напишите ваше признание в любви... 💕" maxlength="500"></textarea>
+    <button onclick="addConfession()" class="btn">💌 Отправить</button>
 </div>
 
 {% if confessions %}
 <div class="card">
-    <h2>Ваши признания</h2>
-    {% for confession in confessions|reverse %}
-    <div style="background: #f5f5f5; padding: 1rem; margin: 1rem 0; border-radius: 8px; border-left: 4px solid #FF1493;">
-        <p>{{ confession.text }}</p>
-        <small style="color: #999;">{{ confession.author }} • {{ confession.date }}</small>
+    <h2>💕 Ваши признания</h2>
+    {% for c in confessions|reverse %}
+    <div style="padding: 1.5rem; margin: 1rem 0; background: linear-gradient(135deg, #FFE5F0 0%, #F0E5FF 100%); border-left: 4px solid #FF1493; border-radius: 8px;">
+        <p style="font-size: 1.1em; line-height: 1.6; margin: 0; color: #333;">{{ c.text }}</p>
+        <p style="margin-top: 1rem; color: #FF1493; font-size: 0.9em; font-weight: 600;">💌 Отправлено: {{ c.author }} • {{ c.date }}</p>
+        <p style="margin: 0.5rem 0; color: #667eea; font-size: 0.85em;">✉️ Уведомление отправлено партнёру</p>
     </div>
     {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 2rem;">
+    <p style="color: #999; font-size: 1.2em;">💌 Ещё нет признаний...</p>
+    <p style="color: #999;">Начните с чего-нибудь сладкого! 🍫💕</p>
 </div>
 {% endif %}
 
 <script>
-document.getElementById('add-confession-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+async function addConfession() {
     const text = document.getElementById('confession-text').value.trim();
-    if (!text) return;
+    
+    if (!text) {
+        alert('Напишите признание');
+        return;
+    }
     
     const resp = await fetch('{{ url_for("confessions_add") }}', {
         method: 'POST',
@@ -34,9 +41,9 @@ document.getElementById('add-confession-form').addEventListener('submit', async 
     
     if (resp.ok) {
         document.getElementById('confession-text').value = '';
-        alert('✅ Признание добавлено!');
+        alert('✅ Признание отправлено!\n💬 Партнёр получит уведомление');
         location.reload();
     }
-});
+}
 </script>
 {% endblock %}

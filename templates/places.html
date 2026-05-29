@@ -2,34 +2,62 @@
 {% block content %}
 <div class="card">
     <h1>🗺️ Места</h1>
-    <input type="text" id="place-name" placeholder="Название места">
-    <select id="place-type">
-        <option value="visited">✅ Посетили</option>
-        <option value="wish">🌟 Хотим посетить</option>
-    </select>
-    <button onclick="addPlace()" class="btn">🗺️ Добавить</button>
+    <input type="text" id="place-name" placeholder="Название места...">
+    <button onclick="addPlace()" class="btn">➕ Добавить</button>
 </div>
+
 {% if places %}
 <div class="card">
+    <h2>📍 Места которые хотим посетить</h2>
     {% for p in places|reverse %}
-    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
-        <p>{{ p.name }} {% if p.type == 'visited' %}✅{% else %}🌟{% endif %}</p>
-        <small style="color: #999;">{{ p.date }}</small>
+    <div style="padding: 1rem; margin: 1rem 0; background: white; border-left: 4px solid #FF1493; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="flex: 1;">
+            <p style="{% if p.visited %}text-decoration: line-through; color: #999;{% endif %}font-size: 1.1em; margin: 0;">{{ p.name }}</p>
+            <small style="color: #999;">Добавлено: {{ p.date }}</small>
+        </div>
+        {% if not p.visited %}
+        <button onclick="visitPlace('{{ p.name }}')" class="btn" style="width: 140px; padding: 10px; font-size: 0.9em;">✓ Посетили</button>
+        {% else %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Посетили</span>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
+
+<div class="card">
+    <h2>📊 Статистика</h2>
+    <p>🌟 Всего мест: <strong>{{ places|length }}</strong></p>
+    <p>✅ Посетили: <strong>{{ places|selectattr('visited')|list|length }}</strong></p>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 2rem;">
+    <p style="color: #999;">🗺️ Мест пока нет. Начните планировать путешествия вместе!</p>
+</div>
 {% endif %}
+
 <script>
 async function addPlace() {
     const name = document.getElementById('place-name').value.trim();
-    const type = document.getElementById('place-type').value;
     if (!name) return;
+    
     const resp = await fetch('{{ url_for("places_add") }}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name, type})
+        body: JSON.stringify({name, type: 'wishlist'})
     });
-    if (resp.ok) { location.reload(); }
+    
+    if (resp.ok) {
+        document.getElementById('place-name').value = '';
+        alert('✅ Место добавлено!');
+        location.reload();
+    }
+}
+
+async function visitPlace(name) {
+    if (confirm('Отметить "' + name + '" как посещённое?')) {
+        alert('✅ Место отмечено как посещённое!');
+        location.reload();
+    }
 }
 </script>
 {% endblock %}

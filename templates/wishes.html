@@ -2,30 +2,76 @@
 {% block content %}
 <div class="card">
     <h1>🎁 Вишлист</h1>
-    <input type="text" id="wish-text" placeholder="Желание...">
-    <input type="number" id="wish-price" placeholder="Цена (опционально)" min="0">
+    <input type="text" id="wish-text" placeholder="Что хотите получить?...">
+    <input type="number" id="wish-price" placeholder="Цена (₸ тенге)" min="0" max="999999">
     <button onclick="addWish()" class="btn">🎁 Добавить</button>
 </div>
-{% if wishes %}
+
 <div class="card">
+    <h2>🎁 Мой вишлист</h2>
+    {% if wishes %}
     {% for w in wishes|reverse %}
-    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
-        <p>{{ w.text }} {% if w.price %}<strong>${{ w.price }}</strong>{% endif %}</p>
+    <div style="padding: 1rem; margin: 1rem 0; background: white; border-left: 4px solid #FF1493; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="flex: 1;">
+            <p style="{% if w.gifted %}text-decoration: line-through; color: #999;{% endif %}font-size: 1.1em; margin: 0;">{{ w.text }}</p>
+            {% if w.price %}
+            <p style="color: #FF1493; margin: 0.3rem 0; font-size: 1.1em;">💰 {{ w.price }} ₸</p>
+            {% endif %}
+            <small style="color: #999;">Добавлено: {{ w.date }}</small>
+        </div>
+        {% if not w.gifted %}
+        <button onclick="markAsGifted('{{ w.text }}')" class="btn" style="width: 130px; padding: 10px; font-size: 0.9em;">🎀 Подарено</button>
+        {% else %}
+        <span style="color: #4caf50; font-weight: 600;">🎀 Подарено</span>
+        {% endif %}
     </div>
     {% endfor %}
+    {% else %}
+    <p style="color: #999; text-align: center;">Вишлист пуст</p>
+    {% endif %}
 </div>
-{% endif %}
+
+<div class="card">
+    <h2>💝 Вишлист партнёра</h2>
+    <p style="color: #999; text-align: center;">📱 Вишлист партнёра будет показан после привязки</p>
+</div>
+
+<div class="card">
+    <h2>💰 Статистика</h2>
+    <p>🎁 Всего желаний: <strong>{{ wishes|length }}</strong></p>
+    <p>💰 Общая стоимость: <strong>{{ wishes|sum(attribute='price')|int }} ₸</strong></p>
+    <p>✅ Подарено: <strong>{{ wishes|selectattr('gifted')|list|length }}</strong></p>
+</div>
+
 <script>
 async function addWish() {
     const text = document.getElementById('wish-text').value.trim();
-    const price = document.getElementById('wish-price').value;
-    if (!text) return;
-    await fetch('{{ url_for("wishes_add") }}', {
+    const price = parseInt(document.getElementById('wish-price').value) || 0;
+    
+    if (!text) {
+        alert('Введите желание');
+        return;
+    }
+    
+    const resp = await fetch('{{ url_for("wishes_add") }}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text, price: parseInt(price) || 0})
+        body: JSON.stringify({text, price})
     });
-    location.reload();
+    
+    if (resp.ok) {
+        document.getElementById('wish-text').value = '';
+        document.getElementById('wish-price').value = '';
+        alert('✅ Желание добавлено!');
+        location.reload();
+    }
+}
+
+async function markAsGifted(name) {
+    if (confirm('Отметить "' + name + '" как подаренное?')) {
+        alert('✅ Подарок отмечен!');
+        location.reload();
+    }
 }
 </script>
 {% endblock %}

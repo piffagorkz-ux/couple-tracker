@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOVIO - Вход</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #FF1493 0%, #667eea 100%);
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e13d3c 0%, #ed6c72 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -17,9 +18,9 @@
         }
         .login-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 2.5rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(108, 4, 20, 0.25);
             max-width: 400px;
             width: 100%;
         }
@@ -29,11 +30,13 @@
         }
         .login-header h1 {
             font-size: 2.5em;
-            color: #FF1493;
+            color: #e13d3c;
             margin-bottom: 0.5rem;
+            font-weight: 700;
         }
         .login-header p {
-            color: #999;
+            color: #9c686b;
+            font-weight: 500;
         }
         .form-group {
             margin-bottom: 1.5rem;
@@ -41,25 +44,29 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: #6c0414;
             font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
         }
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 2px solid #d6a7b3;
+            border-radius: 10px;
             font-size: 1em;
+            font-family: 'Montserrat', sans-serif;
         }
         .form-group input:focus {
             outline: none;
-            border-color: #FF1493;
+            border-color: #e13d3c;
+            box-shadow: 0 0 0 4px rgba(225, 61, 60, 0.1);
         }
         .form-group small {
             display: block;
-            color: #999;
+            color: #9c686b;
             margin-top: 0.3rem;
             font-size: 0.9em;
+            font-weight: 500;
         }
         .checkbox-group {
             display: flex;
@@ -71,35 +78,40 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
+            accent-color: #e13d3c;
         }
         .checkbox-group label {
             margin: 0;
-            color: #666;
+            color: #6c0414;
             cursor: pointer;
-            font-weight: 400;
+            font-weight: 500;
         }
         .btn-login {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #FF1493 0%, #667eea 100%);
+            background: linear-gradient(135deg, #e13d3c 0%, #ed6c72 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
         .btn-login:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(225, 61, 60, 0.3);
         }
         .error-msg {
-            background: #ffebee;
+            background: #fce4e4;
             color: #c62828;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 1rem;
             display: none;
+            font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
         }
     </style>
 </head>
@@ -134,7 +146,6 @@
     </div>
 
     <script>
-        // Загружаем сохранённые данные
         window.addEventListener('load', function() {
             const name = localStorage.getItem('lovio_name');
             const id = localStorage.getItem('lovio_id');
@@ -144,7 +155,6 @@
             }
         });
 
-        // Отправка формы
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -158,7 +168,6 @@
                 return;
             }
             
-            // Сохраняем в localStorage
             if (remember) {
                 localStorage.setItem('lovio_name', name);
                 localStorage.setItem('lovio_id', user_id);
@@ -167,7 +176,6 @@
                 localStorage.removeItem('lovio_id');
             }
             
-            // Отправляем
             const formData = new FormData();
             formData.append('name', name);
             formData.append('user_id', user_id);
