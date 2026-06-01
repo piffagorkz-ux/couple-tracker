@@ -26,7 +26,8 @@ def save_data(data):
 
 def get_user(data, uid):
     uid = str(uid)
-    if "users" not in data: data["users"] = {}
+    if "users" not in data: 
+        data["users"] = {}
     if uid not in data["users"]:
         data["users"][uid] = {"name": "", "partner_id": None, "gender": "female"}
     return data["users"][uid]
@@ -35,7 +36,8 @@ def ck(id1, id2):
     return f"{min(int(id1), int(id2))}_{max(int(id1), int(id2))}"
 
 def get_couple(data, key):
-    if "couples" not in data: data["couples"] = {}
+    if "couples" not in data: 
+        data["couples"] = {}
     if key not in data["couples"]:
         data["couples"][key] = {
             "diary": [], "mood": [], "activities": [], "goals": [], "places": [],
@@ -43,16 +45,13 @@ def get_couple(data, key):
             "wishes": [], "notifications": [],
             "stats": {"diary": 0, "goals": 0, "places": 0, "activities": 0, "closeness": 50}
         }
-    else:
-        couple = data["couples"][key]
-        if "notifications" not in couple: couple["notifications"] = []
-        if "activities" not in couple: couple["activities"] = []
     return data["couples"][key]
 
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if "user_id" not in session: return redirect(url_for("login"))
+        if "user_id" not in session: 
+            return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated
 
@@ -63,9 +62,15 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        uid, name, gender = request.form.get("user_id", "").strip(), request.form.get("name", "").strip(), request.form.get("gender", "female")
+        uid = request.form.get("user_id", "").strip()
+        name = request.form.get("name", "").strip()
+        gender = request.form.get("gender", "female")
+        
         if uid and name:
-            session["user_id"], session["name"], session["gender"] = uid, name, gender
+            session["user_id"] = uid
+            session["name"] = name
+            session["gender"] = gender
+            
             data = load_data()
             user = get_user(data, uid)
             user["name"] = name
@@ -86,19 +91,12 @@ def dashboard():
     data = load_data()
     user = get_user(data, session["user_id"])
     stats = {"name": session.get("name"), "gender": session.get("gender"), "partner_id": user.get("partner_id")}
-    notifications_count = {}
     
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["stats"] = couple.get("stats", {})
-        
-        # Считаем уведомления
-        notifications = couple.get("notifications", [])
-        for notif in notifications:
-            notif_type = notif.get("type", "")
-            notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
     
-    return render_template("dashboard.html", stats=stats, notifications=notifications_count)
+    return render_template("dashboard.html", stats=stats)
 
 @app.route("/diary")
 @login_required
@@ -140,12 +138,12 @@ def mood_add():
     mood_level = request.json.get("mood", 5)
     couple["mood"].append({"level": mood_level, "date": str(date.today()), "author": session.get("name")})
     
-    # Проверяем климат пары
     today_moods = [m for m in couple["mood"] if m["date"] == str(date.today())]
     if len(today_moods) >= 2:
         avg_mood = sum([m["level"] for m in today_moods]) / len(today_moods)
         if avg_mood < 4:
-            couple["notifications"].append({"type": "crisis", "text": "⚠️ Климат в отношениях нестабилен. Предложите партнёру время вместе", "read": False, "date": str(date.today())})
+            if "notifications" not in couple: couple["notifications"] = []
+            couple["notifications"].append({"type": "crisis", "text": "Климат нестабилен", "read": False})
     
     save_data(data)
     return jsonify({"success": True})
@@ -157,14 +155,8 @@ def activities():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     gender = session.get("gender")
-    if gender == "male":
-        tasks = ["💪 Поддержка", "🤗 Объятия", "❤️ Секс", "🎁 Подарок", "💬 Разговор по душам", "🎯 Помощь в деле"]
-    else:
-        tasks = ["💋 Комплимент", "💋 Свидание", "🌹 Цветы", "💌 Письмо любви", "🎁 Сюрприз", "🎬 Фильм вместе"]
-    
-    return render_template("activities.html", activities=couple["activities"], tasks=tasks)
+    return render_template("activities.html", activities=couple["activities"], gender=gender)
 
 @app.route("/api/activities/assign", methods=["POST"])
 @login_required
@@ -172,30 +164,11 @@ def activities_assign():
     data = load_data()
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     task = request.json.get("task")
-    
-    couple["activities"].append({"task": task, "from": session.get("name"), "to": user["partner_id"], "date": str(date.today()), "completed": False})
-    couple["notifications"].append({"type": "activity", "text": f"📋 {session.get('name')} назначил(а) задание: {task}", "read": False, "date": str(date.today())})
-    
+    couple["activities"].append({"task": task, "from": session.get("name"), "date": str(date.today()), "completed": False})
     save_data(data)
     return jsonify({"success": True})
-
-@app.route("/api/activities/complete/<int:aid>", methods=["POST"])
-@login_required
-def activities_complete(aid):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
-    if aid < len(couple["activities"]):
-        couple["activities"][aid]["completed"] = True
-        couple["stats"]["activities"] = len([a for a in couple["activities"] if a.get("completed")])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
 
 @app.route("/places")
 @login_required
@@ -215,7 +188,6 @@ def places_add():
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["places"].append({"name": request.json.get("name"), "visited": False, "date": str(date.today())})
     couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
-    couple["notifications"].append({"type": "places", "text": f"📍 Новое место: {request.json.get('name')}", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -251,12 +223,7 @@ def dates_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    title = request.json.get("title")
-    date_val = request.json.get("date")
-    time = request.json.get("time", "")
-    
-    couple["dates_plan"].append({"title": title, "date": date_val, "time": time, "created": str(date.today()), "status": "pending"})
-    couple["notifications"].append({"type": "dates", "text": f"💋 {session.get('name')} предложил(а): {title}", "read": False, "date": str(date.today())})
+    couple["dates_plan"].append({"title": request.json.get("title"), "date": request.json.get("date"), "time": request.json.get("time", ""), "status": "pending"})
     save_data(data)
     return jsonify({"success": True})
 
@@ -267,10 +234,8 @@ def dates_respond(did):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    response = request.json.get("response")  # "accept" или "decline"
-    
     if did < len(couple["dates_plan"]):
-        couple["dates_plan"][did]["status"] = response
+        couple["dates_plan"][did]["status"] = request.json.get("response")
         save_data(data)
         return jsonify({"success": True})
     return jsonify({"error": ""}), 404
@@ -338,7 +303,6 @@ def habits_complete(hid):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     if hid < len(couple["habits"]):
         habit = couple["habits"][hid]
         today = str(date.today())
@@ -366,7 +330,6 @@ def wishes_add():
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["wishes"].append({"text": request.json.get("text"), "price": request.json.get("price", 0), "gifted": False, "date": str(date.today())})
-    couple["notifications"].append({"type": "wishes", "text": f"🎁 Новое желание: {request.json.get('text')}", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -402,7 +365,6 @@ def confessions_add():
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["confessions"].append({"text": request.json.get("text"), "date": str(date.today()), "author": session.get("name")})
-    couple["notifications"].append({"type": "confessions", "text": "💌 Новое признание!", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -433,45 +395,56 @@ def random_date_api():
         {"emoji": "🍽️", "text": "Романтический ужин дома"},
         {"emoji": "🎬", "text": "Кино вечер с попкорном"},
         {"emoji": "🚶", "text": "Прогулка в парке"},
-        {"emoji": "🎨", "text": "Посещение арт-выставки"},
-        {"emoji": "🎪", "text": "Концерт или живая музыка"},
+        {"emoji": "🎨", "text": "Посещение выставки"},
+        {"emoji": "🎪", "text": "Концерт"},
         {"emoji": "🏖️", "text": "Пикник на природе"},
-        {"emoji": "🎮", "text": "Вечер видеоигр вместе"},
-        {"emoji": "📚", "text": "Литературный клуб дома"},
-        {"emoji": "🏃", "text": "Спортивная активность вместе"},
-        {"emoji": "🍜", "text": "Готовим новое блюдо вместе"},
-        {"emoji": "🏊", "text": "Поход в бассейн или на озеро"},
-        {"emoji": "🎭", "text": "Театральное представление"},
-        {"emoji": "🛍️", "text": "Шопинг и кофе после"},
-        {"emoji": "🚗", "text": "Спонтанная поездка на машине"},
-        {"emoji": "📸", "text": "Фотосессия в красивом месте"},
-        {"emoji": "🌙", "text": "Пикник под звёздами"},
-        {"emoji": "💆", "text": "Спа вечер дома с массажем"},
-        {"emoji": "🧘", "text": "Йога и медитация вместе"},
-        {"emoji": "🍰", "text": "Пекли торт вместе"},
-        {"emoji": "🎤", "text": "Караоке ночь"},
-        {"emoji": "🚴", "text": "Велосипедная прогулка"},
-        {"emoji": "⛰️", "text": "Поход в горы"},
-        {"emoji": "🌸", "text": "Прогулка по цветущему саду"},
-        {"emoji": "🎨", "text": "Рисуем портреты друг друга"},
-        {"emoji": "🍜", "text": "Пробуем новый ресторан"},
-        {"emoji": "🧗", "text": "Скалолазание или парк аттракционов"},
-        {"emoji": "🌊", "text": "Серфинг или водные виды спорта"},
-        {"emoji": "📖", "text": "Читаем книгу вслух друг другу"},
-        {"emoji": "🎸", "text": "Домашний концерт друг для друга"},
-        {"emoji": "🌅", "text": "Встреча рассвета на природе"},
-        {"emoji": "🍕", "text": "Делаем пиццу дома с нуля"},
-        {"emoji": "🎓", "text": "Учимся чему-то новому вместе"},
-        {"emoji": "💍", "text": "Годовщина или особый ужин"},
-        {"emoji": "🚀", "text": "Планетарий или обсерватория"},
-        {"emoji": "🏛️", "text": "Посещение музея"},
-        {"emoji": "🌍", "text": "Виртуальное путешествие в другую страну"},
-        {"emoji": "🎉", "text": "Вечеринка для двоих с музыкой и танцами"},
-        {"emoji": "🧩", "text": "Собираем пазл или настольную игру"},
-        {"emoji": "☕", "text": "Кофе-дата с разговорами по душам"},
     ]
     return jsonify(random.choice(ideas))
 
+@app.route("/settings")
+@login_required
+def settings():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"), gender=session.get("gender"))
+
+@app.route("/api/settings/update", methods=["POST"])
+@login_required
+def settings_update():
+    name = request.json.get("name", "").strip()
+    if name:
+        session["name"] = name
+        data = load_data()
+        get_user(data, session["user_id"])["name"] = name
+        save_data(data)
+        return jsonify({"success": True})
+    return jsonify({"error": "Invalid"}), 400
+
+@app.route("/api/partner/set", methods=["POST"])
+@login_required
+def set_partner():
+    uid = session["user_id"]
+    pid = request.json.get("partner_id", "").strip()
+    if not pid or pid == uid: 
+        return jsonify({"error": "Invalid"}), 400
+    data = load_data()
+    get_user(data, uid)["partner_id"] = pid
+    get_user(data, pid)["partner_id"] = uid
+    get_couple(data, ck(uid, pid))
+    save_data(data)
+    return jsonify({"success": True})
+
+@app.errorhandler(404)
+def not_found(e): 
+    return render_template("404.html"), 404
+
+@app.errorhandler(500)
+def server_error(e): 
+    return render_template("500.html"), 500
+
+@app.route("/health")
+def health(): 
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
