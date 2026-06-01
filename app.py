@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
-import json, os, random, qrcode, io, base64
+import json, os, random
 from datetime import datetime, date, timedelta
 from functools import wraps
 
@@ -472,61 +472,6 @@ def random_date_api():
     ]
     return jsonify(random.choice(ideas))
 
-@app.route("/api/qr-code")
-@login_required
-def qr_code():
-    user_id = session.get("user_id")
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(user_id)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr)
-    img_byte_arr.seek(0)
-    img_base64 = base64.b64encode(img_byte_arr.getvalue()).decode()
-    
-    return jsonify({"qr_code": f"data:image/png;base64,{img_base64}"})
-
-@app.route("/settings")
-@login_required
-def settings():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"), gender=session.get("gender"))
-
-@app.route("/api/settings/update", methods=["POST"])
-@login_required
-def settings_update():
-    name = request.json.get("name", "").strip()
-    if name:
-        session["name"] = name
-        data = load_data()
-        get_user(data, session["user_id"])["name"] = name
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": "Invalid"}), 400
-
-@app.route("/api/partner/set", methods=["POST"])
-@login_required
-def set_partner():
-    uid, pid = session["user_id"], request.json.get("partner_id", "").strip()
-    if not pid or pid == uid: return jsonify({"error": "Invalid"}), 400
-    data = load_data()
-    get_user(data, uid)["partner_id"] = pid
-    get_user(data, pid)["partner_id"] = uid
-    get_couple(data, ck(uid, pid))
-    save_data(data)
-    return jsonify({"success": True})
-
-@app.errorhandler(404)
-def not_found(e): return render_template("404.html"), 404
-
-@app.errorhandler(500)
-def server_error(e): return render_template("500.html"), 500
-
-@app.route("/health")
-def health(): return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
