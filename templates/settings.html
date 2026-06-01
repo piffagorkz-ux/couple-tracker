@@ -1,26 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>⚙️ Настройки</h1>
-    <label>Имя:</label>
-    <input type="text" id="settings-name" value="{{ name }}">
-    <button onclick="updateSettings()" class="btn">💾 Сохранить</button>
+    <h1>Страница загружается...</h1>
+    <p>Содержимое будет добавлено.</p>
 </div>
-<div class="card">
-    <h2>Информация</h2>
-    <p>ID: {{ user_id }}</p>
-    <p>Партнёр: {{ partner_id or 'Не привязан' }}</p>
-</div>
-<script>
-async function updateSettings() {
-    const name = document.getElementById('settings-name').value.trim();
-    if (!name) return;
-    const resp = await fetch('{{ url_for("settings_update") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name})
-    });
-    if (resp.ok) { alert('✅ Сохранено!'); }
-}
-</script>
 {% endblock %}

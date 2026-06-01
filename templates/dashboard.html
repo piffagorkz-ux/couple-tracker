@@ -1,112 +1,81 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOVIO - Дашборд</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-brand">💕 LOVIO</div>
-        <div class="navbar-links">
-            <a href="/settings">⚙️</a>
-            <a href="/logout" class="logout">Выход</a>
-        </div>
-    </nav>
+{% extends "base.html" %}
+{% block content %}
+<div class="welcome card">
+    <h1>👋 Добро пожаловать, {{ stats.name }}!</h1>
+    {% if stats.partner_id %}
+    <p>💕 Вы вместе с партнёром ID: {{ stats.partner_id }}</p>
+    {% else %}
+    <p>⚠️ <a href="/settings" style="color: white; text-decoration: underline;">Привяжите партнёра в настройках</a></p>
+    {% endif %}
+</div>
 
-    <main>
-        <div class="welcome card">
-            <h1>👋 Добро пожаловать, {{ stats.name }}!</h1>
-            {% if stats.partner_id %}
-            <p>💕 Вы вместе с партнёром ID: {{ stats.partner_id }}</p>
-            {% else %}
-            <p>⚠️ <a href="/partner" style="color: white; text-decoration: underline;">Привяжите партнёра</a> чтобы начать</p>
-            {% endif %}
-        </div>
+<h2 style="margin-top: 2rem;">Меню</h2>
+<div class="menu-grid">
+    <a href="/diary" class="menu-item">
+        <div class="menu-icon">📝</div>
+        <div class="menu-title">Дневник</div>
+    </a>
+    <a href="/mood" class="menu-item">
+        <div class="menu-icon">😊</div>
+        <div class="menu-title">Настроение</div>
+    </a>
+    <a href="/goals" class="menu-item">
+        <div class="menu-icon">🎯</div>
+        <div class="menu-title">Цели</div>
+    </a>
+    <a href="/places" class="menu-item">
+        <div class="menu-icon">🗺️</div>
+        <div class="menu-title">Места</div>
+    </a>
+    <a href="/dates" class="menu-item">
+        <div class="menu-icon">💋</div>
+        <div class="menu-title">Свидания</div>
+    </a>
+    <a href="/habits" class="menu-item">
+        <div class="menu-icon">💪</div>
+        <div class="menu-title">Привычки</div>
+    </a>
+    <a href="/activities" class="menu-item">
+        <div class="menu-icon">📋</div>
+        <div class="menu-title">Активности</div>
+    </a>
+    <a href="/wishes" class="menu-item">
+        <div class="menu-icon">🎁</div>
+        <div class="menu-title">Вишлист</div>
+    </a>
+    <a href="/confessions" class="menu-item">
+        <div class="menu-icon">💌</div>
+        <div class="menu-title">Признания</div>
+    </a>
+    <a href="/important-dates" class="menu-item">
+        <div class="menu-icon">📅</div>
+        <div class="menu-title">Важные даты</div>
+    </a>
+</div>
 
-        <h2 style="margin-top: 2rem;">Меню</h2>
-        <div class="menu-grid">
-            <a href="/diary" class="menu-item">
-                <div class="menu-icon">📝</div>
-                <div class="menu-title">Дневник</div>
-            </a>
-            <a href="/mood" class="menu-item">
-                <div class="menu-icon">😊</div>
-                <div class="menu-title">Настроение</div>
-            </a>
-            <a href="/goals" class="menu-item">
-                <div class="menu-icon">🎯</div>
-                <div class="menu-title">Цели</div>
-            </a>
-            <a href="/places" class="menu-item">
-                <div class="menu-icon">🗺️</div>
-                <div class="menu-title">Места</div>
-            </a>
-            <a href="/dates" class="menu-item">
-                <div class="menu-icon">💋</div>
-                <div class="menu-title">Свидания</div>
-            </a>
-            <a href="/habits" class="menu-item">
-                <div class="menu-icon">💪</div>
-                <div class="menu-title">Привычки</div>
-            </a>
-            <a href="/wishes" class="menu-item">
-                <div class="menu-icon">🎁</div>
-                <div class="menu-title">Вишлист</div>
-            </a>
-            <a href="/confessions" class="menu-item">
-                <div class="menu-icon">💌</div>
-                <div class="menu-title">Признания</div>
-            </a>
-            <a href="/important-dates" class="menu-item">
-                <div class="menu-icon">📅</div>
-                <div class="menu-title">Важные даты</div>
-            </a>
-            <a href="/checkin" class="menu-item">
-                <div class="menu-icon">🌙</div>
-                <div class="menu-title">Чекин</div>
-            </a>
-            <a href="/challenges" class="menu-item">
-                <div class="menu-icon">🎪</div>
-                <div class="menu-title">Челленджи</div>
-            </a>
-            <a href="/partner" class="menu-item">
-                <div class="menu-icon">👥</div>
-                <div class="menu-title">Партнёр</div>
-            </a>
-        </div>
-
-        {% if stats.stats %}
-        <h2 style="margin-top: 3rem;">📊 Статистика</h2>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.diary }}</div>
-                <div class="stat-label">Записей</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.goals }}</div>
-                <div class="stat-label">Целей</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.places }}</div>
-                <div class="stat-label">Мест</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.checkins }}</div>
-                <div class="stat-label">Чекинов</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">{{ stats.stats.closeness }}%</div>
-                <div class="stat-label">Близость</div>
-            </div>
-        </div>
-        {% endif %}
-    </main>
-
-    <footer>
-        <p>💕 LOVIO v7.0 - Made with love for couples</p>
-    </footer>
-</body>
-</html>
+{% if stats.stats %}
+<h2 style="margin-top: 3rem;">📊 Статистика</h2>
+<div class="stats">
+    <div class="stat">
+        <div class="stat-num">{{ stats.stats.diary }}</div>
+        <div class="stat-label">Записей</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ stats.stats.goals }}</div>
+        <div class="stat-label">Целей</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ stats.stats.places }}</div>
+        <div class="stat-label">Мест</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ stats.stats.activities }}</div>
+        <div class="stat-label">Активностей</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ stats.stats.closeness }}%</div>
+        <div class="stat-label">Близость</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

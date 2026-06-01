@@ -1,29 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>💪 Привычки</h1>
-    <input type="text" id="habit-text" placeholder="Новая привычка...">
-    <button onclick="addHabit()" class="btn">➕ Добавить</button>
+    <h1>Страница загружается...</h1>
+    <p>Содержимое будет добавлено.</p>
 </div>
-{% if habits %}
-<div class="card">
-    {% for h in habits %}
-    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
-        <p>{{ h.text }} 🔥 Streak: {{ h.streak }}</p>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-<script>
-async function addHabit() {
-    const text = document.getElementById('habit-text').value.trim();
-    if (!text) return;
-    await fetch('{{ url_for("habits_add") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text})
-    });
-    location.reload();
-}
-</script>
 {% endblock %}

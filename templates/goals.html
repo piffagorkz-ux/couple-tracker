@@ -1,42 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>🎯 Цели</h1>
-    <input type="text" id="goal-text" placeholder="Новая цель..." maxlength="200">
-    <button onclick="addGoal()" class="btn">🎯 Добавить</button>
+    <h1>Страница загружается...</h1>
+    <p>Содержимое будет добавлено.</p>
 </div>
-{% if goals %}
-<div class="card">
-    <h2>Ваши цели ({{ goals|length }})</h2>
-    {% for g in goals|reverse %}
-    <div style="background: white; padding: 1rem; margin: 1rem 0; border-left: 4px solid #FF1493; display: flex; justify-content: space-between; align-items: center; {% if g.completed %}opacity: 0.6;{% endif %}">
-        <div>
-            <p style="{% if g.completed %}text-decoration: line-through;{% endif %}">{{ g.text }}</p>
-            <small style="color: #999;">{{ g.date }}</small>
-        </div>
-        {% if not g.completed %}
-        <button onclick="completeGoal({{ g.id }})" class="btn" style="width: 120px;">✓ Готово</button>
-        {% else %}
-        <span>✅ Готово</span>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-<script>
-async function addGoal() {
-    const text = document.getElementById('goal-text').value.trim();
-    if (!text) return;
-    await fetch('{{ url_for("goals_add") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text})
-    });
-    location.reload();
-}
-async function completeGoal(id) {
-    await fetch('{{ url_for("goals_complete", gid=0) }}'.replace('0', id), {method: 'POST'});
-    location.reload();
-}
-</script>
 {% endblock %}

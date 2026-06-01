@@ -1,65 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>💋 Свидания</h1>
-    <input type="text" id="date-title" placeholder="Название свидания...">
-    <input type="date" id="date-date">
-    <input type="time" id="date-time" placeholder="Время">
-    <button onclick="addDate()" class="btn">➕ Планировать</button>
-    <button onclick="randomDate()" class="btn" style="background: #ef4284; margin-left: 0.5rem;">🎲 Случайная идея</button>
+    <h1>Страница загружается...</h1>
+    <p>Содержимое будет добавлено.</p>
 </div>
-
-<div id="random-idea"></div>
-
-{% if dates %}
-<div class="card">
-    <h2>📅 Планируемые свидания</h2>
-    {% for d in dates|reverse %}
-    <div style="padding: 1rem; margin: 1rem 0; background: white; border-left: 4px solid #cd2a63; border-radius: 8px;">
-        <p style="font-size: 1.1em; margin: 0;">{{ d.title }}</p>
-        <small style="color: #999;">📅 {{ d.date }}{% if d.get('time') %} ⏰ {{ d.time }}{% endif %}</small>
-        <p style="color: #cd2a63; margin-top: 0.5rem; font-size: 0.9em;">⏳ Уведомление отправлено партнёру</p>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<script>
-async function addDate() {
-    const title = document.getElementById('date-title').value.trim();
-    const date_val = document.getElementById('date-date').value;
-    const time = document.getElementById('date-time').value;
-    
-    if (!title || !date_val) {
-        alert('Заполните название и дату');
-        return;
-    }
-    
-    const resp = await fetch('{{ url_for("dates_add") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({title, date: date_val, time: time})
-    });
-    
-    if (resp.ok) {
-        document.getElementById('date-title').value = '';
-        document.getElementById('date-date').value = '';
-        document.getElementById('date-time').value = '';
-        alert('✅ Свидание запланировано!\n💬 Уведомление отправлено партнёру');
-        location.reload();
-    }
-}
-
-async function randomDate() {
-    const resp = await fetch('{{ url_for("random_date_api") }}');
-    const data = await resp.json();
-    document.getElementById('random-idea').innerHTML = `
-        <div class="card" style="background: #fff9e6; border-left: 4px solid #FFD700;">
-            <h2>🎲 Идея свидания</h2>
-            <p style="font-size: 3em; margin: 1rem 0; text-align: center;">${data.emoji}</p>
-            <p style="font-size: 1.2em; text-align: center; margin: 1rem 0;">${data.text}</p>
-        </div>
-    `;
-}
-</script>
 {% endblock %}
