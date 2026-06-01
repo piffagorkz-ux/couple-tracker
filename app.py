@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
-import json, os, random
+import json, os, random, qrcode, io, base64
 from datetime import datetime, date, timedelta
 from functools import wraps
 
@@ -28,7 +28,7 @@ def get_user(data, uid):
     uid = str(uid)
     if "users" not in data: data["users"] = {}
     if uid not in data["users"]:
-        data["users"][uid] = {"name": "", "partner_id": None}
+        data["users"][uid] = {"name": "", "partner_id": None, "gender": "female"}
     return data["users"][uid]
 
 def ck(id1, id2):
@@ -38,20 +38,15 @@ def get_couple(data, key):
     if "couples" not in data: data["couples"] = {}
     if key not in data["couples"]:
         data["couples"][key] = {
-            "tree_name": "💕 Наше деревце", "tree_health": 100, "tree_actions": [],
-            "diary": [], "mood": [], "checkins": [], "goals": [], "places": [],
+            "diary": [], "mood": [], "activities": [], "goals": [], "places": [],
             "dates_plan": [], "important_dates": [], "habits": [], "confessions": [],
-            "wishes": [], "challenges": [],
-            "stats": {"diary": 0, "goals": 0, "places": 0, "checkins": 0, "closeness": 50}
+            "wishes": [], "notifications": [],
+            "stats": {"diary": 0, "goals": 0, "places": 0, "activities": 0, "closeness": 50}
         }
     else:
-        # Убедитесь что все ключи существуют (для обновления данных)
         couple = data["couples"][key]
-        if "diary" not in couple: couple["diary"] = []
-        if "wishes" not in couple: couple["wishes"] = []
-        if "places" not in couple: couple["places"] = []
-        if "dates_plan" not in couple: couple["dates_plan"] = []
-        if "stats" not in couple: couple["stats"] = {"diary": 0, "goals": 0, "places": 0, "checkins": 0, "closeness": 50}
+        if "notifications" not in couple: couple["notifications"] = []
+        if "activities" not in couple: couple["activities"] = []
     return data["couples"][key]
 
 def login_required(f):
@@ -68,11 +63,13 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        uid, name = request.form.get("user_id", "").strip(), request.form.get("name", "").strip()
+        uid, name, gender = request.form.get("user_id", "").strip(), request.form.get("name", "").strip(), request.form.get("gender", "female")
         if uid and name:
-            session["user_id"], session["name"] = uid, name
+            session["user_id"], session["name"], session["gender"] = uid, name, gender
             data = load_data()
-            get_user(data, uid)["name"] = name
+            user = get_user(data, uid)
+            user["name"] = name
+            user["gender"] = gender
             save_data(data)
             return redirect(url_for("dashboard"))
         return render_template("login.html", error="Заполните все поля")
@@ -88,18 +85,27 @@ def logout():
 def dashboard():
     data = load_data()
     user = get_user(data, session["user_id"])
-    stats = {"name": session.get("name"), "partner_id": user.get("partner_id")}
+    stats = {"name": session.get("name"), "gender": session.get("gender"), "partner_id": user.get("partner_id")}
+    notifications_count = {}
+    
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["stats"] = couple.get("stats", {})
-    return render_template("dashboard.html", stats=stats)
+        
+        # Считаем уведомления
+        notifications = couple.get("notifications", [])
+        for notif in notifications:
+            notif_type = notif.get("type", "")
+            notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
+    
+    return render_template("dashboard.html", stats=stats, notifications=notifications_count)
 
 @app.route("/diary")
 @login_required
 def diary():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("diary.html", entries=couple["diary"])
 
@@ -120,7 +126,7 @@ def diary_add():
 def mood():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("mood.html", moods=couple["mood"])
 
@@ -131,37 +137,72 @@ def mood_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["mood"].append({"level": request.json.get("mood", 5), "note": request.json.get("note", ""), "date": str(date.today()), "author": session.get("name")})
+    mood_level = request.json.get("mood", 5)
+    couple["mood"].append({"level": mood_level, "date": str(date.today()), "author": session.get("name")})
+    
+    # Проверяем климат пары
+    today_moods = [m for m in couple["mood"] if m["date"] == str(date.today())]
+    if len(today_moods) >= 2:
+        avg_mood = sum([m["level"] for m in today_moods]) / len(today_moods)
+        if avg_mood < 4:
+            couple["notifications"].append({"type": "crisis", "text": "⚠️ Климат в отношениях нестабилен. Предложите партнёру время вместе", "read": False, "date": str(date.today())})
+    
     save_data(data)
     return jsonify({"success": True})
 
-@app.route("/checkin")
+@app.route("/activities")
 @login_required
-def checkin():
+def activities():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("checkin.html", checkins=couple["checkins"])
+    
+    gender = session.get("gender")
+    if gender == "male":
+        tasks = ["💪 Поддержка", "🤗 Объятия", "❤️ Секс", "🎁 Подарок", "💬 Разговор по душам", "🎯 Помощь в деле"]
+    else:
+        tasks = ["💋 Комплимент", "💋 Свидание", "🌹 Цветы", "💌 Письмо любви", "🎁 Сюрприз", "🎬 Фильм вместе"]
+    
+    return render_template("activities.html", activities=couple["activities"], tasks=tasks)
 
-@app.route("/api/checkin/add", methods=["POST"])
+@app.route("/api/activities/assign", methods=["POST"])
 @login_required
-def checkin_add():
+def activities_assign():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]: return jsonify({"error": ""}), 400
+    
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    task = request.json.get("task")
+    
+    couple["activities"].append({"task": task, "from": session.get("name"), "to": user["partner_id"], "date": str(date.today()), "completed": False})
+    couple["notifications"].append({"type": "activity", "text": f"📋 {session.get('name')} назначил(а) задание: {task}", "read": False, "date": str(date.today())})
+    
+    save_data(data)
+    return jsonify({"success": True})
+
+@app.route("/api/activities/complete/<int:aid>", methods=["POST"])
+@login_required
+def activities_complete(aid):
     data = load_data()
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["checkins"].append({"text": request.json.get("text"), "date": str(date.today()), "author": session.get("name")})
-    couple["stats"]["checkins"] += 1
-    save_data(data)
-    return jsonify({"success": True})
+    
+    if aid < len(couple["activities"]):
+        couple["activities"][aid]["completed"] = True
+        couple["stats"]["activities"] = len([a for a in couple["activities"] if a.get("completed")])
+        save_data(data)
+        return jsonify({"success": True})
+    return jsonify({"error": ""}), 404
 
 @app.route("/places")
 @login_required
 def places():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("places.html", places=couple["places"])
 
@@ -174,6 +215,7 @@ def places_add():
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["places"].append({"name": request.json.get("name"), "visited": False, "date": str(date.today())})
     couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
+    couple["notifications"].append({"type": "places", "text": f"📍 Новое место: {request.json.get('name')}", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -198,7 +240,7 @@ def places_visit():
 def dates():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("dates.html", dates=couple["dates_plan"])
 
@@ -209,16 +251,36 @@ def dates_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["dates_plan"].append({"title": request.json.get("title"), "date": request.json.get("date"), "time": request.json.get("time", ""), "created": str(date.today())})
+    title = request.json.get("title")
+    date_val = request.json.get("date")
+    time = request.json.get("time", "")
+    
+    couple["dates_plan"].append({"title": title, "date": date_val, "time": time, "created": str(date.today()), "status": "pending"})
+    couple["notifications"].append({"type": "dates", "text": f"💋 {session.get('name')} предложил(а): {title}", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
+
+@app.route("/api/dates/respond/<int:did>", methods=["POST"])
+@login_required
+def dates_respond(did):
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]: return jsonify({"error": ""}), 400
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    response = request.json.get("response")  # "accept" или "decline"
+    
+    if did < len(couple["dates_plan"]):
+        couple["dates_plan"][did]["status"] = response
+        save_data(data)
+        return jsonify({"success": True})
+    return jsonify({"error": ""}), 404
 
 @app.route("/goals")
 @login_required
 def goals():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("goals.html", goals=couple["goals"])
 
@@ -254,7 +316,7 @@ def goals_complete(gid):
 def habits():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("habits.html", habits=couple["habits"])
 
@@ -265,16 +327,34 @@ def habits_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["habits"].append({"text": request.json.get("text"), "created": str(date.today()), "streak": 0})
+    couple["habits"].append({"text": request.json.get("text"), "created": str(date.today()), "streak": 0, "completed_dates": []})
     save_data(data)
     return jsonify({"success": True})
+
+@app.route("/api/habits/complete/<int:hid>", methods=["POST"])
+@login_required
+def habits_complete(hid):
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]: return jsonify({"error": ""}), 400
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    
+    if hid < len(couple["habits"]):
+        habit = couple["habits"][hid]
+        today = str(date.today())
+        if today not in habit.get("completed_dates", []):
+            habit["completed_dates"].append(today)
+            habit["streak"] = len(habit["completed_dates"])
+            save_data(data)
+            return jsonify({"success": True})
+    return jsonify({"error": ""}), 404
 
 @app.route("/wishes")
 @login_required
 def wishes():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("wishes.html", wishes=couple["wishes"])
 
@@ -286,6 +366,7 @@ def wishes_add():
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["wishes"].append({"text": request.json.get("text"), "price": request.json.get("price", 0), "gifted": False, "date": str(date.today())})
+    couple["notifications"].append({"type": "wishes", "text": f"🎁 Новое желание: {request.json.get('text')}", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -309,7 +390,7 @@ def wishes_gift():
 def confessions():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("confessions.html", confessions=couple["confessions"])
 
@@ -321,6 +402,7 @@ def confessions_add():
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["confessions"].append({"text": request.json.get("text"), "date": str(date.today()), "author": session.get("name")})
+    couple["notifications"].append({"type": "confessions", "text": "💌 Новое признание!", "read": False, "date": str(date.today())})
     save_data(data)
     return jsonify({"success": True})
 
@@ -329,7 +411,7 @@ def confessions_add():
 def important_dates():
     data = load_data()
     user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
+    if not user["partner_id"]: return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     return render_template("important_dates.html", dates=couple["important_dates"])
 
@@ -341,26 +423,6 @@ def important_dates_add():
     if not user["partner_id"]: return jsonify({"error": ""}), 400
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     couple["important_dates"].append({"title": request.json.get("title"), "date": request.json.get("date")})
-    save_data(data)
-    return jsonify({"success": True})
-
-@app.route("/challenges")
-@login_required
-def challenges():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return redirect(url_for("partner"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("challenges.html", challenges=couple["challenges"])
-
-@app.route("/api/challenges/add", methods=["POST"])
-@login_required
-def challenges_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]: return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    couple["challenges"].append({"text": request.json.get("text"), "date": str(date.today()), "completed": False})
     save_data(data)
     return jsonify({"success": True})
 
@@ -390,7 +452,6 @@ def random_date_api():
         {"emoji": "🎤", "text": "Караоке ночь"},
         {"emoji": "🚴", "text": "Велосипедная прогулка"},
         {"emoji": "⛰️", "text": "Поход в горы"},
-        {"emoji": "🎪", "text": "Цирк или парк развлечений"},
         {"emoji": "🌸", "text": "Прогулка по цветущему саду"},
         {"emoji": "🎨", "text": "Рисуем портреты друг друга"},
         {"emoji": "🍜", "text": "Пробуем новый ресторан"},
@@ -411,31 +472,28 @@ def random_date_api():
     ]
     return jsonify(random.choice(ideas))
 
-@app.route("/partner")
+@app.route("/api/qr-code")
 @login_required
-def partner():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    return render_template("partner.html", partner_id=user.get("partner_id"), user_id=session["user_id"])
-
-@app.route("/api/partner/set", methods=["POST"])
-@login_required
-def set_partner():
-    uid, pid = session["user_id"], request.json.get("partner_id", "").strip()
-    if not pid or pid == uid: return jsonify({"error": "Invalid"}), 400
-    data = load_data()
-    get_user(data, uid)["partner_id"] = pid
-    get_user(data, pid)["partner_id"] = uid
-    get_couple(data, ck(uid, pid))
-    save_data(data)
-    return jsonify({"success": True})
+def qr_code():
+    user_id = session.get("user_id")
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(user_id)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr)
+    img_byte_arr.seek(0)
+    img_base64 = base64.b64encode(img_byte_arr.getvalue()).decode()
+    
+    return jsonify({"qr_code": f"data:image/png;base64,{img_base64}"})
 
 @app.route("/settings")
 @login_required
 def settings():
     data = load_data()
     user = get_user(data, session["user_id"])
-    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"))
+    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"), gender=session.get("gender"))
 
 @app.route("/api/settings/update", methods=["POST"])
 @login_required
@@ -448,6 +506,18 @@ def settings_update():
         save_data(data)
         return jsonify({"success": True})
     return jsonify({"error": "Invalid"}), 400
+
+@app.route("/api/partner/set", methods=["POST"])
+@login_required
+def set_partner():
+    uid, pid = session["user_id"], request.json.get("partner_id", "").strip()
+    if not pid or pid == uid: return jsonify({"error": "Invalid"}), 400
+    data = load_data()
+    get_user(data, uid)["partner_id"] = pid
+    get_user(data, pid)["partner_id"] = uid
+    get_couple(data, ck(uid, pid))
+    save_data(data)
+    return jsonify({"success": True})
 
 @app.errorhandler(404)
 def not_found(e): return render_template("404.html"), 404
