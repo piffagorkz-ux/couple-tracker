@@ -2,27 +2,43 @@
 {% block content %}
 <div class="card">
     <h1>📋 Ежедневные активности</h1>
-    {% if gender == 'male' %}
-        <p>👨 Для вас:</p>
-        <button onclick="assign('💪 Поддержка')" class="btn">💪 Поддержка</button><br><br>
-        <button onclick="assign('🤗 Объятия')" class="btn">🤗 Объятия</button><br><br>
-        <button onclick="assign('❤️ Секс')" class="btn">❤️ Секс</button>
+    {% if today_activity %}
+    <div style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); padding: 1.5rem; border-radius: 10px; border-left: 4px solid #4caf50; margin: 1rem 0;">
+        <h3 style="color: #4caf50;">✅ Активность на сегодня:</h3>
+        <p style="font-size: 1.2em; margin-top: 1rem;">{{ today_activity.task }}</p>
+        <small style="color: #999;">{{ today_activity.from }}</small>
+    </div>
     {% else %}
-        <p>👩 Для вас:</p>
-        <button onclick="assign('💋 Комплимент')" class="btn">💋 Комплимент</button><br><br>
-        <button onclick="assign('💋 Свидание')" class="btn">💋 Свидание</button><br><br>
-        <button onclick="assign('🌹 Цветы')" class="btn">🌹 Цветы</button>
+    <h3>Выберите одну активность на сегодня:</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        {% for task in tasks %}
+        <button onclick="select_activity('{{ task }}')" class="btn" style="padding: 1rem; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center;">{{ task }}</button>
+        {% endfor %}
+    </div>
     {% endif %}
 </div>
+
+{% if activities %}
+<h2 style="margin-top: 2rem;">История активностей</h2>
 {% for a in activities|reverse %}
 <div class="card">
-    <p>{{ a.task }} <small>({{ a.from }})</small></p>
+    <p><strong>{{ a.task }}</strong></p>
+    <small style="color: #999;">{{ a.from }} • {{ a.date }}</small>
 </div>
 {% endfor %}
+{% endif %}
+
 <script>
-async function assign(task) {
-    let r = await fetch('/api/activities/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({task})});
-    if (r.ok) { alert('✅'); location.reload(); }
+async function select_activity(task) {
+    let r = await fetch('/api/activities/select', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({task})
+    });
+    if (r.ok) {
+        alert('✅ Активность выбрана на сегодня!');
+        location.reload();
+    }
 }
 </script>
 {% endblock %}

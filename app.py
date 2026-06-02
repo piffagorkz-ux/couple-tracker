@@ -22,8 +22,13 @@ def load_data():
         return {"users": {}, "couples": {}}
 
 def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"Ошибка сохранения: {e}")
+        return False
 
 def get_user(data, uid):
     uid = str(uid)
@@ -43,10 +48,17 @@ def get_couple(data, key):
         data["couples"][key] = {
             "diary": [], "mood": [], "goals": [], "places": [],
             "dates_plan": [], "habits": [], "wishes": [], "confessions": [],
-            "important_dates": [], "activities": [],
+            "important_dates": [], "activities": [], "notifications": [],
             "stats": {"diary": 0, "goals": 0, "places": 0, "closeness": 50}
         }
+    if "notifications" not in data["couples"][key]:
+        data["couples"][key]["notifications"] = []
     return data["couples"][key]
+
+def add_notification(couple, notif_type, text):
+    if "notifications" not in couple:
+        couple["notifications"] = []
+    couple["notifications"].append({"type": notif_type, "text": text, "read": False})
 
 def login_required(f):
     @wraps(f)
@@ -102,11 +114,19 @@ def dashboard():
         "partner_id": user.get("partner_id")
     }
     
+    notifications_count = {}
+    
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["stats"] = couple.get("stats", {})
+        
+        if "notifications" in couple:
+            for notif in couple["notifications"]:
+                notif_type = notif.get("type")
+                if not notif.get("read"):
+                    notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
     
-    return render_template("dashboard.html", stats=stats)
+    return render_template("dashboard.html", stats=stats, notifications=notifications_count)
 
 @app.route("/diary")
 @login_required
@@ -136,6 +156,7 @@ def diary_add():
             "date": str(date.today())
         })
         couple["stats"]["diary"] = len(couple["diary"])
+        add_notification(couple, "diary", f"📝 {session.get('name')}: новая запись")
         save_data(data)
         return jsonify({"success": True})
     
@@ -167,6 +188,7 @@ def mood_add():
         "date": str(date.today()),
         "author": session.get("name")
     })
+    add_notification(couple, "mood", f"😊 {session.get('name')}: оценил(а) настроение")
     save_data(data)
     return jsonify({"success": True})
 
@@ -198,6 +220,7 @@ def goals_add():
             "completed": False,
             "date": str(date.today())
         })
+        add_notification(couple, "goals", f"🎯 {session.get('name')}: новая цель")
         save_data(data)
         return jsonify({"success": True})
     
@@ -251,6 +274,7 @@ def places_add():
             "date": str(date.today())
         })
         couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
+        add_notification(couple, "places", f"🗺️ {session.get('name')}: новое место")
         save_data(data)
         return jsonify({"success": True})
     
@@ -306,6 +330,7 @@ def dates_add():
             "time": time_val,
             "status": "pending"
         })
+        add_notification(couple, "dates", f"💋 {session.get('name')}: предложил(а) свидание")
         save_data(data)
         return jsonify({"success": True})
     
@@ -394,6 +419,7 @@ def wishes_add():
             "gifted": False,
             "date": str(date.today())
         })
+        add_notification(couple, "wishes", f"🎁 {session.get('name')}: новое желание")
         save_data(data)
         return jsonify({"success": True})
     
@@ -445,6 +471,7 @@ def confessions_add():
             "date": str(date.today()),
             "author": session.get("name")
         })
+        add_notification(couple, "confessions", f"💌 {session.get('name')}: новое признание")
         save_data(data)
         return jsonify({"success": True})
     
@@ -490,11 +517,47 @@ def activities():
     if not user["partner_id"]:
         return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("activities.html", activities=couple["activities"], gender=session.get("gender"))
+    
+    gender = session.get("gender")
+    
+    if gender == "male":
+        tasks = [
+            "💪 Поддержка партнёру",
+            "🤗 Длинные объятия",
+            "❤️ Близость",
+            "💬 Глубокий разговор",
+            "🎁 Неожиданный подарок",
+            "👂 Внимательно слушать",
+            "🍽️ Приготовить ужин",
+            "🧼 Помощь по дому",
+            "🎬 Вечер вместе",
+            "📞 Позвонить просто так"
+        ]
+    else:
+        tasks = [
+            "💋 Комплимент",
+            "💋 Романтическое свидание",
+            "🌹 Цветы",
+            "💌 Любовное письмо",
+            "🎀 Сюрприз",
+            "🎬 Фильм вместе",
+            "🍽️ Готовка вместе",
+            "💄 Красивая укладка",
+            "💃 Танец вместе",
+            "🎵 Любимую песню"
+        ]
+    
+    today_activity = None
+    for activity in couple.get("activities", []):
+        if activity.get("date") == str(date.today()):
+            today_activity = activity
+            break
+    
+    return render_template("activities.html", activities=couple["activities"], tasks=tasks, today_activity=today_activity, gender=gender)
 
-@app.route("/api/activities/add", methods=["POST"])
+@app.route("/api/activities/select", methods=["POST"])
 @login_required
-def activities_add():
+def activities_select():
     data = load_data()
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
@@ -510,6 +573,7 @@ def activities_add():
             "date": str(date.today()),
             "completed": False
         })
+        add_notification(couple, "activities", f"📋 {session.get('name')}: выбрал(а) активность")
         save_data(data)
         return jsonify({"success": True})
     
