@@ -1,7 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>⚙️ Настройки</h1>
+    <label>Имя:</label>
+    <input type="text" id="name" value="{{ name }}">
+    <button onclick="update_name()" class="btn">Сохранить</button>
 </div>
+<div class="card">
+    <h2>👥 Привязка партнёра</h2>
+    {% if partner_id %}
+    <p>✅ Привязан ID: <strong>{{ partner_id }}</strong></p>
+    {% else %}
+    <input type="text" id="pid" placeholder="Telegram ID партнёра">
+    <button onclick="set_partner()" class="btn">Привязать</button>
+    {% endif %}
+</div>
+<div class="card">
+    <h2>Информация</h2>
+    <p>Ваш ID: <strong>{{ user_id }}</strong></p>
+    <p>Пол: <strong>{% if gender == 'male' %}👨 Парень{% else %}👩 Девушка{% endif %}</strong></p>
+</div>
+<script>
+async function update_name() {
+    let name = document.getElementById('name').value.trim();
+    if (!name) return alert('Введите имя');
+    let r = await fetch('/api/settings/update', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})});
+    if (r.ok) { alert('✅'); location.reload(); }
+}
+async function set_partner() {
+    let partner_id = document.getElementById('pid').value.trim();
+    if (!partner_id) return alert('Введите ID');
+    let r = await fetch('/api/partner/set', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({partner_id})});
+    if (r.ok) { alert('✅ Партнёр привязан!'); location.reload(); }
+}
+</script>
 {% endblock %}

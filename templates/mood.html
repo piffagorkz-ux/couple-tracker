@@ -1,7 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>😊 Настроение</h1>
+    <label>Оценка (1-10):</label>
+    <input type="range" id="mood" min="1" max="10" value="5">
+    <p id="mood-text">5/10</p>
+    <button onclick="add_mood()" class="btn">Сохранить</button>
 </div>
+<script>
+document.getElementById('mood').addEventListener('input', function() {
+    document.getElementById('mood-text').textContent = this.value + '/10';
+});
+async function add_mood() {
+    let mood = parseInt(document.getElementById('mood').value);
+    let r = await fetch('/api/mood/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mood})});
+    if (r.ok) { alert('✅'); location.reload(); }
+}
+</script>
 {% endblock %}

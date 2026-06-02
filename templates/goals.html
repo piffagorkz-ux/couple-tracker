@@ -1,7 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>🎯 Цели</h1>
+    <input type="text" id="text" placeholder="Новая цель...">
+    <button onclick="add_goal()" class="btn">Добавить</button>
 </div>
+{% for g in goals|reverse %}
+<div class="card">
+    <p {% if g.completed %}style="text-decoration: line-through; opacity: 0.6;"{% endif %}>{{ g.text }}</p>
+    {% if not g.completed %}<button onclick="complete_goal({{ g.id }})" class="btn">✓ Готово</button>{% else %}<span>✅</span>{% endif %}
+</div>
+{% endfor %}
+<script>
+async function add_goal() {
+    let text = document.getElementById('text').value.trim();
+    if (!text) return alert('Напишите цель');
+    let r = await fetch('/api/goals/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
+    if (r.ok) { location.reload(); }
+}
+async function complete_goal(id) {
+    let r = await fetch('/api/goals/complete/' + id, {method: 'POST'});
+    if (r.ok) { location.reload(); }
+}
+</script>
 {% endblock %}

@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>💌 Признания</h1>
+    <textarea id="text" placeholder="Ваше признание..."></textarea>
+    <button onclick="add()" class="btn">Отправить</button>
 </div>
+{% for c in confessions|reverse %}
+<div class="card" style="background: linear-gradient(135deg, rgba(205,42,99,0.05) 0%, rgba(239,66,132,0.05) 100%);">
+    <p>{{ c.text }}</p>
+    <small style="color: #999;">{{ c.author }} • {{ c.date }}</small>
+</div>
+{% endfor %}
+<script>
+async function add() {
+    let text = document.getElementById('text').value.trim();
+    if (!text) return alert('Напишите признание');
+    let r = await fetch('/api/confessions/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
+    if (r.ok) { location.reload(); }
+}
+</script>
 {% endblock %}

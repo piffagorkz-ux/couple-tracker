@@ -1,7 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>📅 Важные даты</h1>
+    <input type="text" id="title" placeholder="Событие...">
+    <input type="date" id="date">
+    <button onclick="add_date()" class="btn">Добавить</button>
 </div>
+{% for d in dates %}
+<div class="card">
+    <p>{{ d.title }} 🎉 {{ d.date }}</p>
+</div>
+{% endfor %}
+<script>
+async function add_date() {
+    let title = document.getElementById('title').value.trim();
+    let date_val = document.getElementById('date').value;
+    if (!title || !date_val) return alert('Заполните всё');
+    let r = await fetch('/api/important-dates/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, date: date_val})});
+    if (r.ok) { location.reload(); }
+}
+</script>
 {% endblock %}

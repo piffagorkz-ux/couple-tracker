@@ -1,7 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>💋 Свидания</h1>
+    <input type="text" id="title" placeholder="Название...">
+    <input type="date" id="date">
+    <input type="time" id="time">
+    <button onclick="add_date()" class="btn">Планировать</button>
+    <br><br>
+    <button onclick="random_date()" class="btn" style="background: linear-gradient(135deg, #ef4284 0%, #cd2a63 100%);">🎲 Идея</button>
 </div>
+<div id="idea"></div>
+{% for d in dates|reverse %}
+<div class="card">
+    <p>{{ d.title }}</p>
+    <small>📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+</div>
+{% endfor %}
+<script>
+async function add_date() {
+    let title = document.getElementById('title').value.trim();
+    let date_val = document.getElementById('date').value;
+    let time = document.getElementById('time').value;
+    if (!title || !date_val) return alert('Заполните название и дату');
+    let r = await fetch('/api/dates/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, date: date_val, time})});
+    if (r.ok) { location.reload(); }
+}
+async function random_date() {
+    let r = await fetch('/api/random-date');
+    let d = await r.json();
+    document.getElementById('idea').innerHTML = '<div class="card" style="background: #fff9e6; border-left: 4px solid gold;"><p style="font-size: 3em;">' + d.emoji + '</p><p style="font-size: 1.2em;">' + d.text + '</p></div>';
+}
+</script>
 {% endblock %}

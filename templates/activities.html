@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>📋 Ежедневные активности</h1>
+    {% if gender == 'male' %}
+        <p>👨 Для вас:</p>
+        <button onclick="assign('💪 Поддержка')" class="btn">💪 Поддержка</button><br><br>
+        <button onclick="assign('🤗 Объятия')" class="btn">🤗 Объятия</button><br><br>
+        <button onclick="assign('❤️ Секс')" class="btn">❤️ Секс</button>
+    {% else %}
+        <p>👩 Для вас:</p>
+        <button onclick="assign('💋 Комплимент')" class="btn">💋 Комплимент</button><br><br>
+        <button onclick="assign('💋 Свидание')" class="btn">💋 Свидание</button><br><br>
+        <button onclick="assign('🌹 Цветы')" class="btn">🌹 Цветы</button>
+    {% endif %}
 </div>
+{% for a in activities|reverse %}
+<div class="card">
+    <p>{{ a.task }} <small>({{ a.from }})</small></p>
+</div>
+{% endfor %}
+<script>
+async function assign(task) {
+    let r = await fetch('/api/activities/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({task})});
+    if (r.ok) { alert('✅'); location.reload(); }
+}
+</script>
 {% endblock %}

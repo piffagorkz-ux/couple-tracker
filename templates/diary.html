@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>📝 Дневник</h1>
+    <textarea id="text" placeholder="Напишите запись..."></textarea>
+    <button onclick="add_diary()" class="btn">Добавить</button>
 </div>
+{% for e in entries|reverse %}
+<div class="card">
+    <p>{{ e.text }}</p>
+    <small style="color: #999;">{{ e.author }} • {{ e.date }}</small>
+</div>
+{% endfor %}
+<script>
+async function add_diary() {
+    let text = document.getElementById('text').value.trim();
+    if (!text) return alert('Напишите запись');
+    let r = await fetch('/api/diary/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
+    if (r.ok) { alert('✅'); location.reload(); }
+}
+</script>
 {% endblock %}

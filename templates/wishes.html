@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>🎁 Вишлист</h1>
+    <input type="text" id="text" placeholder="Желание...">
+    <input type="number" id="price" placeholder="Цена ₸">
+    <button onclick="add_wish()" class="btn">Добавить</button>
 </div>
+{% for w in wishes|reverse %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <p {% if w.gifted %}style="text-decoration: line-through;"{% endif %}>{{ w.text }}</p>
+            {% if w.price %}<p style="color: #cd2a63;">{{ w.price }} ₸</p>{% endif %}
+        </div>
+        {% if not w.gifted %}<button onclick="gift('{{ w.text }}')" class="btn" style="padding: 8px 16px;">🎀</button>{% else %}<span>✅</span>{% endif %}
+    </div>
+</div>
+{% endfor %}
+<script>
+async function add_wish() {
+    let text = document.getElementById('text').value.trim();
+    let price = parseInt(document.getElementById('price').value) || 0;
+    if (!text) return alert('Напишите желание');
+    let r = await fetch('/api/wishes/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text, price})});
+    if (r.ok) { location.reload(); }
+}
+async function gift(text) {
+    let r = await fetch('/api/wishes/gift', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
+    if (r.ok) { location.reload(); }
+}
+</script>
 {% endblock %}

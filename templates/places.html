@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h1>Страница загружается...</h1>
-    <p>Содержимое будет добавлено.</p>
+    <h1>🗺️ Места</h1>
+    <input type="text" id="name" placeholder="Место...">
+    <button onclick="add_place()" class="btn">Добавить</button>
 </div>
+{% for p in places|reverse %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p {% if p.visited %}style="text-decoration: line-through;"{% endif %}>{{ p.name }}</p>
+        {% if not p.visited %}<button onclick="visit('{{ p.name }}')" class="btn" style="padding: 8px 16px;">✓</button>{% else %}<span>✅</span>{% endif %}
+    </div>
+</div>
+{% endfor %}
+<script>
+async function add_place() {
+    let name = document.getElementById('name').value.trim();
+    if (!name) return alert('Напишите место');
+    let r = await fetch('/api/places/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})});
+    if (r.ok) { location.reload(); }
+}
+async function visit(name) {
+    let r = await fetch('/api/places/visit', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})});
+    if (r.ok) { location.reload(); }
+}
+</script>
 {% endblock %}
