@@ -4,68 +4,48 @@
 .welcome-section {
     background: linear-gradient(135deg, #E13D3C 0%, #ED6C72 100%);
     color: white;
-    padding: 1.5rem;
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
+    padding: 2rem;
+    border-radius: 18px;
+    margin-bottom: 2rem;
     box-shadow: 0 12px 40px rgba(225, 61, 60, 0.25);
 }
-.welcome-header {display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;}
-.welcome-title h1 {color: white; margin: 0; font-size: 2em;}
-.xp-badge {background: rgba(255,255,255,0.25); padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.9em; white-space: nowrap;}
-.love-meter {display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;}
-.love-heart {font-size: 3.5em; animation: heartbeat 1.5s infinite; flex-shrink: 0;}
-.love-info {flex: 1; min-width: 0;}
-.level-badge {display: inline-block; background: rgba(255,255,255,0.3); padding: 0.5rem 1rem; border-radius: 16px; font-weight: 700; font-size: 0.85em; margin-bottom: 0.6rem;}
-.xp-bar {width: 100%; height: 8px; background: rgba(255,255,255,0.3); border-radius: 8px; overflow: hidden; margin: 0.6rem 0;}
-.xp-fill {height: 100%; background: white; width: 45%; transition: width 0.3s; border-radius: 8px;}
+.welcome-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;}
+.welcome-title h1 {color: white; margin: 0; font-size: 2.2em;}
+.xp-badge {background: rgba(255,255,255,0.25); padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 1.1em;}
+.love-meter {display: flex; align-items: center; gap: 1.5rem; margin: 2rem 0;}
+.love-heart {font-size: 4em; animation: heartbeat 1.5s infinite;}
+.love-info {flex: 1;}
+.level-badge {display: inline-block; background: rgba(255,255,255,0.3); padding: 0.7rem 1.3rem; border-radius: 16px; font-weight: 700; font-size: 1em; margin-bottom: 1rem;}
+.xp-bar {width: 100%; height: 10px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin: 0.8rem 0;}
+.xp-fill {height: 100%; background: white; width: 45%; transition: width 0.3s; border-radius: 10px;}
 .relationship-levels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 0.4rem;
-    margin-top: 0.8rem;
-    font-size: 0.65em;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    font-size: 0.85em;
 }
-.level-item {text-align: center; padding: 0.4rem; border-radius: 6px; background: rgba(255,255,255,0.15); word-break: break-word;}
+.level-item {text-align: center; padding: 0.6rem; border-radius: 8px; background: rgba(255,255,255,0.15);}
 .level-item.active {background: white; color: #E13D3C; font-weight: 700;}
-.metrics {display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-top: 1.5rem;}
-.metric-card {background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 10px; text-align: center;}
-.metric-num {font-size: 1.5em; font-weight: 700; color: white;}
-.metric-label {font-size: 0.75em; opacity: 0.9; margin-top: 0.3rem;}
-@keyframes heartbeat {0%, 100% {transform: scale(1);} 50% {transform: scale(1.1);}}
-.badge {position: absolute; top: 8px; right: 8px; background: #4caf50; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.7em;}
+.metrics {display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-top: 2rem;}
+.metric-card {background: rgba(255,255,255,0.15); padding: 1.2rem; border-radius: 12px; text-align: center;}
+.metric-num {font-size: 1.8em; font-weight: 700; color: white;}
+.metric-label {font-size: 0.95em; opacity: 0.95; margin-top: 0.5rem;}
+@keyframes heartbeat {0%, 100% {transform: scale(1);} 50% {transform: scale(1.15);}}
 
-@media (max-width: 768px) {
-    .welcome-section {padding: 1.2rem; margin-bottom: 1.2rem;}
-    .welcome-header {flex-wrap: wrap;}
-    .welcome-title h1 {font-size: 1.6em;}
-    .xp-badge {font-size: 0.8em; padding: 0.4rem 0.8rem;}
-    .love-meter {margin: 1.2rem 0; gap: 0.8rem;}
-    .love-heart {font-size: 2.5em;}
-    .metrics {grid-template-columns: repeat(2, 1fr); gap: 0.6rem;}
-    .metric-num {font-size: 1.2em;}
-}
-
-@media (max-width: 480px) {
-    .welcome-section {padding: 1rem;}
-    .welcome-header {flex-direction: column;}
-    .welcome-title h1 {font-size: 1.4em;}
-    .xp-badge {width: 100%; text-align: center;}
-    .love-meter {margin: 1rem 0; flex-direction: column; align-items: center; text-align: center;}
-    .love-heart {font-size: 2em;}
-    .love-info {width: 100%;}
-    .level-badge {font-size: 0.8em; padding: 0.4rem 0.8rem;}
-    .relationship-levels {font-size: 0.6em;}
-    .metrics {grid-template-columns: 1fr;}
-    .metric-card {padding: 0.8rem;}
-    .metric-num {font-size: 1.2em;}
-    .metric-label {font-size: 0.7em;}
-}
+.menu-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1rem; margin-top: 2rem; margin-bottom: 1rem;}
+.menu-item {background: white; border-radius: 14px; padding: 1.5rem 1rem; text-align: center; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: var(--d); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; border: 2px solid transparent; position: relative;}
+.menu-item:hover {transform: translateY(-8px); box-shadow: 0 12px 28px rgba(225, 61, 60, 0.15); border-color: var(--p);}
+.menu-item:active {transform: translateY(-3px);}
+.menu-icon {font-size: 2.5em; margin-bottom: 0.8rem;}
+.menu-title {font-weight: 700; font-size: 0.95em;}
+.badge {position: absolute; top: 8px; right: 8px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;}
 </style>
 
 <div class="welcome-section">
     <div class="welcome-header">
         <div class="welcome-title">
-            <h1>💕 Hi!</h1>
+            <h1>💕 {{ stats.name }}!</h1>
         </div>
         <div class="xp-badge">⭐ {{ stats.couple_xp }} XP</div>
     </div>
@@ -74,86 +54,93 @@
     <div class="love-meter">
         <div class="love-heart">❤️</div>
         <div class="love-info">
-            <div class="level-badge">{{ ['Новички', 'Влюблённые', 'Род. Души', 'Идеальная', 'Легендарная'][stats.relationship_level - 1 if stats.relationship_level <= 5 else 4] }}</div>
+            <div class="level-badge">{{ ['Новички', 'Влюблённые', 'Родственные\nдуши', 'Идеальная\nпара', 'Легендарная\nпара'][stats.relationship_level - 1 if stats.relationship_level <= 5 else 4] }}</div>
             <div class="xp-bar">
                 <div class="xp-fill" style="width: {{ (stats.couple_xp % 500) / 5 }}%;"></div>
             </div>
-            <small style="opacity: 0.9; font-size: 0.8em;">{{ stats.couple_xp % 500 }}/500</small>
+            <small style="opacity: 0.95; font-size: 0.95em;">{{ stats.couple_xp % 500 }}/500 до следующего уровня</small>
+            <div class="relationship-levels">
+                <div class="level-item {% if stats.relationship_level >= 1 %}active{% endif %}">🌱</div>
+                <div class="level-item {% if stats.relationship_level >= 2 %}active{% endif %}">🔥</div>
+                <div class="level-item {% if stats.relationship_level >= 3 %}active{% endif %}">👫</div>
+                <div class="level-item {% if stats.relationship_level >= 4 %}active{% endif %}">💎</div>
+                <div class="level-item {% if stats.relationship_level >= 5 %}active{% endif %}">👑</div>
+            </div>
         </div>
     </div>
     
     <div class="metrics">
         <div class="metric-card">
             <div class="metric-num">{{ stats.days_together }}</div>
-            <div class="metric-label">Days</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-num">{{ stats.stats.closeness }}%</div>
-            <div class="metric-label">Close</div>
+            <div class="metric-label">Дней вместе</div>
         </div>
         <div class="metric-card">
             <div class="metric-num">{{ stats.stats.diary }}</div>
-            <div class="metric-label">Notes</div>
+            <div class="metric-label">Записей</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-num">{{ stats.stats.closeness }}%</div>
+            <div class="metric-label">Близость</div>
         </div>
         <div class="metric-card">
             <div class="metric-num">{{ stats.last_activity or '—' }}</div>
-            <div class="metric-label">Last</div>
+            <div class="metric-label">Последняя</div>
         </div>
     </div>
     {% else %}
-    <p style="font-size: 1em;">⚠️ <a href="/settings" style="color: white; text-decoration: underline; font-weight: 600;">Add partner</a></p>
+    <p style="font-size: 1.1em;">⚠️ <a href="/settings" style="color: white; text-decoration: underline; font-weight: 700;">Привяжите партнёра</a></p>
     {% endif %}
 </div>
 
-<h2>Menu</h2>
+<h2>📋 Меню</h2>
 <div class="menu-grid">
     <a href="/diary" class="menu-item" style="position: relative;" onmouseover="mark_read('diary')">
         <div class="menu-icon">📝</div>
-        <div class="menu-title">Notes</div>
+        <div class="menu-title">Дневник</div>
         {% if notifications.diary %}<div class="badge" data-type="diary">{{ notifications.diary }}</div>{% endif %}
     </a>
     <a href="/mood" class="menu-item" style="position: relative;" onmouseover="mark_read('mood')">
         <div class="menu-icon">😊</div>
-        <div class="menu-title">Mood</div>
+        <div class="menu-title">Настроение</div>
         {% if notifications.mood %}<div class="badge" data-type="mood">{{ notifications.mood }}</div>{% endif %}
     </a>
     <a href="/goals" class="menu-item" style="position: relative;" onmouseover="mark_read('goals')">
         <div class="menu-icon">🎯</div>
-        <div class="menu-title">Goals</div>
+        <div class="menu-title">Цели</div>
         {% if notifications.goals %}<div class="badge" data-type="goals">{{ notifications.goals }}</div>{% endif %}
     </a>
     <a href="/places" class="menu-item" style="position: relative;" onmouseover="mark_read('places')">
         <div class="menu-icon">🗺️</div>
-        <div class="menu-title">Places</div>
+        <div class="menu-title">Места</div>
         {% if notifications.places %}<div class="badge" data-type="places">{{ notifications.places }}</div>{% endif %}
     </a>
     <a href="/dates" class="menu-item" style="position: relative;" onmouseover="mark_read('dates')">
         <div class="menu-icon">💋</div>
-        <div class="menu-title">Dates</div>
+        <div class="menu-title">Свидания</div>
         {% if notifications.dates %}<div class="badge" data-type="dates">{{ notifications.dates }}</div>{% endif %}
     </a>
     <a href="/habits" class="menu-item" style="position: relative;">
         <div class="menu-icon">💪</div>
-        <div class="menu-title">Habits</div>
+        <div class="menu-title">Привычки</div>
     </a>
     <a href="/activities" class="menu-item" style="position: relative;" onmouseover="mark_read('activities')">
         <div class="menu-icon">📋</div>
-        <div class="menu-title">Task</div>
+        <div class="menu-title">Активности</div>
         {% if notifications.activities %}<div class="badge" data-type="activities">{{ notifications.activities }}</div>{% endif %}
     </a>
     <a href="/wishes" class="menu-item" style="position: relative;" onmouseover="mark_read('wishes')">
         <div class="menu-icon">🎁</div>
-        <div class="menu-title">Wish</div>
+        <div class="menu-title">Вишлист</div>
         {% if notifications.wishes %}<div class="badge" data-type="wishes">{{ notifications.wishes }}</div>{% endif %}
     </a>
     <a href="/confessions" class="menu-item" style="position: relative;" onmouseover="mark_read('confessions')">
         <div class="menu-icon">💌</div>
-        <div class="menu-title">Love</div>
+        <div class="menu-title">Признания</div>
         {% if notifications.confessions %}<div class="badge" data-type="confessions">{{ notifications.confessions }}</div>{% endif %}
     </a>
     <a href="/important-dates" class="menu-item" style="position: relative;">
         <div class="menu-icon">📅</div>
-        <div class="menu-title">Dates</div>
+        <div class="menu-title">Важные даты</div>
     </a>
 </div>
 

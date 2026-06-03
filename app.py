@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_cors import CORS
 import json
 import os
+import shutil
 from datetime import date, datetime, timedelta
 from functools import wraps
 
@@ -12,17 +13,33 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "lovio")
 
 DATA_DIR = "data"
 DATA_FILE = os.path.join(DATA_DIR, "couple_data.json")
+BACKUP_FILE = os.path.join(DATA_DIR, "couple_data_backup.json")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 def load_data():
     try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return {"users": {}, "couples": {}}
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data
+    except Exception as e:
+        print(f"Ошибка чтения основного файла: {e}")
+        try:
+            if os.path.exists(BACKUP_FILE):
+                print("Восстанавливаю из резервной копии...")
+                with open(BACKUP_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except:
+            pass
+    return {"users": {}, "couples": {}}
 
 def save_data(data):
     try:
+        # Сначала создаём резервную копию
+        if os.path.exists(DATA_FILE):
+            shutil.copy(DATA_FILE, BACKUP_FILE)
+        
+        # Сохраняем основной файл
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
@@ -57,10 +74,6 @@ def get_couple(data, key):
         }
     if "notifications" not in data["couples"][key]:
         data["couples"][key]["notifications"] = []
-    if "relationship_level" not in data["couples"][key]:
-        data["couples"][key]["relationship_level"] = 1
-    if "xp" not in data["couples"][key]:
-        data["couples"][key]["xp"] = 0
     return data["couples"][key]
 
 def add_xp(couple, amount):
@@ -72,10 +85,7 @@ def add_xp(couple, amount):
         if couple["xp"] >= threshold:
             level = i + 1
     
-    old_level = couple.get("relationship_level", 1)
     couple["relationship_level"] = level
-    
-    return old_level != level
 
 def add_notification(couple, notif_type, text, to_user=None):
     if "notifications" not in couple:
@@ -176,7 +186,6 @@ def dashboard():
             user["last_login"] = today
     
     save_data(data)
-    
     return render_template("dashboard.html", stats=stats, notifications=notifications_count)
 
 @app.route("/api/notifications/mark-read", methods=["POST"])

@@ -13,81 +13,117 @@
         {% endif %}
         * {margin: 0; padding: 0; box-sizing: border-box;}
         html {scroll-behavior: smooth;}
-        body {font-family: 'Montserrat', sans-serif; background: #fafbfc; color: var(--d); -webkit-font-smoothing: antialiased;}
-        .navbar {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(225, 61, 60, 0.2);}
-        .navbar-brand {font-size: 1.5em; font-weight: 700;}
-        .navbar-links {display: flex; gap: 0.5rem;}
-        .navbar-links a {color: white; text-decoration: none; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.3s; font-size: 0.9em;}
-        .navbar-links a:hover {background: rgba(255,255,255,0.2);}
-        main {max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem;}
-        .card {background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); border: 1px solid rgba(214, 167, 179, 0.3); transition: all 0.3s;}
+        body {font-family: 'Montserrat', sans-serif; background: #fafbfc; color: var(--d); -webkit-font-smoothing: antialiased; font-size: 16px;}
+        header {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1.2rem; text-align: center; box-shadow: 0 4px 12px rgba(225, 61, 60, 0.2);}
+        header h1 {font-size: 1.8em; margin: 0;}
+        main {max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 100px 1rem;}
+        .card {background: white; border-radius: 14px; padding: 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); border: 1px solid rgba(214, 167, 179, 0.3); transition: all 0.3s;}
         .card:hover {box-shadow: 0 8px 24px rgba(225, 61, 60, 0.12); transform: translateY(-2px);}
-        .btn {display: inline-block; padding: 10px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; text-decoration: none; transition: all 0.3s; font-family: 'Montserrat', sans-serif; font-size: 0.95em;}
-        .btn:hover {transform: translateY(-2px); box-shadow: 0 8px 20px rgba(225, 61, 60, 0.3);}
-        .btn:active {transform: translateY(0);}
-        input, textarea, select {width: 100%; padding: 10px 12px; border: 2px solid rgba(214, 167, 179, 0.4); border-radius: 8px; font-family: 'Montserrat', sans-serif; margin-bottom: 1rem; font-size: 1em;}
-        input:focus, textarea:focus, select:focus {outline: none; border-color: var(--p); box-shadow: 0 0 0 3px rgba(225, 61, 60, 0.1);}
-        .welcome {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 8px 24px rgba(225, 61, 60, 0.2);}
-        .welcome h1 {font-size: 1.8em; margin-bottom: 0.5rem;}
-        .stats {display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.8rem; margin: 1.5rem 0;}
-        .stat {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 0.8rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(225, 61, 60, 0.12);}
-        .stat-num {font-size: 1.5em; font-weight: 700;}
-        .stat-label {font-size: 0.7em; margin-top: 0.2rem; opacity: 0.9;}
-        .menu-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 0.8rem; margin-top: 1.5rem;}
-        .menu-item {background: white; border-radius: 10px; padding: 1rem 0.5rem; text-align: center; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: var(--d); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90px; border: 2px solid transparent;}
-        .menu-item:hover {transform: translateY(-6px); box-shadow: 0 12px 28px rgba(225, 61, 60, 0.15); border-color: var(--p);}
-        .menu-item:active {transform: translateY(-2px);}
-        .menu-icon {font-size: 2em; margin-bottom: 0.5rem;}
-        .menu-title {font-weight: 600; font-size: 0.75em;}
-        footer {text-align: center; padding: 1.5rem 1rem; color: #999; margin-top: 2rem; font-size: 0.85em;}
-        h1 {color: var(--d); font-weight: 700; font-size: 1.6em; margin-bottom: 1rem;}
-        h2 {color: var(--d); font-weight: 700; font-size: 1.2em; margin-bottom: 1rem;}
+        .btn {display: inline-block; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; text-decoration: none; transition: all 0.3s; font-family: 'Montserrat', sans-serif; font-size: 1em;}
+        .btn:hover {transform: translateY(-3px); box-shadow: 0 8px 20px rgba(225, 61, 60, 0.3);}
+        .btn:active {transform: translateY(-1px);}
+        input, textarea, select {width: 100%; padding: 12px 14px; border: 2px solid rgba(214, 167, 179, 0.4); border-radius: 10px; font-family: 'Montserrat', sans-serif; margin-bottom: 1rem; font-size: 1em; line-height: 1.5;}
+        input:focus, textarea:focus, select:focus {outline: none; border-color: var(--p); box-shadow: 0 0 0 4px rgba(225, 61, 60, 0.1);}
+        h1 {color: var(--d); font-weight: 700; font-size: 1.8em; margin-bottom: 1.2rem;}
+        h2 {color: var(--d); font-weight: 700; font-size: 1.3em; margin-bottom: 1rem;}
         
-        @media (max-width: 768px) {
-            main {padding: 1rem 0.8rem;}
-            .navbar {padding: 0.8rem;}
-            .navbar-brand {font-size: 1.3em;}
-            .card {padding: 1.2rem; margin-bottom: 1.2rem;}
-            .btn {padding: 8px 14px; font-size: 0.9em;}
-            h1 {font-size: 1.4em;}
-            h2 {font-size: 1em;}
-            input, textarea, select {padding: 10px; font-size: 16px;}
+        /* Нижняя навигация */
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid rgba(214, 167, 179, 0.3);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 12px rgba(225, 61, 60, 0.1);
         }
         
-        @media (max-width: 480px) {
-            main {padding: 0.8rem 0.6rem;}
-            .navbar {padding: 0.6rem;}
-            .navbar-brand {font-size: 1.2em;}
-            .navbar-links a {padding: 0.3rem 0.5rem; font-size: 0.8em;}
-            .card {padding: 1rem; margin-bottom: 1rem;}
-            .btn {padding: 8px 12px; font-size: 0.85em; width: 100%;}
-            h1 {font-size: 1.3em;}
-            h2 {font-size: 0.95em;}
-            .menu-grid {grid-template-columns: repeat(5, 1fr); gap: 0.6rem;}
-            .menu-item {min-height: 80px; padding: 0.8rem 0.4rem;}
-            .menu-icon {font-size: 1.5em; margin-bottom: 0.3rem;}
-            .menu-title {font-size: 0.65em;}
-            .stats {grid-template-columns: repeat(2, 1fr);}
+        nav.bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 0.5rem;
+            text-decoration: none;
+            color: var(--d);
+            font-size: 0.75em;
+            font-weight: 600;
+            transition: all 0.2s;
+            border-top: 3px solid transparent;
+            position: relative;
+        }
+        
+        nav.bottom-nav a:hover {
+            color: var(--p);
+            background: rgba(225, 61, 60, 0.05);
+        }
+        
+        nav.bottom-nav a.active {
+            color: var(--p);
+            border-top-color: var(--p);
+            background: rgba(225, 61, 60, 0.08);
+        }
+        
+        nav.bottom-nav .icon {
+            font-size: 1.5em;
+            margin-bottom: 0.3rem;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #4caf50;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.65em;
         }
     </style>
 </head>
 <body>
     {% if session.get('user_id') %}
-    <nav class="navbar">
-        <div class="navbar-brand">💕</div>
-        <div class="navbar-links">
-            <a href="/dashboard">📱</a>
-            <a href="/shop">🛍️</a>
-            <a href="/settings">⚙️</a>
-            <a href="/logout">↗️</a>
-        </div>
-    </nav>
+    <header>
+        <h1>💕 LOVIO</h1>
+    </header>
     {% endif %}
+    
     <main>
         {% block content %}{% endblock %}
     </main>
+    
     {% if session.get('user_id') %}
-    <footer><p>💕 LOVIO v9.1</p></footer>
+    <nav class="bottom-nav">
+        <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">
+            <div class="icon">📱</div>
+            <div>Главная</div>
+        </a>
+        <a href="/shop" class="{% if request.path == '/shop' %}active{% endif %}">
+            <div class="icon">🛍️</div>
+            <div>Магазин</div>
+        </a>
+        <a href="/settings" class="{% if request.path == '/settings' %}active{% endif %}">
+            <div class="icon">⚙️</div>
+            <div>Настройки</div>
+        </a>
+        <a href="#" onclick="alert('Вы вышли'); window.location.href='/logout'" style="color: #f44336;">
+            <div class="icon">↗️</div>
+            <div>Выход</div>
+        </a>
+        <a href="#" style="display: none;">
+            <div class="icon">•</div>
+        </a>
+    </nav>
     {% endif %}
 </body>
 </html>
