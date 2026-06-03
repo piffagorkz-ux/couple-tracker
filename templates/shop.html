@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="background: linear-gradient(135deg, #E13D3C 0%, #ED6C72 100%); color: white;">
+    <h1 style="color: white; margin: 0;">🛍️ Магазин наград</h1>
+    <p style="margin: 0.5rem 0 0 0; font-size: 1.1em;">⭐ Ваши XP: <strong>{{ couple_xp }}</strong></p>
+</div>
+
+<h2 style="margin-top: 2rem;">🎨 Темы</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">🌙</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Тёмная тема</p>
+        <p style="color: #999; font-size: 0.9em;">100 XP</p>
+        {% if user_items.get('theme_dark') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('theme_dark')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">☀️</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Светлая тема</p>
+        <p style="color: #999; font-size: 0.9em;">100 XP</p>
+        {% if user_items.get('theme_light') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('theme_light')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+</div>
+
+<h2>🐶 Питомцы</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">🐱</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Кот</p>
+        <p style="color: #999; font-size: 0.9em;">200 XP</p>
+        {% if user_items.get('pet_cat') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('pet_cat')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">🐶</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Собака</p>
+        <p style="color: #999; font-size: 0.9em;">200 XP</p>
+        {% if user_items.get('pet_dog') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('pet_dog')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">🐰</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Кролик</p>
+        <p style="color: #999; font-size: 0.9em;">150 XP</p>
+        {% if user_items.get('pet_bunny') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('pet_bunny')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+</div>
+
+<h2>🏆 Рамки профиля</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">🏆</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Золотая рамка</p>
+        <p style="color: #999; font-size: 0.9em;">250 XP</p>
+        {% if user_items.get('frame_gold') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('frame_gold')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">💎</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Серебряная рамка</p>
+        <p style="color: #999; font-size: 0.9em;">150 XP</p>
+        {% if user_items.get('frame_silver') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('frame_silver')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+</div>
+
+<h2>✨ Анимации</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">💖</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Анимация сердец</p>
+        <p style="color: #999; font-size: 0.9em;">300 XP</p>
+        {% if user_items.get('anim_hearts') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('anim_hearts')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 3em; margin: 1rem 0;">✨</div>
+        <p style="font-weight: 600; margin: 0.5rem 0;">Анимация блеска</p>
+        <p style="color: #999; font-size: 0.9em;">300 XP</p>
+        {% if user_items.get('anim_sparkle') %}
+        <span style="color: #4caf50; font-weight: 600;">✅ Куплено</span>
+        {% else %}
+        <button onclick="buy('anim_sparkle')" class="btn" style="width: 100%; margin-top: 1rem;">Купить</button>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function buy(item_id) {
+    let r = await fetch('/api/shop/buy/' + item_id, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})});
+    if (r.ok) {
+        alert('✅ Предмет куплен!');
+        location.reload();
+    } else {
+        alert('❌ Недостаточно XP');
+    }
+}
+</script>
+{% endblock %}

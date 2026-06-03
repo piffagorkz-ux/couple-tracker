@@ -9,31 +9,31 @@
         {% if stats and stats.gender == 'male' %}
         :root {--p: #233a6e; --s: #d45468; --d: #5f789e; --l: #562c38;}
         {% else %}
-        :root {--p: #cd2a63; --s: #ef4284; --d: #830418; --l: #3f572c;}
+        :root {--p: #E13D3C; --s: #ED6C72; --d: #6C0414; --l: #2C4054;}
         {% endif %}
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {font-family: 'Montserrat', sans-serif; background: #fafbfc; color: var(--d);}
-        .navbar {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;}
-        .navbar-brand {font-size: 1.8em; font-weight: 700;}
+        .navbar {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(225, 61, 60, 0.2);}
+        .navbar-brand {font-size: 1.8em; font-weight: 700; letter-spacing: -0.5px;}
         .navbar-links {display: flex; gap: 1rem;}
         .navbar-links a {color: white; text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;}
         .navbar-links a:hover {background: rgba(255,255,255,0.2);}
         main {max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;}
-        .card {background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid rgba(152,188,130,0.2);}
-        .card:hover {box-shadow: 0 8px 24px rgba(0,0,0,0.12); transform: translateY(-2px);}
+        .card {background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); border: 1px solid rgba(214, 167, 179, 0.3); transition: all 0.3s;}
+        .card:hover {box-shadow: 0 8px 24px rgba(225, 61, 60, 0.12); transform: translateY(-2px);}
         .btn {display: inline-block; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; text-decoration: none; transition: all 0.3s; font-family: 'Montserrat', sans-serif;}
-        .btn:hover {transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2);}
-        input, textarea, select {width: 100%; padding: 12px 16px; border: 2px solid rgba(152,188,130,0.4); border-radius: 10px; font-family: 'Montserrat', sans-serif; margin-bottom: 1rem;}
-        input:focus, textarea:focus, select:focus {outline: none; border-color: var(--p); box-shadow: 0 0 0 4px rgba(205,42,99,0.1);}
-        .welcome {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem;}
+        .btn:hover {transform: translateY(-3px); box-shadow: 0 8px 20px rgba(225, 61, 60, 0.3);}
+        input, textarea, select {width: 100%; padding: 12px 16px; border: 2px solid rgba(214, 167, 179, 0.4); border-radius: 10px; font-family: 'Montserrat', sans-serif; margin-bottom: 1rem;}
+        input:focus, textarea:focus, select:focus {outline: none; border-color: var(--p); box-shadow: 0 0 0 4px rgba(225, 61, 60, 0.1);}
+        .welcome {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(225, 61, 60, 0.2);}
         .welcome h1 {font-size: 2.2em; margin-bottom: 0.5rem;}
         .stats {display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin: 2rem 0;}
-        .stat {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1rem; border-radius: 10px; text-align: center;}
+        .stat {background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%); color: white; padding: 1rem; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(225, 61, 60, 0.12);}
         .stat-num {font-size: 1.8em; font-weight: 700;}
         .stat-label {font-size: 0.8em; margin-top: 0.2rem;}
         .menu-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1.2rem; margin-top: 2rem;}
-        .menu-item {background: white; border-radius: 14px; padding: 1.5rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: var(--d); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; border: 2px solid transparent;}
-        .menu-item:hover {transform: translateY(-8px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); border-color: var(--p);}
+        .menu-item {background: white; border-radius: 14px; padding: 1.5rem; text-align: center; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: var(--d); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; border: 2px solid transparent;}
+        .menu-item:hover {transform: translateY(-8px); box-shadow: 0 12px 28px rgba(225, 61, 60, 0.15); border-color: var(--p);}
         .menu-icon {font-size: 2.5em; margin-bottom: 0.8rem;}
         .menu-title {font-weight: 600; font-size: 0.9em;}
         footer {text-align: center; padding: 2rem; color: #999; margin-top: 3rem;}
@@ -48,6 +48,7 @@
         <div class="navbar-brand">💕 LOVIO</div>
         <div class="navbar-links">
             <a href="/dashboard">📱</a>
+            <a href="/shop">🛍️</a>
             <a href="/settings">⚙️</a>
             <a href="/logout" style="background: rgba(255,100,100,0.3);">Выход</a>
         </div>
@@ -57,7 +58,7 @@
         {% block content %}{% endblock %}
     </main>
     {% if session.get('user_id') %}
-    <footer><p>💕 LOVIO v8.0</p></footer>
+    <footer><p>💕 LOVIO v9.0</p></footer>
     {% endif %}
 </body>
 </html>

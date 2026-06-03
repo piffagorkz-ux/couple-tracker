@@ -1,13 +1,92 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="welcome card">
-    <h1>👋 {{ stats.name }}!</h1>
+<style>
+.welcome-section {
+    background: linear-gradient(135deg, #E13D3C 0%, #ED6C72 100%);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    box-shadow: 0 12px 40px rgba(225, 61, 60, 0.25);
+}
+.welcome-header {display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;}
+.welcome-title h1 {color: white; margin: 0; font-size: 2.5em;}
+.xp-badge {background: rgba(255,255,255,0.25); padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.95em;}
+.love-meter {display: flex; align-items: center; gap: 1.5rem; margin: 2rem 0;}
+.love-heart {font-size: 5em; animation: heartbeat 1.5s infinite;}
+.love-info {flex: 1;}
+.level-badge {display: inline-block; background: rgba(255,255,255,0.3); padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: 700; font-size: 0.9em; margin-bottom: 0.8rem;}
+.xp-bar {width: 100%; height: 12px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin: 0.8rem 0;}
+.xp-fill {height: 100%; background: white; width: 45%; transition: width 0.3s; border-radius: 10px;}
+.relationship-levels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.75em;
+}
+.level-item {text-align: center; padding: 0.5rem; border-radius: 8px; background: rgba(255,255,255,0.15);}
+.level-item.active {background: white; color: #E13D3C; font-weight: 700;}
+.metrics {display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 2rem;}
+.metric-card {background: rgba(255,255,255,0.15); padding: 1.2rem; border-radius: 12px; text-align: center;}
+.metric-num {font-size: 1.8em; font-weight: 700; color: white;}
+.metric-label {font-size: 0.8em; opacity: 0.9; margin-top: 0.3rem;}
+@keyframes heartbeat {0%, 100% {transform: scale(1);} 50% {transform: scale(1.1);}}
+.badge {position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;}
+</style>
+
+<div class="welcome-section">
+    <div class="welcome-header">
+        <div class="welcome-title">
+            <h1>💕 {{ stats.name }}!</h1>
+        </div>
+        <div class="xp-badge">
+            ⭐ {{ stats.couple_xp }} XP
+        </div>
+    </div>
+    
     {% if stats.partner_id %}
-    <p>💕 Партнёр: ID {{ stats.partner_id }}</p>
+    <div class="love-meter">
+        <div class="love-heart">❤️</div>
+        <div class="love-info">
+            <div class="level-badge">{{ ['Новички', 'Влюблённые', 'Родственные \nдуши', 'Идеальная пара', 'Легендарная пара'][stats.relationship_level - 1 if stats.relationship_level <= 5 else 4] }}</div>
+            <div class="xp-bar">
+                <div class="xp-fill" style="width: {{ (stats.couple_xp % 500) / 5 }}%;"></div>
+            </div>
+            <small style="opacity: 0.9;">{{ stats.couple_xp % 500 }}/500 XP до следующего уровня</small>
+            <div class="relationship-levels">
+                <div class="level-item {% if stats.relationship_level >= 1 %}active{% endif %}">🌱 Новички</div>
+                <div class="level-item {% if stats.relationship_level >= 2 %}active{% endif %}">🔥 Влюблённые</div>
+                <div class="level-item {% if stats.relationship_level >= 3 %}active{% endif %}">👫 Родст. Души</div>
+                <div class="level-item {% if stats.relationship_level >= 4 %}active{% endif %}">💎 Идеальная</div>
+                <div class="level-item {% if stats.relationship_level >= 5 %}active{% endif %}">👑 Легендарная</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="metrics">
+        <div class="metric-card">
+            <div class="metric-num">{{ stats.days_together }}</div>
+            <div class="metric-label">Дней вместе</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-num">{{ stats.last_activity or '—' }}</div>
+            <div class="metric-label">Последняя активность</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-num">{{ stats.stats.closeness }}%</div>
+            <div class="metric-label">Близость</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-num">{{ stats.stats.diary }}</div>
+            <div class="metric-label">Записей</div>
+        </div>
+    </div>
     {% else %}
-    <p><a href="/settings" style="color: white;">➕ Привяжите партнёра</a></p>
+    <p style="font-size: 1.1em;">⚠️ <a href="/settings" style="color: white; text-decoration: underline; font-weight: 600;">Привяжите партнёра в настройках</a></p>
     {% endif %}
 </div>
+
 <h2>Меню</h2>
 <div class="menu-grid">
     <a href="/diary" class="menu-item" style="position: relative;" onmouseover="mark_read('diary')">
@@ -59,33 +138,6 @@
         <div class="menu-title">Даты</div>
     </a>
 </div>
-{% if stats.stats %}
-<h2 style="margin-top: 3rem;">📊 Статистика</h2>
-<div class="stats">
-    <div class="stat"><div class="stat-num">{{ stats.stats.diary }}</div><div class="stat-label">Записей</div></div>
-    <div class="stat"><div class="stat-num">{{ stats.stats.goals }}</div><div class="stat-label">Целей</div></div>
-    <div class="stat"><div class="stat-num">{{ stats.stats.places }}</div><div class="stat-label">Мест</div></div>
-    <div class="stat"><div class="stat-num">{{ stats.stats.closeness }}%</div><div class="stat-label">Близость</div></div>
-</div>
-{% endif %}
-
-<style>
-.badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #4caf50;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.8em;
-}
-</style>
 
 <script>
 async function mark_read(type) {

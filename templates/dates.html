@@ -7,7 +7,7 @@
     <input type="time" id="time">
     <button onclick="add_date()" class="btn">Планировать</button>
     <br><br>
-    <button onclick="random_date()" class="btn" style="background: linear-gradient(135deg, #ef4284 0%, #cd2a63 100%);">🎲 Идея</button>
+    <button onclick="random_date()" class="btn" style="background: linear-gradient(135deg, #ED6C72 0%, #E13D3C 100%);">🎲 Идея</button>
 </div>
 <div id="idea"></div>
 
@@ -42,7 +42,8 @@
     <div class="card" style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); border-left: 4px solid #4caf50;">
         <p style="font-size: 1.1em; margin: 0; font-weight: 600;">{{ d.title }}</p>
         <small style="color: #999;">📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
-        <p style="color: #4caf50; margin-top: 0.5rem; font-weight: 600;">✅ Оба согласны!</p>
+        <p style="color: #4caf50; margin-top: 0.5rem; font-weight: 600;">✅ Оба согласны! +50 XP за завершение</p>
+        <button onclick="complete_date({{ loop.index0 }})" class="btn" style="margin-top: 1rem; background: #4caf50; width: 100%;">🎉 Завершить свидание</button>
     </div>
     {% endfor %}
 {% else %}
@@ -67,6 +68,22 @@
 </div>
 {% endif %}
 
+<h2 style="margin-top: 2rem;">🎉 Завершённые</h2>
+{% set completed_dates = dates|selectattr('status', 'equalto', 'completed')|list %}
+{% if completed_dates %}
+    {% for d in completed_dates|reverse %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(225,61,60,0.1) 0%, rgba(237,108,114,0.05) 100%); border-left: 4px solid #E13D3C;">
+        <p style="font-size: 1.1em; margin: 0; font-weight: 600;">{{ d.title }}</p>
+        <small style="color: #999;">📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+        <p style="color: #E13D3C; margin-top: 0.5rem; font-weight: 600;">🎉 Завершено! +50 XP</p>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card" style="text-align: center; color: #999;">
+    <p>Пока нет завершённых свиданий</p>
+</div>
+{% endif %}
+
 <script>
 async function add_date() {
     let title = document.getElementById('title').value.trim();
@@ -86,6 +103,16 @@ async function respond_date(index, response) {
             alert('❌ Вы отказались');
         }
         location.reload(); 
+    }
+}
+
+async function complete_date(index) {
+    if (confirm('🎉 Вы завершили это свидание? +50 XP!')) {
+        let r = await fetch('/api/dates/complete/' + index, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})});
+        if (r.ok) { 
+            alert('🎉 Свидание завершено! +50 XP для вас обоих!');
+            location.reload();
+        }
     }
 }
 

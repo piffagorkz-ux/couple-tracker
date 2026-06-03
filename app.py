@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_cors import CORS
 import json
 import os
-from datetime import date
+from datetime import date, datetime, timedelta
 from functools import wraps
 
 app = Flask(__name__)
@@ -35,7 +35,10 @@ def get_user(data, uid):
     if "users" not in data:
         data["users"] = {}
     if uid not in data["users"]:
-        data["users"][uid] = {"name": "", "partner_id": None, "gender": "female"}
+        data["users"][uid] = {
+            "name": "", "partner_id": None, "gender": "female",
+            "xp": 0, "shop_items": {}
+        }
     return data["users"][uid]
 
 def ck(id1, id2):
@@ -49,11 +52,30 @@ def get_couple(data, key):
             "diary": [], "mood": [], "goals": [], "places": [],
             "dates_plan": [], "habits": [], "wishes": [], "confessions": [],
             "important_dates": [], "activities": [], "notifications": [],
+            "relationship_level": 1, "xp": 0, "created_date": str(date.today()),
             "stats": {"diary": 0, "goals": 0, "places": 0, "closeness": 50}
         }
     if "notifications" not in data["couples"][key]:
         data["couples"][key]["notifications"] = []
+    if "relationship_level" not in data["couples"][key]:
+        data["couples"][key]["relationship_level"] = 1
+    if "xp" not in data["couples"][key]:
+        data["couples"][key]["xp"] = 0
     return data["couples"][key]
+
+def add_xp(couple, amount):
+    couple["xp"] = couple.get("xp", 0) + amount
+    
+    xp_thresholds = [0, 100, 300, 600, 1000, 1500]
+    level = 1
+    for i, threshold in enumerate(xp_thresholds):
+        if couple["xp"] >= threshold:
+            level = i + 1
+    
+    old_level = couple.get("relationship_level", 1)
+    couple["relationship_level"] = level
+    
+    return old_level != level
 
 def add_notification(couple, notif_type, text, to_user=None):
     if "notifications" not in couple:
@@ -117,7 +139,8 @@ def dashboard():
     stats = {
         "name": session.get("name"),
         "gender": session.get("gender"),
-        "partner_id": user.get("partner_id")
+        "partner_id": user.get("partner_id"),
+        "xp": user.get("xp", 0)
     }
     
     notifications_count = {}
@@ -125,6 +148,18 @@ def dashboard():
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         stats["stats"] = couple.get("stats", {})
+        stats["couple_xp"] = couple.get("xp", 0)
+        stats["relationship_level"] = couple.get("relationship_level", 1)
+        
+        created = couple.get("created_date", str(date.today()))
+        days_together = (date.today() - datetime.strptime(created, "%Y-%m-%d").date()).days
+        stats["days_together"] = days_together
+        
+        last_activity = None
+        all_activities = couple.get("activities", [])
+        if all_activities:
+            last_activity = all_activities[-1].get("from")
+        stats["last_activity"] = last_activity
         
         if "notifications" in couple:
             for notif in couple["notifications"]:
@@ -133,6 +168,9 @@ def dashboard():
                     if to_user is None or str(to_user) == str(session["user_id"]):
                         notif_type = notif.get("type")
                         notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
+    
+    add_xp(get_couple(data, ck(session["user_id"], user["partner_id"])) if user.get("partner_id") else {}, 1)
+    save_data(data)
     
     return render_template("dashboard.html", stats=stats, notifications=notifications_count)
 
@@ -186,6 +224,7 @@ def diary_add():
             "date": str(date.today())
         })
         couple["stats"]["diary"] = len(couple["diary"])
+        add_xp(couple, 5)
         add_notification(couple, "diary", f"📝 {session.get('name')}: новая запись", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -218,6 +257,7 @@ def mood_add():
         "date": str(date.today()),
         "author": session.get("name")
     })
+    add_xp(couple, 3)
     add_notification(couple, "mood", f"😊 {session.get('name')}: оценил(а) настроение", to_user=user["partner_id"])
     save_data(data)
     return jsonify({"success": True})
@@ -250,6 +290,7 @@ def goals_add():
             "completed": False,
             "date": str(date.today())
         })
+        add_xp(couple, 2)
         add_notification(couple, "goals", f"🎯 {session.get('name')}: новая цель", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -271,6 +312,7 @@ def goals_complete(gid):
             goal["completed"] = True
             couple["stats"]["goals"] = len([g for g in couple["goals"] if g["completed"]])
             couple["stats"]["closeness"] = min(100, couple["stats"].get("closeness", 50) + 5)
+            add_xp(couple, 25)
             save_data(data)
             return jsonify({"success": True})
     
@@ -304,6 +346,7 @@ def places_add():
             "date": str(date.today())
         })
         couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
+        add_xp(couple, 2)
         add_notification(couple, "places", f"🗺️ {session.get('name')}: новое место", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -325,6 +368,7 @@ def places_visit():
         if place.get("name") == name:
             place["visited"] = True
             couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
+            add_xp(couple, 10)
             save_data(data)
             return jsonify({"success": True})
     
@@ -362,6 +406,7 @@ def dates_add():
             "status": "pending",
             "created_by": str(session["user_id"])
         })
+        add_xp(couple, 5)
         add_notification(couple, "dates", f"💋 {session.get('name')}: предложил(а) свидание - {title}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -384,6 +429,7 @@ def dates_respond(did):
         
         if response == "accept":
             date_event["status"] = "accepted"
+            add_xp(couple, 20)
             add_notification(couple, "dates", f"✅ {session.get('name')}: согласился на свидание - {date_event['title']}", to_user=date_event["created_by"])
         else:
             date_event["status"] = "declined"
@@ -391,6 +437,26 @@ def dates_respond(did):
         
         save_data(data)
         return jsonify({"success": True})
+    
+    return jsonify({"error": ""}), 404
+
+@app.route("/api/dates/complete/<int:did>", methods=["POST"])
+@login_required
+def dates_complete(did):
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    if not user["partner_id"]:
+        return jsonify({"error": ""}), 400
+    
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    
+    if did < len(couple["dates_plan"]):
+        date_event = couple["dates_plan"][did]
+        if date_event["status"] == "accepted":
+            date_event["status"] = "completed"
+            add_xp(couple, 50)
+            save_data(data)
+            return jsonify({"success": True})
     
     return jsonify({"error": ""}), 404
 
@@ -443,6 +509,7 @@ def habits_complete(hid):
         if today not in habit.get("completed_dates", []):
             habit["completed_dates"].append(today)
             habit["streak"] = len(habit["completed_dates"])
+            add_xp(couple, 10)
             save_data(data)
             return jsonify({"success": True})
     
@@ -477,6 +544,7 @@ def wishes_add():
             "gifted": False,
             "date": str(date.today())
         })
+        add_xp(couple, 2)
         add_notification(couple, "wishes", f"🎁 {session.get('name')}: новое желание", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -497,6 +565,7 @@ def wishes_gift():
     for wish in couple["wishes"]:
         if wish.get("text") == text:
             wish["gifted"] = True
+            add_xp(couple, 30)
             save_data(data)
             return jsonify({"success": True})
     
@@ -529,6 +598,7 @@ def confessions_add():
             "date": str(date.today()),
             "author": session.get("name")
         })
+        add_xp(couple, 15)
         add_notification(couple, "confessions", f"💌 {session.get('name')}: новое признание", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -631,6 +701,7 @@ def activities_select():
             "date": str(date.today()),
             "completed": False
         })
+        add_xp(couple, 8)
         add_notification(couple, "activities", f"📋 {session.get('name')}: выбрал(а) активность", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
@@ -650,6 +721,66 @@ def random_date_api():
         {"emoji": "🏖️", "text": "Пикник на природе"},
     ]
     return jsonify(random.choice(ideas))
+
+@app.route("/shop")
+@login_required
+def shop():
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    partner_id = user.get("partner_id")
+    if not partner_id:
+        return redirect(url_for("settings"))
+    
+    couple = get_couple(data, ck(session["user_id"], partner_id))
+    couple_xp = couple.get("xp", 0)
+    
+    shop_items = {
+        "theme_dark": {"name": "Тёмная тема", "cost": 100, "icon": "🌙"},
+        "theme_light": {"name": "Светлая тема", "cost": 100, "icon": "☀️"},
+        "pet_cat": {"name": "Кот", "cost": 200, "icon": "🐱"},
+        "pet_dog": {"name": "Собака", "cost": 200, "icon": "🐶"},
+        "pet_bunny": {"name": "Кролик", "cost": 150, "icon": "🐰"},
+        "frame_gold": {"name": "Золотая рамка", "cost": 250, "icon": "🏆"},
+        "frame_silver": {"name": "Серебряная рамка", "cost": 150, "icon": "💎"},
+        "anim_hearts": {"name": "Анимация сердец", "cost": 300, "icon": "💖"},
+        "anim_sparkle": {"name": "Анимация блеска", "cost": 300, "icon": "✨"},
+    }
+    
+    user_items = user.get("shop_items", {})
+    
+    return render_template("shop.html", shop_items=shop_items, couple_xp=couple_xp, user_items=user_items)
+
+@app.route("/api/shop/buy/<item_id>", methods=["POST"])
+@login_required
+def shop_buy(item_id):
+    data = load_data()
+    user = get_user(data, session["user_id"])
+    
+    if not user.get("partner_id"):
+        return jsonify({"error": ""}), 400
+    
+    shop_items = {
+        "theme_dark": 100, "theme_light": 100, "pet_cat": 200,
+        "pet_dog": 200, "pet_bunny": 150, "frame_gold": 250,
+        "frame_silver": 150, "anim_hearts": 300, "anim_sparkle": 300,
+    }
+    
+    if item_id not in shop_items:
+        return jsonify({"error": ""}), 400
+    
+    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
+    cost = shop_items[item_id]
+    couple_xp = couple.get("xp", 0)
+    
+    if couple_xp >= cost:
+        couple["xp"] -= cost
+        if "shop_items" not in user:
+            user["shop_items"] = {}
+        user["shop_items"][item_id] = True
+        save_data(data)
+        return jsonify({"success": True})
+    
+    return jsonify({"error": "Not enough XP"}), 400
 
 @app.route("/settings")
 @login_required
