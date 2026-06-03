@@ -1,37 +1,182 @@
 {% extends "base.html" %}
+
+{% block title %}Челленджи - Couple Tracker{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h1>🎪 Челленджи</h1>
-    <input type="text" id="challenge-text" placeholder="Новый челлендж...">
-    <button onclick="addChallenge()" class="btn">🎪 Добавить</button>
-</div>
-<div class="card">
-    <h2>Популярные челленджи:</h2>
-    <p>🍽️ Романтический ужин дома</p>
-    <p>🎬 Кино вечер</p>
-    <p>🚶 Прогулка в парке</p>
-    <p>🎨 Посетить выставку</p>
-    <p>💬 День без ссор</p>
-</div>
-{% if challenges %}
-<div class="card">
-    {% for c in challenges|reverse %}
-    <div style="padding: 1rem; margin: 1rem 0; background: #f5f5f5; border-radius: 8px;">
-        <p>{{ c.text }} {% if c.completed %}✅{% else %}🔄{% endif %}</p>
+<div class="challenges-page">
+    <div class="challenges-header">
+        <h1>🎪 Челленджи для пар</h1>
+        <p>Принимайте вызовы и становитесь ближе друг к другу</p>
     </div>
-    {% endfor %}
+
+    <div class="challenges-grid">
+        <div class="challenge-card">
+            <div class="challenge-icon">🌹</div>
+            <h3>Сходить на свидание вне дома</h3>
+            <p class="challenge-duration">⏱️ 7 дней</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">💬</div>
+            <h3>Сделать 3 комплимента за день</h3>
+            <p class="challenge-duration">⏱️ 1 день</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">📵</div>
+            <h3>Вечер без телефонов</h3>
+            <p class="challenge-duration">⏱️ 1 день</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🍳</div>
+            <h3>Приготовить ужин вместе</h3>
+            <p class="challenge-duration">⏱️ 3 дня</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🖤</div>
+            <h3>Написать 5 причин, почему я ценю партнёра</h3>
+            <p class="challenge-duration">⏱️ 1 день</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🎬</div>
+            <h3>Посмотреть новый фильм вместе</h3>
+            <p class="challenge-duration">⏱️ 3 дня</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🤗</div>
+            <h3>Утренние обнимашки 5 дней подряд</h3>
+            <p class="challenge-duration">⏱️ 5 дней</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🎁</div>
+            <h3>Сюрприз для партнёра без повода</h3>
+            <p class="challenge-duration">⏱️ 3 дня</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">🚶</div>
+            <h3>Прогулка в новом месте города</h3>
+            <p class="challenge-duration">⏱️ 7 дней</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">☮️</div>
+            <h3>День без споров (мирный день)</h3>
+            <p class="challenge-duration">⏱️ 1 день</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">📸</div>
+            <h3>Сфотографироваться вместе в 3 местах</h3>
+            <p class="challenge-duration">⏱️ 7 дней</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+
+        <div class="challenge-card">
+            <div class="challenge-icon">✨</div>
+            <h3>Рассказать друг другу о своей мечте</h3>
+            <p class="challenge-duration">⏱️ 1 день</p>
+            <button class="btn btn-primary">✅ Принять челлендж</button>
+        </div>
+    </div>
 </div>
-{% endif %}
-<script>
-async function addChallenge() {
-    const text = document.getElementById('challenge-text').value.trim();
-    if (!text) return;
-    await fetch('{{ url_for("challenges_add") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text})
-    });
-    location.reload();
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.challenges-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
 }
-</script>
+
+.challenges-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.challenges-header h1 {
+    font-size: 2.5em;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.challenges-header p {
+    margin: 0;
+    color: #999;
+    font-size: 1.1em;
+}
+
+.challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.challenge-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #667eea;
+    transition: all 0.3s;
+}
+
+.challenge-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.challenge-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+.challenge-card h3 {
+    font-size: 1.1em;
+    color: #333;
+    margin: 15px 0;
+    min-height: 2.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.4;
+}
+
+.challenge-duration {
+    color: #999;
+    font-size: 0.95em;
+    margin: 15px 0;
+}
+
+.challenge-card .btn {
+    width: 100%;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .challenges-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}

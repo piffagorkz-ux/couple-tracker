@@ -37,7 +37,7 @@ def get_user(data, uid):
     if uid not in data["users"]:
         data["users"][uid] = {
             "name": "", "partner_id": None, "gender": "female",
-            "xp": 0, "shop_items": {}
+            "xp": 0, "shop_items": {}, "last_login": ""
         }
     return data["users"][uid]
 
@@ -168,8 +168,13 @@ def dashboard():
                     if to_user is None or str(to_user) == str(session["user_id"]):
                         notif_type = notif.get("type")
                         notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
+        
+        last_login = user.get("last_login", "")
+        today = str(date.today())
+        if last_login != today:
+            add_xp(couple, 1)
+            user["last_login"] = today
     
-    add_xp(get_couple(data, ck(session["user_id"], user["partner_id"])) if user.get("partner_id") else {}, 1)
     save_data(data)
     
     return render_template("dashboard.html", stats=stats, notifications=notifications_count)

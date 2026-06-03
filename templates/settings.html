@@ -1,37 +1,363 @@
 {% extends "base.html" %}
+
+{% block title %}Настройки - Couple Tracker{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h1>⚙️ Настройки</h1>
-    <label>Имя:</label>
-    <input type="text" id="name" value="{{ name }}">
-    <button onclick="update_name()" class="btn">Сохранить</button>
+<div class="settings-page">
+    <div class="settings-header">
+        <h1>⚙️ Настройки</h1>
+    </div>
+
+    <div class="settings-container">
+        <div class="settings-section">
+            <h2>👤 Профиль</h2>
+            <form id="profile-form" class="settings-form">
+                <div class="form-group">
+                    <label for="name">Ваше имя</label>
+                    <input 
+                        type="text"
+                        id="name"
+                        value="{{ name }}"
+                        maxlength="100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="user_id">Ваш Telegram ID</label>
+                    <input 
+                        type="text"
+                        id="user_id"
+                        value="{{ user_id }}"
+                        disabled
+                        readonly
+                    >
+                    <small>Это значение не может быть изменено</small>
+                </div>
+
+                {% if partner_id %}
+                <div class="form-group">
+                    <label for="partner_id">ID партнёра</label>
+                    <input 
+                        type="text"
+                        id="partner_id"
+                        value="{{ partner_id }}"
+                        disabled
+                        readonly
+                    >
+                    <small>Вы связаны с этим пользователем</small>
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">
+                    💾 Сохранить изменения
+                </button>
+            </form>
+        </div>
+
+        <div class="settings-section">
+            <h2>📱 О приложении</h2>
+            <div class="info-box">
+                <div class="info-item">
+                    <span class="info-label">Версия:</span>
+                    <span class="info-value">3.0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Статус:</span>
+                    <span class="info-value">✅ Активно</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Данные:</span>
+                    <span class="info-value">🔒 Защищены</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>📋 Помощь</h2>
+            <div class="help-links">
+                <a href="#" class="help-link">
+                    <span>❓ FAQ</span>
+                    <span>Часто задаваемые вопросы</span>
+                </a>
+                <a href="#" class="help-link">
+                    <span>📖 Документация</span>
+                    <span>Как использовать приложение</span>
+                </a>
+                <a href="#" class="help-link">
+                    <span>💬 Обратная связь</span>
+                    <span>Отправить отзыв или предложение</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="settings-section danger-zone">
+            <h2>⚠️ Опасная зона</h2>
+            <div class="danger-actions">
+                <div class="danger-action">
+                    <div>
+                        <h3>Выход из аккаунта</h3>
+                        <p>Вы будете выведены из приложения на этом устройстве</p>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Выход</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="card">
-    <h2>👥 Привязка партнёра</h2>
-    {% if partner_id %}
-    <p>✅ Привязан ID: <strong>{{ partner_id }}</strong></p>
-    {% else %}
-    <input type="text" id="pid" placeholder="Telegram ID партнёра">
-    <button onclick="set_partner()" class="btn">Привязать</button>
-    {% endif %}
-</div>
-<div class="card">
-    <h2>Информация</h2>
-    <p>Ваш ID: <strong>{{ user_id }}</strong></p>
-    <p>Пол: <strong>{% if gender == 'male' %}👨 Парень{% else %}👩 Девушка{% endif %}</strong></p>
-</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-header h1 {
+    font-size: 2.5em;
+    margin: 0;
+    color: #333;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.settings-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+}
+
+.settings-section h2 {
+    font-size: 1.5em;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 1.05em;
+}
+
+.form-group input {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.form-group input:not([readonly]):focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group input[readonly] {
+    background: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.form-group small {
+    margin-top: 5px;
+    color: #999;
+    font-size: 0.9em;
+}
+
+.info-box {
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 600;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 500;
+}
+
+.help-links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.help-link {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+
+.help-link:hover {
+    background: #f0f0f0;
+    border-left-color: #667eea;
+}
+
+.help-link span:first-child {
+    font-weight: 600;
+    color: #333;
+}
+
+.help-link span:last-child {
+    color: #999;
+    font-size: 0.95em;
+}
+
+.danger-zone {
+    border: 2px solid #ff6b6b;
+    background: #fff5f5;
+}
+
+.danger-zone h2 {
+    color: #ff6b6b;
+}
+
+.danger-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.danger-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #ffcccc;
+}
+
+.danger-action h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.danger-action p {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 0.95em;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-danger:hover {
+    background: #ff5252;
+}
+
+@media (max-width: 600px) {
+    .settings-page {
+        padding: 10px;
+    }
+
+    .settings-section {
+        padding: 20px;
+    }
+
+    .danger-action {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .danger-action .btn-danger {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-async function update_name() {
-    let name = document.getElementById('name').value.trim();
-    if (!name) return alert('Введите имя');
-    let r = await fetch('/api/settings/update', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})});
-    if (r.ok) { alert('✅'); location.reload(); }
-}
-async function set_partner() {
-    let partner_id = document.getElementById('pid').value.trim();
-    if (!partner_id) return alert('Введите ID');
-    let r = await fetch('/api/partner/set', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({partner_id})});
-    if (r.ok) { alert('✅ Партнёр привязан!'); location.reload(); }
-}
+document.getElementById('profile-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+        alert('Введите имя');
+        return;
+    }
+
+    try {
+        const response = await fetch('{{ url_for("settings_update") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Профиль обновлён!');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert('❌ Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении профиля');
+    }
+});
 </script>
 {% endblock %}
