@@ -10,49 +10,49 @@
 </div>
 <h2>Меню</h2>
 <div class="menu-grid">
-    <a href="/diary" class="menu-item" style="position: relative;">
+    <a href="/diary" class="menu-item" style="position: relative;" onmouseover="mark_read('diary')">
         <div class="menu-icon">📝</div>
         <div class="menu-title">Дневник</div>
-        {% if notifications.diary %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.diary }}</div>{% endif %}
+        {% if notifications.diary %}<div class="badge" data-type="diary">{{ notifications.diary }}</div>{% endif %}
     </a>
-    <a href="/mood" class="menu-item" style="position: relative;">
+    <a href="/mood" class="menu-item" style="position: relative;" onmouseover="mark_read('mood')">
         <div class="menu-icon">😊</div>
         <div class="menu-title">Настроение</div>
-        {% if notifications.mood %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.mood }}</div>{% endif %}
+        {% if notifications.mood %}<div class="badge" data-type="mood">{{ notifications.mood }}</div>{% endif %}
     </a>
-    <a href="/goals" class="menu-item" style="position: relative;">
+    <a href="/goals" class="menu-item" style="position: relative;" onmouseover="mark_read('goals')">
         <div class="menu-icon">🎯</div>
         <div class="menu-title">Цели</div>
-        {% if notifications.goals %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.goals }}</div>{% endif %}
+        {% if notifications.goals %}<div class="badge" data-type="goals">{{ notifications.goals }}</div>{% endif %}
     </a>
-    <a href="/places" class="menu-item" style="position: relative;">
+    <a href="/places" class="menu-item" style="position: relative;" onmouseover="mark_read('places')">
         <div class="menu-icon">🗺️</div>
         <div class="menu-title">Места</div>
-        {% if notifications.places %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.places }}</div>{% endif %}
+        {% if notifications.places %}<div class="badge" data-type="places">{{ notifications.places }}</div>{% endif %}
     </a>
-    <a href="/dates" class="menu-item" style="position: relative;">
+    <a href="/dates" class="menu-item" style="position: relative;" onmouseover="mark_read('dates')">
         <div class="menu-icon">💋</div>
         <div class="menu-title">Свидания</div>
-        {% if notifications.dates %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.dates }}</div>{% endif %}
+        {% if notifications.dates %}<div class="badge" data-type="dates">{{ notifications.dates }}</div>{% endif %}
     </a>
     <a href="/habits" class="menu-item" style="position: relative;">
         <div class="menu-icon">💪</div>
         <div class="menu-title">Привычки</div>
     </a>
-    <a href="/activities" class="menu-item" style="position: relative;">
+    <a href="/activities" class="menu-item" style="position: relative;" onmouseover="mark_read('activities')">
         <div class="menu-icon">📋</div>
         <div class="menu-title">Активности</div>
-        {% if notifications.activities %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.activities }}</div>{% endif %}
+        {% if notifications.activities %}<div class="badge" data-type="activities">{{ notifications.activities }}</div>{% endif %}
     </a>
-    <a href="/wishes" class="menu-item" style="position: relative;">
+    <a href="/wishes" class="menu-item" style="position: relative;" onmouseover="mark_read('wishes')">
         <div class="menu-icon">🎁</div>
         <div class="menu-title">Вишлист</div>
-        {% if notifications.wishes %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.wishes }}</div>{% endif %}
+        {% if notifications.wishes %}<div class="badge" data-type="wishes">{{ notifications.wishes }}</div>{% endif %}
     </a>
-    <a href="/confessions" class="menu-item" style="position: relative;">
+    <a href="/confessions" class="menu-item" style="position: relative;" onmouseover="mark_read('confessions')">
         <div class="menu-icon">💌</div>
         <div class="menu-title">Признания</div>
-        {% if notifications.confessions %}<div style="position: absolute; top: 10px; right: 10px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;">{{ notifications.confessions }}</div>{% endif %}
+        {% if notifications.confessions %}<div class="badge" data-type="confessions">{{ notifications.confessions }}</div>{% endif %}
     </a>
     <a href="/important-dates" class="menu-item" style="position: relative;">
         <div class="menu-icon">📅</div>
@@ -68,4 +68,39 @@
     <div class="stat"><div class="stat-num">{{ stats.stats.closeness }}%</div><div class="stat-label">Близость</div></div>
 </div>
 {% endif %}
+
+<style>
+.badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #4caf50;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8em;
+}
+</style>
+
+<script>
+async function mark_read(type) {
+    let r = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type})
+    });
+    
+    if (r.ok) {
+        let badge = document.querySelector('[data-type="' + type + '"]');
+        if (badge) {
+            badge.style.display = 'none';
+        }
+    }
+}
+</script>
 {% endblock %}

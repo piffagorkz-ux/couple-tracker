@@ -10,12 +10,63 @@
     <button onclick="random_date()" class="btn" style="background: linear-gradient(135deg, #ef4284 0%, #cd2a63 100%);">🎲 Идея</button>
 </div>
 <div id="idea"></div>
-{% for d in dates|reverse %}
-<div class="card">
-    <p>{{ d.title }}</p>
-    <small>📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+
+<h2 style="margin-top: 2rem;">⏳ Ожидающие одобрения</h2>
+{% set pending_dates = dates|selectattr('status', 'equalto', 'pending')|list %}
+{% if pending_dates %}
+    {% for d in pending_dates|reverse %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(255,152,0,0.1) 0%, rgba(255,152,0,0.05) 100%); border-left: 4px solid #FF9800;">
+        <p style="font-size: 1.1em; margin: 0; font-weight: 600;">{{ d.title }}</p>
+        <small style="color: #999;">📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+        
+        {% if d.created_by != current_user|string %}
+        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+            <button onclick="respond_date({{ loop.index0 }}, 'accept')" class="btn" style="flex: 1; background: #4caf50; padding: 10px;">✅ Согласен</button>
+            <button onclick="respond_date({{ loop.index0 }}, 'decline')" class="btn" style="flex: 1; background: #f44336; padding: 10px;">❌ Отказ</button>
+        </div>
+        {% else %}
+        <p style="color: #FF9800; margin-top: 1rem; font-size: 0.9em;">⏳ Ожидание ответа партнёра...</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card" style="text-align: center; color: #999;">
+    <p>Нет ожидающих свиданий</p>
 </div>
-{% endfor %}
+{% endif %}
+
+<h2 style="margin-top: 2rem;">✅ Активные свидания</h2>
+{% set active_dates = dates|selectattr('status', 'equalto', 'accepted')|list %}
+{% if active_dates %}
+    {% for d in active_dates|reverse %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); border-left: 4px solid #4caf50;">
+        <p style="font-size: 1.1em; margin: 0; font-weight: 600;">{{ d.title }}</p>
+        <small style="color: #999;">📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+        <p style="color: #4caf50; margin-top: 0.5rem; font-weight: 600;">✅ Оба согласны!</p>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card" style="text-align: center; color: #999;">
+    <p>Нет активных свиданий</p>
+</div>
+{% endif %}
+
+<h2 style="margin-top: 2rem;">❌ Отклонённые</h2>
+{% set declined_dates = dates|selectattr('status', 'equalto', 'declined')|list %}
+{% if declined_dates %}
+    {% for d in declined_dates|reverse %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(244,67,54,0.1) 0%, rgba(244,67,54,0.05) 100%); border-left: 4px solid #f44336;">
+        <p style="font-size: 1.1em; margin: 0; opacity: 0.6; font-weight: 600;">{{ d.title }}</p>
+        <small style="color: #999;">📅 {{ d.date }}{% if d.time %} ⏰ {{ d.time }}{% endif %}</small>
+        <p style="color: #f44336; margin-top: 0.5rem; font-weight: 600;">❌ Отклонено</p>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card" style="text-align: center; color: #999;">
+    <p>Нет отклонённых свиданий</p>
+</div>
+{% endif %}
+
 <script>
 async function add_date() {
     let title = document.getElementById('title').value.trim();
@@ -23,12 +74,25 @@ async function add_date() {
     let time = document.getElementById('time').value;
     if (!title || !date_val) return alert('Заполните название и дату');
     let r = await fetch('/api/dates/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, date: date_val, time})});
-    if (r.ok) { location.reload(); }
+    if (r.ok) { alert('✅ Свидание предложено!'); location.reload(); }
 }
+
+async function respond_date(index, response) {
+    let r = await fetch('/api/dates/respond/' + index, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({response})});
+    if (r.ok) { 
+        if (response === 'accept') {
+            alert('✅ Вы согласились!');
+        } else {
+            alert('❌ Вы отказались');
+        }
+        location.reload(); 
+    }
+}
+
 async function random_date() {
     let r = await fetch('/api/random-date');
     let d = await r.json();
-    document.getElementById('idea').innerHTML = '<div class="card" style="background: #fff9e6; border-left: 4px solid gold;"><p style="font-size: 3em;">' + d.emoji + '</p><p style="font-size: 1.2em;">' + d.text + '</p></div>';
+    document.getElementById('idea').innerHTML = '<div class="card" style="background: #fff9e6; border-left: 4px solid gold;"><p style="font-size: 3em; margin: 1rem 0; text-align: center;">' + d.emoji + '</p><p style="font-size: 1.2em; text-align: center; margin: 1rem 0;">' + d.text + '</p></div>';
 }
 </script>
 {% endblock %}
