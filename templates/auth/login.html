@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Login - LOVIO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h1>Welcome Back</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Log in to your LOVIO account</p>
+        
+        <form method="POST">
+            {{ csrf_token() }}
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required
+                       placeholder="Your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required
+                       placeholder="Your password">
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; margin-bottom: 0;">
+                    <input type="checkbox" name="remember" style="width: auto; margin-right: 0.5rem;">
+                    Remember me
+                </label>
+            </div>
+            
+            <button type="submit" class="btn">Log In</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 2rem; color: #666;">
+            Don't have an account? <a href="{{ url_for('register') }}" style="color: var(--primary); font-weight: 600;">Register</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

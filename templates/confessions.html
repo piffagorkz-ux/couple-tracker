@@ -1,22 +1,44 @@
 {% extends "base.html" %}
+{% block title %}Confessions - LOVIO{% endblock %}
 {% block content %}
-<div class="card">
-    <h1>💌 Признания</h1>
-    <textarea id="text" placeholder="Ваше признание..."></textarea>
-    <button onclick="add()" class="btn">Отправить</button>
+<div class="container">
+    <h1>💌 Confessions</h1>
+    <div class="card">
+        <h2>Share Your Feelings</h2>
+        <form id="confession-form">
+            <textarea id="text" placeholder="Tell them something from your heart..." required maxlength="5000" rows="6"></textarea>
+            <button type="submit" class="btn">Send Confession</button>
+        </form>
+    </div>
+    
+    {% if confessions %}
+    <h2 style="margin-top: 2rem;">Confessions</h2>
+    {% for confession in confessions %}
+    <div class="card">
+        <p><strong>{{ confession.author.name }}</strong></p>
+        <p style="margin: 1rem 0;">{{ confession.text }}</p>
+        <p style="color: #999; font-size: 0.9em;">{{ confession.created_at.strftime('%Y-%m-%d') }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
 </div>
-{% for c in confessions|reverse %}
-<div class="card" style="background: linear-gradient(135deg, rgba(205,42,99,0.05) 0%, rgba(239,66,132,0.05) 100%);">
-    <p>{{ c.text }}</p>
-    <small style="color: #999;">{{ c.author }} • {{ c.date }}</small>
-</div>
-{% endfor %}
+
 <script>
-async function add() {
-    let text = document.getElementById('text').value.trim();
-    if (!text) return alert('Напишите признание');
-    let r = await fetch('/api/confessions/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
-    if (r.ok) { location.reload(); }
-}
+document.getElementById('confession-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = document.getElementById('text').value;
+    const response = await fetch('/api/confessions/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert('Confession sent! +15 XP');
+        location.reload();
+    } else {
+        alert('Error: ' + data.error);
+    }
+});
 </script>
 {% endblock %}

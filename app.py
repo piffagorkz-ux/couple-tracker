@@ -1,693 +1,571 @@
-#!/usr/bin/env python3
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from flask_cors import CORS
-import json
-import os
-import shutil
-from datetime import date, datetime, timedelta
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
+from datetime import datetime, date, timedelta
 from functools import wraps
+from config import config
+from models import db, User, Couple, Goal, Diary, Mood, Place, DatePlan, Habit, Wish, Confession, Activity, Notification, CoupleInvitation, RelationshipLevel
+import os
 
-app = Flask(__name__)
-CORS(app)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "lovio")
-
-DATA_DIR = "data"
-DATA_FILE = os.path.join(DATA_DIR, "couple_data.json")
-BACKUP_FILE = os.path.join(DATA_DIR, "couple_data_backup.json")
-os.makedirs(DATA_DIR, exist_ok=True)
-
-def load_data():
-    try:
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception as e:
-        print(f"Load error: {e}")
-        try:
-            if os.path.exists(BACKUP_FILE):
-                print("Recovering from backup...")
-                with open(BACKUP_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
-        except:
-            pass
-    return {"users": {}, "couples": {}}
-
-def save_data(data):
-    try:
-        if os.path.exists(DATA_FILE):
-            shutil.copy(DATA_FILE, BACKUP_FILE)
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return True
-    except Exception as e:
-        print(f"Save error: {e}")
-        return False
-
-def get_user(data, uid):
-    uid = str(uid)
-    if "users" not in data:
-        data["users"] = {}
-    if uid not in data["users"]:
-        data["users"][uid] = {
-            "name": "", "partner_id": None, "gender": "female",
-            "xp": 0, "shop_items": {}, "last_login": ""
-        }
-    return data["users"][uid]
-
-def ck(id1, id2):
-    return f"{min(int(id1), int(id2))}_{max(int(id1), int(id2))}"
-
-def get_couple(data, key):
-    if "couples" not in data:
-        data["couples"] = {}
-    if key not in data["couples"]:
-        data["couples"][key] = {
-            "diary": [], "mood": [], "goals": [], "places": [],
-            "dates_plan": [], "habits": [], "wishes": [], "confessions": [],
-            "important_dates": [], "activities": [], "notifications": [],
-            "relationship_level": 1, "xp": 0, "created_date": str(date.today()),
-            "stats": {"diary": 0, "goals": 0, "places": 0, "closeness": 50}
-        }
-    if "notifications" not in data["couples"][key]:
-        data["couples"][key]["notifications"] = []
-    return data["couples"][key]
-
-def add_xp(couple, amount):
-    couple["xp"] = couple.get("xp", 0) + amount
-    xp_thresholds = [0, 100, 300, 600, 1000, 1500]
-    level = 1
-    for i, threshold in enumerate(xp_thresholds):
-        if couple["xp"] >= threshold:
-            level = i + 1
-    couple["relationship_level"] = level
-
-def add_notification(couple, notif_type, text, to_user=None):
-    if "notifications" not in couple:
-        couple["notifications"] = []
-    couple["notifications"].append({
-        "type": notif_type, "text": text, "read": False,
-        "to_user": to_user, "id": len(couple["notifications"])
-    })
-
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if "user_id" not in session:
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return decorated
-
-@app.route("/")
-def index():
-    if "user_id" in session:
-        return redirect(url_for("dashboard"))
-    return redirect(url_for("login"))
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        uid = request.form.get("user_id", "").strip()
-        name = request.form.get("name", "").strip()
-        gender = request.form.get("gender", "female")
-        
-        if uid and name:
-            session["user_id"] = uid
-            session["name"] = name
-            session["gender"] = gender
-            data = load_data()
-            user = get_user(data, uid)
-            user["name"] = name
-            user["gender"] = gender
-            save_data(data)
-            return redirect(url_for("dashboard"))
-        return render_template("login.html", error="Fill all fields")
-    return render_template("login.html")
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
-
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    stats = {
-        "name": session.get("name"),
-        "gender": session.get("gender"),
-        "partner_id": user.get("partner_id"),
-        "xp": user.get("xp", 0)
-    }
-    notifications_count = {}
+def create_app(config_name=None):
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
     
-    if user.get("partner_id"):
-        couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-        stats["stats"] = couple.get("stats", {})
-        stats["couple_xp"] = couple.get("xp", 0)
-        stats["relationship_level"] = couple.get("relationship_level", 1)
-        
-        created = couple.get("created_date", str(date.today()))
-        days_together = (date.today() - datetime.strptime(created, "%Y-%m-%d").date()).days
-        stats["days_together"] = days_together
-        
-        last_activity = None
-        all_activities = couple.get("activities", [])
-        if all_activities:
-            last_activity = all_activities[-1].get("from")
-        stats["last_activity"] = last_activity
-        
-        if "notifications" in couple:
-            for notif in couple["notifications"]:
-                if not notif.get("read"):
-                    to_user = notif.get("to_user")
-                    if to_user is None or str(to_user) == str(session["user_id"]):
-                        notif_type = notif.get("type")
-                        notifications_count[notif_type] = notifications_count.get(notif_type, 0) + 1
-        
-        last_login = user.get("last_login", "")
-        today = str(date.today())
-        if last_login != today:
-            add_xp(couple, 1)
-            user["last_login"] = today
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
     
-    save_data(data)
-    return render_template("dashboard.html", stats=stats, notifications=notifications_count)
+    # Инициализация расширений
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    csrf = CSRFProtect(app)
+    login_manager = LoginManager(app)
+    
+    login_manager.login_view = 'login'
+    login_manager.login_message = 'Please log in to access this page.'
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
+    # ==================== AUTH ROUTES ====================
+    
+    @app.route('/register', methods=['GET', 'POST'])
+    def register():
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard'))
+        
+        if request.method == 'POST':
+            username = request.form.get('username', '').strip()
+            email = request.form.get('email', '').strip()
+            password = request.form.get('password', '')
+            confirm_password = request.form.get('confirm_password', '')
+            name = request.form.get('name', '').strip()
+            gender = request.form.get('gender', 'female')
+            
+            # Валидация
+            if not all([username, email, password, confirm_password, name]):
+                flash('All fields are required', 'error')
+                return redirect(url_for('register'))
+            
+            if len(username) < 3 or len(username) > 80:
+                flash('Username must be 3-80 characters', 'error')
+                return redirect(url_for('register'))
+            
+            if len(password) < 8:
+                flash('Password must be at least 8 characters', 'error')
+                return redirect(url_for('register'))
+            
+            if password != confirm_password:
+                flash('Passwords do not match', 'error')
+                return redirect(url_for('register'))
+            
+            if '@' not in email or len(email) > 120:
+                flash('Invalid email', 'error')
+                return redirect(url_for('register'))
+            
+            # Проверка уникальности
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists', 'error')
+                return redirect(url_for('register'))
+            
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered', 'error')
+                return redirect(url_for('register'))
+            
+            # Создание пользователя
+            user = User(username=username, email=email, name=name, gender=gender)
+            user.set_password(password)
+            
+            db.session.add(user)
+            db.session.commit()
+            
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        
+        return render_template('auth/register.html')
+    
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard'))
+        
+        if request.method == 'POST':
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '')
+            
+            if not username or not password:
+                flash('Username and password are required', 'error')
+                return redirect(url_for('login'))
+            
+            user = User.query.filter_by(username=username).first()
+            
+            if user and user.check_password(password):
+                login_user(user, remember=request.form.get('remember'))
+                user.update_last_login()
+                
+                # Check-in reward (только один раз в день)
+                if user.last_check_in != date.today():
+                    user.xp += 1
+                    user.last_check_in = date.today()
+                    db.session.commit()
+                
+                next_page = request.args.get('next')
+                if next_page and not next_page.startswith('/'):
+                    next_page = None
+                
+                return redirect(next_page or url_for('dashboard'))
+            else:
+                flash('Invalid username or password', 'error')
+        
+        return render_template('auth/login.html')
+    
+    @app.route('/logout')
+    @login_required
+    def logout():
+        logout_user()
+        flash('You have been logged out.', 'info')
+        return redirect(url_for('login'))
+    
+    # ==================== DASHBOARD ====================
+    
+    @app.route('/dashboard')
+    @login_required
+    def dashboard():
+        user = current_user
+        couple = user.couple_data[0] if user.couple_data else None
+        partner = None
+        stats = {
+            'xp': user.xp,
+            'streak': calculate_streak(user),
+            'couple_xp': couple.xp if couple else 0,
+            'relationship_level': couple.relationship_level if couple else None,
+            'closeness': couple.closeness if couple else 50,
+            'days_together': (date.today() - couple.couple_since).days if couple else 0,
+        }
+        
+        if couple:
+            partner = couple.get_partner(user.id)
+            last_activity = Activity.query.filter_by(couple_id=couple.id).order_by(Activity.created_at.desc()).first()
+            stats['last_activity'] = last_activity.user.name if last_activity else None
+            stats['diary_count'] = Diary.query.filter_by(couple_id=couple.id).count()
+            stats['goals_count'] = Goal.query.filter_by(couple_id=couple.id, completed=True).count()
+            stats['notifications'] = Notification.query.filter_by(user_id=user.id, read=False).count()
+        
+        return render_template('dashboard.html', partner=partner, **stats)
+    
+    # ==================== COUPLE SYSTEM ====================
+    
+    @app.route('/api/invite/send', methods=['POST'])
+    @login_required
+    def send_invitation():
+        if current_user.has_couple():
+            return jsonify({'error': 'You are already in a couple'}), 400
+        
+        data = request.get_json()
+        receiver_username = data.get('username', '').strip()
+        
+        if not receiver_username:
+            return jsonify({'error': 'Username required'}), 400
+        
+        receiver = User.query.filter_by(username=receiver_username).first()
+        if not receiver:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if receiver.id == current_user.id:
+            return jsonify({'error': 'Cannot invite yourself'}), 400
+        
+        if receiver.has_couple():
+            return jsonify({'error': 'User is already in a couple'}), 400
+        
+        existing = CoupleInvitation.query.filter_by(
+            sender_id=current_user.id, 
+            receiver_id=receiver.id,
+            status='pending'
+        ).first()
+        
+        if existing:
+            return jsonify({'error': 'Invitation already sent'}), 400
+        
+        invitation = CoupleInvitation(sender_id=current_user.id, receiver_id=receiver.id)
+        db.session.add(invitation)
+        db.session.commit()
+        
+        notification = Notification(
+            user_id=receiver.id,
+            notif_type='invitation',
+            text=f'{current_user.name} invited you to be partners!'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    
+    @app.route('/api/invite/<int:invitation_id>/accept', methods=['POST'])
+    @login_required
+    def accept_invitation(invitation_id):
+        invitation = CoupleInvitation.query.get(invitation_id)
+        
+        if not invitation or invitation.receiver_id != current_user.id:
+            return jsonify({'error': 'Invalid invitation'}), 404
+        
+        if invitation.status != 'pending':
+            return jsonify({'error': 'Invitation already processed'}), 400
+        
+        couple = invitation.accept()
+        
+        # Update both users
+        sender = User.query.get(invitation.sender_id)
+        current_user.couple_id = couple.id
+        sender.couple_id = couple.id
+        db.session.commit()
+        
+        notification = Notification(
+            user_id=sender.id,
+            notif_type='couple',
+            text=f'{current_user.name} accepted your invitation!'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'couple_id': couple.id})
+    
+    @app.route('/api/invite/<int:invitation_id>/decline', methods=['POST'])
+    @login_required
+    def decline_invitation(invitation_id):
+        invitation = CoupleInvitation.query.get(invitation_id)
+        
+        if not invitation or invitation.receiver_id != current_user.id:
+            return jsonify({'error': 'Invalid invitation'}), 404
+        
+        if invitation.status != 'pending':
+            return jsonify({'error': 'Invitation already processed'}), 400
+        
+        invitation.decline()
+        
+        notification = Notification(
+            user_id=invitation.sender_id,
+            notif_type='invitation',
+            text=f'{current_user.name} declined your invitation.'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    
+    # ==================== XP PROTECTED ENDPOINTS ====================
+    
+    def xp_check(xp_amount):
+        def decorator(f):
+            @wraps(f)
+            def decorated_function(*args, **kwargs):
+                if not current_user.has_couple():
+                    return jsonify({'error': 'Must be in a couple'}), 400
+                return f(*args, **kwargs)
+            return decorated_function
+        return decorator
+    
+    @app.route('/api/mood/add', methods=['POST'])
+    @login_required
+    @xp_check(3)
+    def add_mood():
+        data = request.get_json()
+        level = data.get('level', 5)
+        
+        if not isinstance(level, int) or level < 1 or level > 10:
+            return jsonify({'error': 'Mood must be 1-10'}), 400
+        
+        couple = current_user.couple_data[0]
+        
+        # Проверка: только 1 раз в день
+        existing_mood = Mood.query.filter_by(
+            author_id=current_user.id,
+            mood_date=date.today()
+        ).first()
+        
+        if existing_mood:
+            return jsonify({'error': 'You already submitted mood today'}), 400
+        
+        mood = Mood(couple_id=couple.id, author_id=current_user.id, level=level)
+        db.session.add(mood)
+        
+        couple.update_xp(3)
+        
+        partner = couple.get_partner(current_user.id)
+        notification = Notification(
+            user_id=partner.id,
+            notif_type='mood',
+            text=f'{current_user.name} shared their mood'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'xp_gained': 3})
+    
+    @app.route('/api/diary/add', methods=['POST'])
+    @login_required
+    @xp_check(5)
+    def add_diary():
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        
+        if not text or len(text) > 5000:
+            return jsonify({'error': 'Text must be 1-5000 characters'}), 400
+        
+        couple = current_user.couple_data[0]
+        diary = Diary(couple_id=couple.id, author_id=current_user.id, text=text)
+        db.session.add(diary)
+        
+        couple.update_xp(5)
+        
+        partner = couple.get_partner(current_user.id)
+        notification = Notification(
+            user_id=partner.id,
+            notif_type='diary',
+            text=f'{current_user.name} wrote a diary entry'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'xp_gained': 5})
+    
+    @app.route('/api/activity/select', methods=['POST'])
+    @login_required
+    @xp_check(8)
+    def select_activity():
+        data = request.get_json()
+        task = data.get('task', '').strip()
+        
+        if not task or len(task) > 300:
+            return jsonify({'error': 'Invalid task'}), 400
+        
+        couple = current_user.couple_data[0]
+        
+        # Проверка: только 1 раз в день
+        existing = Activity.query.filter_by(
+            user_id=current_user.id,
+            activity_date=date.today()
+        ).first()
+        
+        if existing:
+            return jsonify({'error': 'You already selected activity today'}), 400
+        
+        activity = Activity(couple_id=couple.id, user_id=current_user.id, task=task)
+        db.session.add(activity)
+        
+        couple.update_xp(8)
+        
+        partner = couple.get_partner(current_user.id)
+        notification = Notification(
+            user_id=partner.id,
+            notif_type='activity',
+            text=f'{current_user.name} selected: {task}'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'xp_gained': 8})
+    
+    # ==================== ERROR HANDLERS ====================
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def server_error(error):
+        db.session.rollback()
+        return render_template('errors/500.html'), 500
+    
+    @app.errorhandler(403)
+    def forbidden(error):
+        return render_template('errors/403.html'), 403
+    
+    # ==================== CLI COMMANDS ====================
+    
+    @app.cli.command()
+    def init_db():
+        """Initialize the database."""
+        db.create_all()
+        print('Database initialized.')
+    
+    @app.cli.command()
+    def seed_db():
+        """Seed database with sample data."""
+        if User.query.first():
+            print('Database already has data.')
+            return
+        
+        user1 = User(username='alice', email='alice@example.com', name='Alice', gender='female')
+        user1.set_password('password123')
+        
+        user2 = User(username='bob', email='bob@example.com', name='Bob', gender='male')
+        user2.set_password('password123')
+        
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.commit()
+        
+        print('Sample users created.')
+    
+    with app.app_context():
+        db.create_all()
+    
+    return app
 
-@app.route("/api/notifications/mark-read", methods=["POST"])
-@login_required
-def mark_notifications_read():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if user.get("partner_id"):
-        couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-        notif_type = request.json.get("type")
-        if "notifications" in couple:
-            for notif in couple["notifications"]:
-                if notif.get("type") == notif_type and not notif.get("read"):
-                    to_user = notif.get("to_user")
-                    if to_user is None or str(to_user) == str(session["user_id"]):
-                        notif["read"] = True
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/diary")
-@login_required
-def diary():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("diary.html", entries=couple["diary"])
-
-@app.route("/api/diary/add", methods=["POST"])
-@login_required
-def diary_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    if text:
-        couple["diary"].append({"text": text, "author": session.get("name"), "date": str(date.today())})
-        couple["stats"]["diary"] = len(couple["diary"])
-        add_xp(couple, 5)
-        add_notification(couple, "diary", f"📝 New note from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/mood")
-@login_required
-def mood():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("mood.html", moods=couple["mood"])
-
-@app.route("/api/mood/add", methods=["POST"])
-@login_required
-def mood_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    mood_level = request.json.get("mood", 5)
-    couple["mood"].append({"level": mood_level, "date": str(date.today()), "author": session.get("name")})
-    add_xp(couple, 3)
-    add_notification(couple, "mood", f"😊 Mood update from {session.get('name')}", to_user=user["partner_id"])
-    save_data(data)
-    return jsonify({"success": True})
-
-@app.route("/goals")
-@login_required
-def goals():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("goals.html", goals=couple["goals"])
-
-@app.route("/api/goals/add", methods=["POST"])
-@login_required
-def goals_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    if text:
-        couple["goals"].append({"id": len(couple["goals"]) + 1, "text": text, "completed": False, "date": str(date.today())})
-        add_xp(couple, 2)
-        add_notification(couple, "goals", f"🎯 New goal from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/api/goals/complete/<int:gid>", methods=["POST"])
-@login_required
-def goals_complete(gid):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    for goal in couple["goals"]:
-        if goal["id"] == gid:
-            goal["completed"] = True
-            couple["stats"]["goals"] = len([g for g in couple["goals"] if g["completed"]])
-            couple["stats"]["closeness"] = min(100, couple["stats"].get("closeness", 50) + 5)
-            add_xp(couple, 25)
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/places")
-@login_required
-def places():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("places.html", places=couple["places"])
-
-@app.route("/api/places/add", methods=["POST"])
-@login_required
-def places_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    name = request.json.get("name", "").strip()
-    if name:
-        couple["places"].append({"name": name, "visited": False, "date": str(date.today())})
-        couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
-        add_xp(couple, 2)
-        add_notification(couple, "places", f"🗺️ New place from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/api/places/visit", methods=["POST"])
-@login_required
-def places_visit():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    name = request.json.get("name", "").strip()
-    for place in couple["places"]:
-        if place.get("name") == name:
-            place["visited"] = True
-            couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
-            add_xp(couple, 10)
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/dates")
-@login_required
-def dates():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("dates.html", dates=couple["dates_plan"], current_user=session["user_id"])
-
-@app.route("/api/dates/add", methods=["POST"])
-@login_required
-def dates_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    title = request.json.get("title", "").strip()
-    date_val = request.json.get("date", "")
-    time_val = request.json.get("time", "")
-    if title and date_val:
-        couple["dates_plan"].append({"id": len(couple["dates_plan"]), "title": title, "date": date_val, "time": time_val, "status": "pending", "created_by": str(session["user_id"])})
-        add_xp(couple, 5)
-        add_notification(couple, "dates", f"💋 Date proposal from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/api/dates/respond/<int:did>", methods=["POST"])
-@login_required
-def dates_respond(did):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    response = request.json.get("response")
-    if did < len(couple["dates_plan"]):
-        date_event = couple["dates_plan"][did]
-        if response == "accept":
-            date_event["status"] = "accepted"
-            add_xp(couple, 20)
-            add_notification(couple, "dates", f"✅ {session.get('name')} accepted!", to_user=date_event["created_by"])
-        else:
-            date_event["status"] = "declined"
-            add_notification(couple, "dates", f"❌ {session.get('name')} declined", to_user=date_event["created_by"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/api/dates/complete/<int:did>", methods=["POST"])
-@login_required
-def dates_complete(did):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    if did < len(couple["dates_plan"]):
-        date_event = couple["dates_plan"][did]
-        if date_event["status"] == "accepted":
-            date_event["status"] = "completed"
-            add_xp(couple, 50)
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/habits")
-@login_required
-def habits():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("habits.html", habits=couple["habits"])
-
-@app.route("/api/habits/add", methods=["POST"])
-@login_required
-def habits_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    if text:
-        couple["habits"].append({"text": text, "created": str(date.today()), "streak": 0, "completed_dates": []})
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/api/habits/complete/<int:hid>", methods=["POST"])
-@login_required
-def habits_complete(hid):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    if hid < len(couple["habits"]):
-        habit = couple["habits"][hid]
-        today = str(date.today())
-        if today not in habit.get("completed_dates", []):
-            habit["completed_dates"].append(today)
-            habit["streak"] = len(habit["completed_dates"])
-            add_xp(couple, 10)
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/wishes")
-@login_required
-def wishes():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("wishes.html", wishes=couple["wishes"])
-
-@app.route("/api/wishes/add", methods=["POST"])
-@login_required
-def wishes_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    price = request.json.get("price", 0)
-    if text:
-        couple["wishes"].append({"text": text, "price": price, "gifted": False, "date": str(date.today())})
-        add_xp(couple, 2)
-        add_notification(couple, "wishes", f"🎁 New wish from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/api/wishes/gift", methods=["POST"])
-@login_required
-def wishes_gift():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    for wish in couple["wishes"]:
-        if wish.get("text") == text:
-            wish["gifted"] = True
-            add_xp(couple, 30)
-            save_data(data)
-            return jsonify({"success": True})
-    return jsonify({"error": ""}), 404
-
-@app.route("/confessions")
-@login_required
-def confessions():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("confessions.html", confessions=couple["confessions"])
-
-@app.route("/api/confessions/add", methods=["POST"])
-@login_required
-def confessions_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    text = request.json.get("text", "").strip()
-    if text:
-        couple["confessions"].append({"text": text, "date": str(date.today()), "author": session.get("name")})
-        add_xp(couple, 15)
-        add_notification(couple, "confessions", f"💌 Confession from {session.get('name')}", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/important-dates")
-@login_required
-def important_dates():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    return render_template("important_dates.html", dates=couple["important_dates"])
-
-@app.route("/api/important-dates/add", methods=["POST"])
-@login_required
-def important_dates_add():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    title = request.json.get("title", "").strip()
-    date_val = request.json.get("date", "")
-    if title and date_val:
-        couple["important_dates"].append({"title": title, "date": date_val})
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
-
-@app.route("/activities")
-@login_required
-def activities():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    gender = session.get("gender")
-    if gender == "male":
-        tasks = ["💪 Support", "🤗 Long hug", "❤️ Intimacy", "💬 Deep talk", "🎁 Surprise gift", "👂 Listen", "🍽️ Cook dinner", "🧼 Help", "🎬 Movie night", "📞 Call"]
-    else:
-        tasks = ["💋 Compliment", "💋 Romantic date", "🌹 Flowers", "💌 Love letter", "🎀 Gift", "🎬 Movie", "🍽️ Cook", "💄 Dress up", "💃 Dance", "🎵 Sing"]
-    today_activity = None
-    for activity in couple.get("activities", []):
-        if activity.get("date") == str(date.today()):
-            today_activity = activity
+def calculate_streak(user):
+    """Calculate user's activity streak."""
+    if not user.has_couple():
+        return 0
+    
+    couple = user.couple_data[0]
+    today = date.today()
+    streak = 0
+    current_date = today
+    
+    while True:
+        activity = Activity.query.filter_by(
+            user_id=user.id,
+            couple_id=couple.id,
+            activity_date=current_date
+        ).first()
+        
+        if not activity:
             break
-    return render_template("activities.html", activities=couple["activities"], tasks=tasks, today_activity=today_activity, gender=gender)
+        
+        streak += 1
+        current_date -= timedelta(days=1)
+    
+    return streak
 
-@app.route("/api/activities/select", methods=["POST"])
-@login_required
-def activities_select():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user["partner_id"]:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    task = request.json.get("task", "").strip()
-    if task:
-        couple["activities"].append({"task": task, "from": session.get("name"), "date": str(date.today()), "completed": False})
-        add_xp(couple, 8)
-        add_notification(couple, "activities", f"📋 {session.get('name')} selected activity", to_user=user["partner_id"])
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": ""}), 400
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
-@app.route("/api/random-date")
-@login_required
-def random_date_api():
-    import random
-    ideas = [
-        {"emoji": "🍽️", "text": "Romantic dinner at home"},
-        {"emoji": "🎬", "text": "Movie night with popcorn"},
-        {"emoji": "🚶", "text": "Walk in the park"},
-        {"emoji": "🎨", "text": "Visit an exhibition"},
-        {"emoji": "🎪", "text": "Concert"},
-        {"emoji": "🏖️", "text": "Picnic"},
-    ]
-    return jsonify(random.choice(ideas))
+    # ==================== PAGES ====================
+    
+    @app.route('/diary')
+    @login_required
+    def diary():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        diaries = Diary.query.filter_by(couple_id=couple.id).order_by(Diary.created_at.desc()).all()
+        return render_template('diary.html', diaries=diaries)
+    
+    @app.route('/mood')
+    @login_required
+    def mood():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        moods = Mood.query.filter_by(couple_id=couple.id).order_by(Mood.created_at.desc()).all()
+        return render_template('mood.html', moods=moods)
+    
+    @app.route('/goals')
+    @login_required
+    def goals():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        goals_list = Goal.query.filter_by(couple_id=couple.id).order_by(Goal.created_at.desc()).all()
+        return render_template('goals.html', goals=goals_list)
+    
+    @app.route('/places')
+    @login_required
+    def places():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        places_list = Place.query.filter_by(couple_id=couple.id).order_by(Place.created_at.desc()).all()
+        return render_template('places.html', places=places_list)
+    
+    @app.route('/dates')
+    @login_required
+    def dates():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        dates_list = DatePlan.query.filter_by(couple_id=couple.id).order_by(DatePlan.created_at.desc()).all()
+        return render_template('dates.html', dates=dates_list)
+    
+    @app.route('/habits')
+    @login_required
+    def habits():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        habits_list = Habit.query.filter_by(couple_id=couple.id).order_by(Habit.created_at.desc()).all()
+        return render_template('habits.html', habits=habits_list)
+    
+    @app.route('/activities')
+    @login_required
+    def activities():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        activities_list = Activity.query.filter_by(couple_id=couple.id).order_by(Activity.created_at.desc()).all()
+        
+        # Daily task ideas
+        tasks = [
+            "💪 Support your partner",
+            "🤗 Give them a long hug",
+            "❤️ Share intimate moment",
+            "💬 Have deep conversation",
+            "🎁 Surprise them with gift",
+            "👂 Listen without judging",
+            "🍽️ Cook them dinner",
+            "🧼 Help with chores",
+            "🎬 Movie night together",
+            "📞 Call them just to talk"
+        ] if current_user.gender == 'male' else [
+            "💋 Give them compliment",
+            "💋 Plan romantic date",
+            "🌹 Get them flowers",
+            "💌 Write love letter",
+            "🎀 Surprise gift",
+            "🎬 Movie together",
+            "🍽️ Cook together",
+            "💄 Dress up nicely",
+            "💃 Dance together",
+            "🎵 Sing their favorite song"
+        ]
+        
+        return render_template('activities.html', activities=activities_list, tasks=tasks)
+    
+    @app.route('/wishes')
+    @login_required
+    def wishes():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        wishes_list = Wish.query.filter_by(couple_id=couple.id).order_by(Wish.created_at.desc()).all()
+        return render_template('wishes.html', wishes=wishes_list)
+    
+    @app.route('/confessions')
+    @login_required
+    def confessions():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        couple = current_user.couple_data[0]
+        confessions_list = Confession.query.filter_by(couple_id=couple.id).order_by(Confession.created_at.desc()).all()
+        return render_template('confessions.html', confessions=confessions_list)
+    
+    @app.route('/important-dates')
+    @login_required
+    def important_dates():
+        if not current_user.has_couple():
+            return redirect(url_for('dashboard'))
+        return render_template('important-dates.html')
+    
+    @app.route('/settings')
+    @login_required
+    def settings():
+        couple = current_user.couple_data[0] if current_user.couple_data else None
+        partner = couple.get_partner(current_user.id) if couple else None
+        pending_invitations = CoupleInvitation.query.filter_by(receiver_id=current_user.id, status='pending').all()
+        return render_template('settings.html', couple=couple, partner=partner, pending_invitations=pending_invitations)
 
-@app.route("/shop")
-@login_required
-def shop():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    partner_id = user.get("partner_id")
-    if not partner_id:
-        return redirect(url_for("settings"))
-    couple = get_couple(data, ck(session["user_id"], partner_id))
-    couple_xp = couple.get("xp", 0)
-    shop_items = {
-        "theme_dark": {"name": "Dark theme", "cost": 100, "icon": "🌙"},
-        "theme_light": {"name": "Light theme", "cost": 100, "icon": "☀️"},
-        "pet_cat": {"name": "Cat", "cost": 200, "icon": "🐱"},
-        "pet_dog": {"name": "Dog", "cost": 200, "icon": "🐶"},
-        "pet_bunny": {"name": "Bunny", "cost": 150, "icon": "🐰"},
-        "frame_gold": {"name": "Gold frame", "cost": 250, "icon": "🏆"},
-        "frame_silver": {"name": "Silver frame", "cost": 150, "icon": "💎"},
-        "anim_hearts": {"name": "Hearts animation", "cost": 300, "icon": "💖"},
-        "anim_sparkle": {"name": "Sparkle animation", "cost": 300, "icon": "✨"},
-    }
-    user_items = user.get("shop_items", {})
-    return render_template("shop.html", shop_items=shop_items, couple_xp=couple_xp, user_items=user_items)
-
-@app.route("/api/shop/buy/<item_id>", methods=["POST"])
-@login_required
-def shop_buy(item_id):
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    if not user.get("partner_id"):
-        return jsonify({"error": ""}), 400
-    shop_items = {"theme_dark": 100, "theme_light": 100, "pet_cat": 200, "pet_dog": 200, "pet_bunny": 150, "frame_gold": 250, "frame_silver": 150, "anim_hearts": 300, "anim_sparkle": 300}
-    if item_id not in shop_items:
-        return jsonify({"error": ""}), 400
-    couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    cost = shop_items[item_id]
-    couple_xp = couple.get("xp", 0)
-    if couple_xp >= cost:
-        couple["xp"] -= cost
-        if "shop_items" not in user:
-            user["shop_items"] = {}
-        user["shop_items"][item_id] = True
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": "Not enough XP"}), 400
-
-@app.route("/settings")
-@login_required
-def settings():
-    data = load_data()
-    user = get_user(data, session["user_id"])
-    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"), gender=session.get("gender"))
-
-@app.route("/api/settings/update", methods=["POST"])
-@login_required
-def settings_update():
-    name = request.json.get("name", "").strip()
-    if name:
-        session["name"] = name
-        data = load_data()
-        get_user(data, session["user_id"])["name"] = name
-        save_data(data)
-        return jsonify({"success": True})
-    return jsonify({"error": "Invalid"}), 400
-
-@app.route("/api/partner/set", methods=["POST"])
-@login_required
-def set_partner():
-    uid = session["user_id"]
-    pid = request.json.get("partner_id", "").strip()
-    if not pid or pid == uid:
-        return jsonify({"error": "Invalid"}), 400
-    data = load_data()
-    get_user(data, uid)["partner_id"] = pid
-    get_user(data, pid)["partner_id"] = uid
-    get_couple(data, ck(uid, pid))
-    save_data(data)
-    return jsonify({"success": True})
-
-@app.errorhandler(404)
-def not_found(e):
-    return render_template("404.html"), 404
-
-@app.errorhandler(500)
-def server_error(e):
-    return render_template("500.html"), 500
-
-@app.route("/health")
-def health():
-    return jsonify({"status": "ok"})
-
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True, host='0.0.0.0', port=5000)

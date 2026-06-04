@@ -1,33 +1,62 @@
 {% extends "base.html" %}
+{% block title %}Wishes - LOVIO{% endblock %}
 {% block content %}
-<div class="card">
-    <h1>🎁 Вишлист</h1>
-    <input type="text" id="text" placeholder="Желание...">
-    <input type="number" id="price" placeholder="Цена ₸">
-    <button onclick="add_wish()" class="btn">Добавить</button>
-</div>
-{% for w in wishes|reverse %}
-<div class="card">
-    <div style="display: flex; justify-content: space-between;">
-        <div>
-            <p {% if w.gifted %}style="text-decoration: line-through;"{% endif %}>{{ w.text }}</p>
-            {% if w.price %}<p style="color: #cd2a63;">{{ w.price }} ₸</p>{% endif %}
-        </div>
-        {% if not w.gifted %}<button onclick="gift('{{ w.text }}')" class="btn" style="padding: 8px 16px;">🎀</button>{% else %}<span>✅</span>{% endif %}
+<div class="container">
+    <h1>🎁 Wishlist</h1>
+    <div class="card">
+        <h2>Add to Wishlist</h2>
+        <form id="wish-form">
+            <input type="text" id="text" placeholder="What do you want?" required maxlength="300">
+            <input type="number" id="price" placeholder="Price (optional)" min="0">
+            <button type="submit" class="btn">Add Wish</button>
+        </form>
     </div>
+    
+    {% if wishes %}
+    <h2 style="margin-top: 2rem;">Wishes</h2>
+    {% for wish in wishes %}
+    <div class="card">
+        <p><strong>{{ wish.text }}</strong></p>
+        {% if wish.price %}<p>💰 {{ wish.price }}</p>{% endif %}
+        {% if not wish.gifted %}
+        <button onclick="giftWish('{{ wish.text }}')" class="btn" style="width: auto; margin-top: 1rem;">Mark as Gifted</button>
+        {% else %}
+        <p style="color: #4caf50;">✓ Gifted!</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
 </div>
-{% endfor %}
+
 <script>
-async function add_wish() {
-    let text = document.getElementById('text').value.trim();
-    let price = parseInt(document.getElementById('price').value) || 0;
-    if (!text) return alert('Напишите желание');
-    let r = await fetch('/api/wishes/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text, price})});
-    if (r.ok) { location.reload(); }
-}
-async function gift(text) {
-    let r = await fetch('/api/wishes/gift', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
-    if (r.ok) { location.reload(); }
+document.getElementById('wish-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = document.getElementById('text').value;
+    const price = document.getElementById('price').value || 0;
+    const response = await fetch('/api/wishes/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, price: parseInt(price) })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert('Wish added! +2 XP');
+        location.reload();
+    } else {
+        alert('Error: ' + data.error);
+    }
+});
+
+async function giftWish(text) {
+    const response = await fetch('/api/wishes/gift', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+    });
+    if (response.ok) {
+        alert('Wish marked as gifted! +30 XP');
+        location.reload();
+    }
 }
 </script>
 {% endblock %}

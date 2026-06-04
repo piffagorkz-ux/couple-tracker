@@ -1,43 +1,46 @@
 {% extends "base.html" %}
+{% block title %}Daily Activity - LOVIO{% endblock %}
 {% block content %}
-<div class="card">
-    <h1>📋 Ежедневные активности</h1>
-    {% if today_activity %}
-    <div style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); padding: 1.5rem; border-radius: 10px; border-left: 4px solid #4caf50; margin: 1rem 0;">
-        <h3 style="color: #4caf50;">✅ Активность на сегодня:</h3>
-        <p style="font-size: 1.2em; margin-top: 1rem;">{{ today_activity.task }}</p>
-        <small style="color: #999;">{{ today_activity.from }}</small>
+<div class="container">
+    <h1>📋 Today's Activity</h1>
+    
+    <div class="card">
+        <h2>Choose an Activity</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0;">
+            {% for task in tasks %}
+            <button onclick="selectActivity('{{ task }}')" 
+                    style="padding: 1.5rem; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; background: white; font-weight: 600; transition: all 0.3s;">
+                {{ task }}
+            </button>
+            {% endfor %}
+        </div>
     </div>
-    {% else %}
-    <h3>Выберите одну активность на сегодня:</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
-        {% for task in tasks %}
-        <button onclick="select_activity('{{ task }}')" class="btn" style="padding: 1rem; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center;">{{ task }}</button>
-        {% endfor %}
+    
+    {% if activities %}
+    <h2 style="margin-top: 2rem;">Recent Activities</h2>
+    {% for activity in activities %}
+    <div class="card">
+        <p><strong>{{ activity.user.name }}</strong></p>
+        <p>{{ activity.task }}</p>
+        <p style="color: #999; font-size: 0.9em;">{{ activity.activity_date }}</p>
     </div>
+    {% endfor %}
     {% endif %}
 </div>
 
-{% if activities %}
-<h2 style="margin-top: 2rem;">История активностей</h2>
-{% for a in activities|reverse %}
-<div class="card">
-    <p><strong>{{ a.task }}</strong></p>
-    <small style="color: #999;">{{ a.from }} • {{ a.date }}</small>
-</div>
-{% endfor %}
-{% endif %}
-
 <script>
-async function select_activity(task) {
-    let r = await fetch('/api/activities/select', {
+async function selectActivity(task) {
+    const response = await fetch('/api/activity/select', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({task})
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task })
     });
-    if (r.ok) {
-        alert('✅ Активность выбрана на сегодня!');
+    const data = await response.json();
+    if (response.ok) {
+        alert('Activity selected! +8 XP');
         location.reload();
+    } else {
+        alert('Error: ' + data.error);
     }
 }
 </script>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Important Dates - LOVIO{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>📅 Important Dates</h1>
+    <div class="card">
+        <h2>Add Important Date</h2>
+        <form id="date-form">
+            <input type="text" id="title" placeholder="Birthday, Anniversary, etc." required maxlength="200">
+            <input type="date" id="date" required>
+            <button type="submit" class="btn">Add Date</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('date-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('title').value;
+    const date = document.getElementById('date').value;
+    const response = await fetch('/api/important-dates/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, date })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert('Date added!');
+        location.reload();
+    } else {
+        alert('Error: ' + data.error);
+    }
+});
+</script>
+{% endblock %}

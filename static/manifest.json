@@ -1,33 +1,74 @@
 {
-  "name": "Couple Tracker - Для пар",
-  "short_name": "Couple Tracker",
-  "description": "Веб-приложение для пар, которые становятся ближе друг к другу",
-  "start_url": "/",
+  "name": "LOVIO - For Couples",
+  "short_name": "LOVIO",
+  "description": "A beautiful app for couples to celebrate their relationship",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#667eea",
+  "background_color": "#FFFFFF",
+  "theme_color": "#E13D3C",
+  "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
     {
-      "src": "/static/icon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
+      "src": "/static/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/static/icon.svg",
+      "src": "/static/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "categories": ["lifestyle", "productivity"],
   "screenshots": [
     {
-      "src": "/static/icon.svg",
+      "src": "/static/screenshots/screenshot1.png",
       "sizes": "540x720",
-      "type": "image/svg+xml",
-      "form_factor": "narrow"
+      "type": "image/png"
+    },
+    {
+      "src": "/static/screenshots/screenshot2.png",
+      "sizes": "540x720",
+      "type": "image/png"
     }
   ]
 }

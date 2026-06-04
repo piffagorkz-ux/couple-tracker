@@ -1,20 +1,59 @@
 {% extends "base.html" %}
+{% block title %}Mood - LOVIO{% endblock %}
 {% block content %}
-<div class="card">
-    <h1>😊 Настроение</h1>
-    <label>Оценка (1-10):</label>
-    <input type="range" id="mood" min="1" max="10" value="5">
-    <p id="mood-text">5/10</p>
-    <button onclick="add_mood()" class="btn">Сохранить</button>
+<div class="container">
+    <h1>😊 Today's Mood</h1>
+    <div class="card">
+        <h2>How are you feeling?</h2>
+        <form id="mood-form">
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 2rem 0;">
+                {% for i in range(1, 11) %}
+                <button type="button" class="mood-btn" data-level="{{ i }}" 
+                        style="padding: 1.5rem; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; font-size: 2em; transition: all 0.3s;">
+                    {% if i <= 2 %}😢{% elif i <= 4 %}😕{% elif i <= 6 %}😐{% elif i <= 8 %}😊{% else %}😄{% endif %}
+                </button>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="mood-level" name="level" value="5" required>
+            <button type="submit" class="btn">Save Mood</button>
+        </form>
+    </div>
+    
+    {% if moods %}
+    <h2 style="margin-top: 2rem;">Recent Moods</h2>
+    {% for mood in moods %}
+    <div class="card">
+        <p><strong>{{ mood.author.name }}</strong> - Level: {{ mood.level }}/10</p>
+        <p style="color: #999; font-size: 0.9em;">{{ mood.created_at.strftime('%Y-%m-%d') }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
 </div>
+
 <script>
-document.getElementById('mood').addEventListener('input', function() {
-    document.getElementById('mood-text').textContent = this.value + '/10';
+document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.style.borderColor = '#ddd');
+        btn.style.borderColor = 'var(--primary)';
+        document.getElementById('mood-level').value = btn.dataset.level;
+    });
 });
-async function add_mood() {
-    let mood = parseInt(document.getElementById('mood').value);
-    let r = await fetch('/api/mood/add', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mood})});
-    if (r.ok) { alert('✅'); location.reload(); }
-}
+
+document.getElementById('mood-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const level = parseInt(document.getElementById('mood-level').value);
+    const response = await fetch('/api/mood/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert('Mood saved! +3 XP');
+        location.reload();
+    } else {
+        alert('Error: ' + data.error);
+    }
+});
 </script>
 {% endblock %}

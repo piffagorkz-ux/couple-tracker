@@ -3,40 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{% block title %}LOVIO{% endblock %}</title>
+    <meta name="theme-color" content="#E13D3C">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <title>{% block title %}LOVIO - For Couples{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        {% if stats and stats.gender == 'male' %}
-        :root {--p: #233a6e; --s: #d45468; --d: #5f789e; --l: #562c38;}
-        {% else %}
-        :root {--p: #E13D3C; --s: #ED6C72; --d: #6C0414; --l: #2C4054;}
-        {% endif %}
-        * {margin: 0; padding: 0; box-sizing: border-box;}
-        html, body {height: 100%; width: 100%;}
-        html {scroll-behavior: smooth;}
+        :root {
+            --primary: #E13D3C;
+            --secondary: #ED6C72;
+            --dark: #6C0414;
+            --accent: #9C686B;
+            --light: #D6A7B3;
+            --bg: #2C4054;
+            --white: #FFFFFF;
+            --gray-light: #F5F5F7;
+            --gray-dark: #333333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            background: #f5f5f7;
-            color: var(--d);
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-light);
+            color: var(--gray-dark);
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
-            font-size: 16px;
+            line-height: 1.6;
         }
+        
         header {
-            background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             padding: 1.5rem 1.2rem;
             text-align: center;
             box-shadow: 0 8px 32px rgba(225, 61, 60, 0.15);
-            backdrop-filter: blur(20px);
         }
-        header h1 {font-size: 2em; font-weight: 700; letter-spacing: -0.5px;}
+        
+        header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
         main {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1.5rem 1.2rem 120px 1.2rem;
+            padding: 2rem 1.2rem 120px;
             min-height: calc(100vh - 200px);
         }
+        
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
         .card {
             background: white;
             border-radius: 18px;
@@ -46,10 +78,12 @@
             border: 1px solid rgba(0, 0, 0, 0.04);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .card:hover {
             box-shadow: 0 12px 48px rgba(225, 61, 60, 0.15);
             transform: translateY(-4px);
         }
+        
         .btn {
             display: inline-block;
             padding: 14px 28px;
@@ -57,16 +91,37 @@
             border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
-            background: linear-gradient(135deg, var(--p) 0%, var(--s) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
             font-size: 1em;
             box-shadow: 0 4px 16px rgba(225, 61, 60, 0.2);
+            width: 100%;
+            text-align: center;
         }
-        .btn:hover {transform: translateY(-2px); box-shadow: 0 8px 32px rgba(225, 61, 60, 0.3);}
-        .btn:active {transform: scale(0.98);}
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(225, 61, 60, 0.3);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
         input, textarea, select {
             width: 100%;
             padding: 14px 16px;
@@ -78,15 +133,66 @@
             line-height: 1.5;
             transition: all 0.3s;
         }
+        
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: var(--p);
+            border-color: var(--primary);
             box-shadow: 0 0 0 6px rgba(225, 61, 60, 0.08);
         }
-        h1 {color: var(--d); font-weight: 700; font-size: 2em; margin-bottom: 1.5rem; letter-spacing: -0.5px;}
-        h2 {color: var(--d); font-weight: 700; font-size: 1.5em; margin-bottom: 1.2rem; letter-spacing: -0.3px;}
         
-        /* Premium Bottom Navigation */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-dark);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 2em;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        
+        h2 {
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 1.5em;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.3px;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-error {
+            background: #FEE;
+            color: #C33;
+            border: 1px solid #FCC;
+        }
+        
+        .alert-success {
+            background: #EFE;
+            color: #3C3;
+            border: 1px solid #CFC;
+        }
+        
+        .alert-info {
+            background: #EEF;
+            color: #33C;
+            border: 1px solid #CCF;
+        }
+        
+        /* Bottom Navigation */
         nav.bottom-nav {
             position: fixed;
             bottom: 0;
@@ -125,76 +231,75 @@
         }
         
         nav.bottom-nav a:hover {
-            color: var(--p);
+            color: var(--primary);
         }
         
         nav.bottom-nav a.active {
-            color: var(--p);
-            border-top-color: var(--p);
-        }
-        
-        nav.bottom-nav a.active .icon {
-            animation: bounce 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes bounce {0%, 100% {transform: scale(1);} 50% {transform: scale(1.15);}}
-        
-        .badge {
-            position: absolute;
-            top: 0;
-            right: 4px;
-            background: #4caf50;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.7em;
-            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+            color: var(--primary);
+            border-top-color: var(--primary);
         }
         
         @media (max-width: 768px) {
-            main {padding: 1.2rem 0.8rem 100px 0.8rem;}
-            header {padding: 1.2rem 1rem;}
-            .card {padding: 1.5rem; margin-bottom: 1.2rem;}
-            h1 {font-size: 1.6em;}
-            h2 {font-size: 1.2em;}
+            main {
+                padding: 1.5rem 0.8rem 100px;
+            }
+            header {
+                padding: 1.2rem 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.6em;
+            }
         }
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% if session.get('user_id') %}
+    {% if current_user.is_authenticated %}
     <header>
         <h1>💕 LOVIO</h1>
     </header>
     {% endif %}
     
     <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         {% block content %}{% endblock %}
     </main>
     
-    {% if session.get('user_id') %}
+    {% if current_user.is_authenticated %}
     <nav class="bottom-nav">
-        <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">
+        <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}">
             <span class="icon">📱</span>
             Home
         </a>
-        <a href="/shop" class="{% if request.path == '/shop' %}active{% endif %}">
-            <span class="icon">🛍️</span>
-            Shop
+        <a href="{{ url_for('diary') }}" class="{% if request.path.startswith('/diary') %}active{% endif %}">
+            <span class="icon">📝</span>
+            Diary
         </a>
-        <a href="/settings" class="{% if request.path == '/settings' %}active{% endif %}">
+        <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}">
             <span class="icon">⚙️</span>
             Settings
         </a>
-        <a href="/logout" style="color: #ff3b30;">
+        <a href="{{ url_for('logout') }}" style="color: #ff3b30;">
             <span class="icon">↗️</span>
             Exit
         </a>
     </nav>
     {% endif %}
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}');
+        }
+    </script>
 </body>
 </html>
