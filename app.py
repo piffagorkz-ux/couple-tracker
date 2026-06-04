@@ -20,13 +20,12 @@ def load_data():
     try:
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data
+                return json.load(f)
     except Exception as e:
-        print(f"Ошибка чтения основного файла: {e}")
+        print(f"Load error: {e}")
         try:
             if os.path.exists(BACKUP_FILE):
-                print("Восстанавливаю из резервной копии...")
+                print("Recovering from backup...")
                 with open(BACKUP_FILE, "r", encoding="utf-8") as f:
                     return json.load(f)
         except:
@@ -35,16 +34,13 @@ def load_data():
 
 def save_data(data):
     try:
-        # Сначала создаём резервную копию
         if os.path.exists(DATA_FILE):
             shutil.copy(DATA_FILE, BACKUP_FILE)
-        
-        # Сохраняем основной файл
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
     except Exception as e:
-        print(f"Ошибка сохранения: {e}")
+        print(f"Save error: {e}")
         return False
 
 def get_user(data, uid):
@@ -78,24 +74,19 @@ def get_couple(data, key):
 
 def add_xp(couple, amount):
     couple["xp"] = couple.get("xp", 0) + amount
-    
     xp_thresholds = [0, 100, 300, 600, 1000, 1500]
     level = 1
     for i, threshold in enumerate(xp_thresholds):
         if couple["xp"] >= threshold:
             level = i + 1
-    
     couple["relationship_level"] = level
 
 def add_notification(couple, notif_type, text, to_user=None):
     if "notifications" not in couple:
         couple["notifications"] = []
     couple["notifications"].append({
-        "type": notif_type,
-        "text": text,
-        "read": False,
-        "to_user": to_user,
-        "id": len(couple["notifications"])
+        "type": notif_type, "text": text, "read": False,
+        "to_user": to_user, "id": len(couple["notifications"])
     })
 
 def login_required(f):
@@ -123,16 +114,13 @@ def login():
             session["user_id"] = uid
             session["name"] = name
             session["gender"] = gender
-            
             data = load_data()
             user = get_user(data, uid)
             user["name"] = name
             user["gender"] = gender
             save_data(data)
             return redirect(url_for("dashboard"))
-        
-        return render_template("login.html", error="Заполните все поля")
-    
+        return render_template("login.html", error="Fill all fields")
     return render_template("login.html")
 
 @app.route("/logout")
@@ -145,14 +133,12 @@ def logout():
 def dashboard():
     data = load_data()
     user = get_user(data, session["user_id"])
-    
     stats = {
         "name": session.get("name"),
         "gender": session.get("gender"),
         "partner_id": user.get("partner_id"),
         "xp": user.get("xp", 0)
     }
-    
     notifications_count = {}
     
     if user.get("partner_id"):
@@ -193,21 +179,17 @@ def dashboard():
 def mark_notifications_read():
     data = load_data()
     user = get_user(data, session["user_id"])
-    
     if user.get("partner_id"):
         couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
         notif_type = request.json.get("type")
-        
         if "notifications" in couple:
             for notif in couple["notifications"]:
                 if notif.get("type") == notif_type and not notif.get("read"):
                     to_user = notif.get("to_user")
                     if to_user is None or str(to_user) == str(session["user_id"]):
                         notif["read"] = True
-        
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/diary")
@@ -227,22 +209,15 @@ def diary_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
-    
     if text:
-        couple["diary"].append({
-            "text": text,
-            "author": session.get("name"),
-            "date": str(date.today())
-        })
+        couple["diary"].append({"text": text, "author": session.get("name"), "date": str(date.today())})
         couple["stats"]["diary"] = len(couple["diary"])
         add_xp(couple, 5)
-        add_notification(couple, "diary", f"📝 {session.get('name')}: новая запись", to_user=user["partner_id"])
+        add_notification(couple, "diary", f"📝 New note from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/mood")
@@ -262,17 +237,11 @@ def mood_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     mood_level = request.json.get("mood", 5)
-    
-    couple["mood"].append({
-        "level": mood_level,
-        "date": str(date.today()),
-        "author": session.get("name")
-    })
+    couple["mood"].append({"level": mood_level, "date": str(date.today()), "author": session.get("name")})
     add_xp(couple, 3)
-    add_notification(couple, "mood", f"😊 {session.get('name')}: оценил(а) настроение", to_user=user["partner_id"])
+    add_notification(couple, "mood", f"😊 Mood update from {session.get('name')}", to_user=user["partner_id"])
     save_data(data)
     return jsonify({"success": True})
 
@@ -293,22 +262,14 @@ def goals_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
-    
     if text:
-        couple["goals"].append({
-            "id": len(couple["goals"]) + 1,
-            "text": text,
-            "completed": False,
-            "date": str(date.today())
-        })
+        couple["goals"].append({"id": len(couple["goals"]) + 1, "text": text, "completed": False, "date": str(date.today())})
         add_xp(couple, 2)
-        add_notification(couple, "goals", f"🎯 {session.get('name')}: новая цель", to_user=user["partner_id"])
+        add_notification(couple, "goals", f"🎯 New goal from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/goals/complete/<int:gid>", methods=["POST"])
@@ -318,9 +279,7 @@ def goals_complete(gid):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     for goal in couple["goals"]:
         if goal["id"] == gid:
             goal["completed"] = True
@@ -329,7 +288,6 @@ def goals_complete(gid):
             add_xp(couple, 25)
             save_data(data)
             return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/places")
@@ -349,22 +307,15 @@ def places_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     name = request.json.get("name", "").strip()
-    
     if name:
-        couple["places"].append({
-            "name": name,
-            "visited": False,
-            "date": str(date.today())
-        })
+        couple["places"].append({"name": name, "visited": False, "date": str(date.today())})
         couple["stats"]["places"] = len([p for p in couple["places"] if p.get("visited")])
         add_xp(couple, 2)
-        add_notification(couple, "places", f"🗺️ {session.get('name')}: новое место", to_user=user["partner_id"])
+        add_notification(couple, "places", f"🗺️ New place from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/places/visit", methods=["POST"])
@@ -374,10 +325,8 @@ def places_visit():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     name = request.json.get("name", "").strip()
-    
     for place in couple["places"]:
         if place.get("name") == name:
             place["visited"] = True
@@ -385,7 +334,6 @@ def places_visit():
             add_xp(couple, 10)
             save_data(data)
             return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/dates")
@@ -405,26 +353,16 @@ def dates_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     title = request.json.get("title", "").strip()
     date_val = request.json.get("date", "")
     time_val = request.json.get("time", "")
-    
     if title and date_val:
-        couple["dates_plan"].append({
-            "id": len(couple["dates_plan"]),
-            "title": title,
-            "date": date_val,
-            "time": time_val,
-            "status": "pending",
-            "created_by": str(session["user_id"])
-        })
+        couple["dates_plan"].append({"id": len(couple["dates_plan"]), "title": title, "date": date_val, "time": time_val, "status": "pending", "created_by": str(session["user_id"])})
         add_xp(couple, 5)
-        add_notification(couple, "dates", f"💋 {session.get('name')}: предложил(а) свидание - {title}", to_user=user["partner_id"])
+        add_notification(couple, "dates", f"💋 Date proposal from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/dates/respond/<int:did>", methods=["POST"])
@@ -434,24 +372,19 @@ def dates_respond(did):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     response = request.json.get("response")
-    
     if did < len(couple["dates_plan"]):
         date_event = couple["dates_plan"][did]
-        
         if response == "accept":
             date_event["status"] = "accepted"
             add_xp(couple, 20)
-            add_notification(couple, "dates", f"✅ {session.get('name')}: согласился на свидание - {date_event['title']}", to_user=date_event["created_by"])
+            add_notification(couple, "dates", f"✅ {session.get('name')} accepted!", to_user=date_event["created_by"])
         else:
             date_event["status"] = "declined"
-            add_notification(couple, "dates", f"❌ {session.get('name')}: отказался от свидания - {date_event['title']}", to_user=date_event["created_by"])
-        
+            add_notification(couple, "dates", f"❌ {session.get('name')} declined", to_user=date_event["created_by"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/api/dates/complete/<int:did>", methods=["POST"])
@@ -461,9 +394,7 @@ def dates_complete(did):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     if did < len(couple["dates_plan"]):
         date_event = couple["dates_plan"][did]
         if date_event["status"] == "accepted":
@@ -471,7 +402,6 @@ def dates_complete(did):
             add_xp(couple, 50)
             save_data(data)
             return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/habits")
@@ -491,20 +421,12 @@ def habits_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
-    
     if text:
-        couple["habits"].append({
-            "text": text,
-            "created": str(date.today()),
-            "streak": 0,
-            "completed_dates": []
-        })
+        couple["habits"].append({"text": text, "created": str(date.today()), "streak": 0, "completed_dates": []})
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/habits/complete/<int:hid>", methods=["POST"])
@@ -514,9 +436,7 @@ def habits_complete(hid):
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     if hid < len(couple["habits"]):
         habit = couple["habits"][hid]
         today = str(date.today())
@@ -526,7 +446,6 @@ def habits_complete(hid):
             add_xp(couple, 10)
             save_data(data)
             return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/wishes")
@@ -546,23 +465,15 @@ def wishes_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
     price = request.json.get("price", 0)
-    
     if text:
-        couple["wishes"].append({
-            "text": text,
-            "price": price,
-            "gifted": False,
-            "date": str(date.today())
-        })
+        couple["wishes"].append({"text": text, "price": price, "gifted": False, "date": str(date.today())})
         add_xp(couple, 2)
-        add_notification(couple, "wishes", f"🎁 {session.get('name')}: новое желание", to_user=user["partner_id"])
+        add_notification(couple, "wishes", f"🎁 New wish from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/wishes/gift", methods=["POST"])
@@ -572,17 +483,14 @@ def wishes_gift():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
-    
     for wish in couple["wishes"]:
         if wish.get("text") == text:
             wish["gifted"] = True
             add_xp(couple, 30)
             save_data(data)
             return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 404
 
 @app.route("/confessions")
@@ -602,21 +510,14 @@ def confessions_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     text = request.json.get("text", "").strip()
-    
     if text:
-        couple["confessions"].append({
-            "text": text,
-            "date": str(date.today()),
-            "author": session.get("name")
-        })
+        couple["confessions"].append({"text": text, "date": str(date.today()), "author": session.get("name")})
         add_xp(couple, 15)
-        add_notification(couple, "confessions", f"💌 {session.get('name')}: новое признание", to_user=user["partner_id"])
+        add_notification(couple, "confessions", f"💌 Confession from {session.get('name')}", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/important-dates")
@@ -636,19 +537,13 @@ def important_dates_add():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     title = request.json.get("title", "").strip()
     date_val = request.json.get("date", "")
-    
     if title and date_val:
-        couple["important_dates"].append({
-            "title": title,
-            "date": date_val
-        })
+        couple["important_dates"].append({"title": title, "date": date_val})
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/activities")
@@ -659,42 +554,16 @@ def activities():
     if not user["partner_id"]:
         return redirect(url_for("settings"))
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
-    
     gender = session.get("gender")
-    
     if gender == "male":
-        tasks = [
-            "💪 Поддержка партнёру",
-            "🤗 Длинные объятия",
-            "❤️ Близость",
-            "💬 Глубокий разговор",
-            "🎁 Неожиданный подарок",
-            "👂 Внимательно слушать",
-            "🍽️ Приготовить ужин",
-            "🧼 Помощь по дому",
-            "🎬 Вечер вместе",
-            "📞 Позвонить просто так"
-        ]
+        tasks = ["💪 Support", "🤗 Long hug", "❤️ Intimacy", "💬 Deep talk", "🎁 Surprise gift", "👂 Listen", "🍽️ Cook dinner", "🧼 Help", "🎬 Movie night", "📞 Call"]
     else:
-        tasks = [
-            "💋 Комплимент",
-            "💋 Романтическое свидание",
-            "🌹 Цветы",
-            "💌 Любовное письмо",
-            "🎀 Сюрприз",
-            "🎬 Фильм вместе",
-            "🍽️ Готовка вместе",
-            "💄 Красивая укладка",
-            "💃 Танец вместе",
-            "🎵 Любимую песню"
-        ]
-    
+        tasks = ["💋 Compliment", "💋 Romantic date", "🌹 Flowers", "💌 Love letter", "🎀 Gift", "🎬 Movie", "🍽️ Cook", "💄 Dress up", "💃 Dance", "🎵 Sing"]
     today_activity = None
     for activity in couple.get("activities", []):
         if activity.get("date") == str(date.today()):
             today_activity = activity
             break
-    
     return render_template("activities.html", activities=couple["activities"], tasks=tasks, today_activity=today_activity, gender=gender)
 
 @app.route("/api/activities/select", methods=["POST"])
@@ -704,22 +573,14 @@ def activities_select():
     user = get_user(data, session["user_id"])
     if not user["partner_id"]:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     task = request.json.get("task", "").strip()
-    
     if task:
-        couple["activities"].append({
-            "task": task,
-            "from": session.get("name"),
-            "date": str(date.today()),
-            "completed": False
-        })
+        couple["activities"].append({"task": task, "from": session.get("name"), "date": str(date.today()), "completed": False})
         add_xp(couple, 8)
-        add_notification(couple, "activities", f"📋 {session.get('name')}: выбрал(а) активность", to_user=user["partner_id"])
+        add_notification(couple, "activities", f"📋 {session.get('name')} selected activity", to_user=user["partner_id"])
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": ""}), 400
 
 @app.route("/api/random-date")
@@ -727,12 +588,12 @@ def activities_select():
 def random_date_api():
     import random
     ideas = [
-        {"emoji": "🍽️", "text": "Романтический ужин дома"},
-        {"emoji": "🎬", "text": "Кино вечер с попкорном"},
-        {"emoji": "🚶", "text": "Прогулка в парке"},
-        {"emoji": "🎨", "text": "Посещение выставки"},
-        {"emoji": "🎪", "text": "Концерт"},
-        {"emoji": "🏖️", "text": "Пикник на природе"},
+        {"emoji": "🍽️", "text": "Romantic dinner at home"},
+        {"emoji": "🎬", "text": "Movie night with popcorn"},
+        {"emoji": "🚶", "text": "Walk in the park"},
+        {"emoji": "🎨", "text": "Visit an exhibition"},
+        {"emoji": "🎪", "text": "Concert"},
+        {"emoji": "🏖️", "text": "Picnic"},
     ]
     return jsonify(random.choice(ideas))
 
@@ -744,24 +605,20 @@ def shop():
     partner_id = user.get("partner_id")
     if not partner_id:
         return redirect(url_for("settings"))
-    
     couple = get_couple(data, ck(session["user_id"], partner_id))
     couple_xp = couple.get("xp", 0)
-    
     shop_items = {
-        "theme_dark": {"name": "Тёмная тема", "cost": 100, "icon": "🌙"},
-        "theme_light": {"name": "Светлая тема", "cost": 100, "icon": "☀️"},
-        "pet_cat": {"name": "Кот", "cost": 200, "icon": "🐱"},
-        "pet_dog": {"name": "Собака", "cost": 200, "icon": "🐶"},
-        "pet_bunny": {"name": "Кролик", "cost": 150, "icon": "🐰"},
-        "frame_gold": {"name": "Золотая рамка", "cost": 250, "icon": "🏆"},
-        "frame_silver": {"name": "Серебряная рамка", "cost": 150, "icon": "💎"},
-        "anim_hearts": {"name": "Анимация сердец", "cost": 300, "icon": "💖"},
-        "anim_sparkle": {"name": "Анимация блеска", "cost": 300, "icon": "✨"},
+        "theme_dark": {"name": "Dark theme", "cost": 100, "icon": "🌙"},
+        "theme_light": {"name": "Light theme", "cost": 100, "icon": "☀️"},
+        "pet_cat": {"name": "Cat", "cost": 200, "icon": "🐱"},
+        "pet_dog": {"name": "Dog", "cost": 200, "icon": "🐶"},
+        "pet_bunny": {"name": "Bunny", "cost": 150, "icon": "🐰"},
+        "frame_gold": {"name": "Gold frame", "cost": 250, "icon": "🏆"},
+        "frame_silver": {"name": "Silver frame", "cost": 150, "icon": "💎"},
+        "anim_hearts": {"name": "Hearts animation", "cost": 300, "icon": "💖"},
+        "anim_sparkle": {"name": "Sparkle animation", "cost": 300, "icon": "✨"},
     }
-    
     user_items = user.get("shop_items", {})
-    
     return render_template("shop.html", shop_items=shop_items, couple_xp=couple_xp, user_items=user_items)
 
 @app.route("/api/shop/buy/<item_id>", methods=["POST"])
@@ -769,23 +626,14 @@ def shop():
 def shop_buy(item_id):
     data = load_data()
     user = get_user(data, session["user_id"])
-    
     if not user.get("partner_id"):
         return jsonify({"error": ""}), 400
-    
-    shop_items = {
-        "theme_dark": 100, "theme_light": 100, "pet_cat": 200,
-        "pet_dog": 200, "pet_bunny": 150, "frame_gold": 250,
-        "frame_silver": 150, "anim_hearts": 300, "anim_sparkle": 300,
-    }
-    
+    shop_items = {"theme_dark": 100, "theme_light": 100, "pet_cat": 200, "pet_dog": 200, "pet_bunny": 150, "frame_gold": 250, "frame_silver": 150, "anim_hearts": 300, "anim_sparkle": 300}
     if item_id not in shop_items:
         return jsonify({"error": ""}), 400
-    
     couple = get_couple(data, ck(session["user_id"], user["partner_id"]))
     cost = shop_items[item_id]
     couple_xp = couple.get("xp", 0)
-    
     if couple_xp >= cost:
         couple["xp"] -= cost
         if "shop_items" not in user:
@@ -793,7 +641,6 @@ def shop_buy(item_id):
         user["shop_items"][item_id] = True
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": "Not enough XP"}), 400
 
 @app.route("/settings")
@@ -801,24 +648,18 @@ def shop_buy(item_id):
 def settings():
     data = load_data()
     user = get_user(data, session["user_id"])
-    return render_template("settings.html", 
-        name=session.get("name"), 
-        user_id=session["user_id"], 
-        partner_id=user.get("partner_id"), 
-        gender=session.get("gender"))
+    return render_template("settings.html", name=session.get("name"), user_id=session["user_id"], partner_id=user.get("partner_id"), gender=session.get("gender"))
 
 @app.route("/api/settings/update", methods=["POST"])
 @login_required
 def settings_update():
     name = request.json.get("name", "").strip()
-    
     if name:
         session["name"] = name
         data = load_data()
         get_user(data, session["user_id"])["name"] = name
         save_data(data)
         return jsonify({"success": True})
-    
     return jsonify({"error": "Invalid"}), 400
 
 @app.route("/api/partner/set", methods=["POST"])
@@ -826,10 +667,8 @@ def settings_update():
 def set_partner():
     uid = session["user_id"]
     pid = request.json.get("partner_id", "").strip()
-    
     if not pid or pid == uid:
         return jsonify({"error": "Invalid"}), 400
-    
     data = load_data()
     get_user(data, uid)["partner_id"] = pid
     get_user(data, pid)["partner_id"] = uid

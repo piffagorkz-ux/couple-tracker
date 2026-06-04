@@ -4,42 +4,153 @@
 .welcome-section {
     background: linear-gradient(135deg, #E13D3C 0%, #ED6C72 100%);
     color: white;
-    padding: 2rem;
-    border-radius: 18px;
+    padding: 2.5rem;
+    border-radius: 24px;
     margin-bottom: 2rem;
-    box-shadow: 0 12px 40px rgba(225, 61, 60, 0.25);
+    box-shadow: 0 16px 48px rgba(225, 61, 60, 0.25);
+    backdrop-filter: blur(20px);
 }
-.welcome-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;}
-.welcome-title h1 {color: white; margin: 0; font-size: 2.2em;}
-.xp-badge {background: rgba(255,255,255,0.25); padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 1.1em;}
-.love-meter {display: flex; align-items: center; gap: 1.5rem; margin: 2rem 0;}
-.love-heart {font-size: 4em; animation: heartbeat 1.5s infinite;}
+.welcome-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;}
+.welcome-title h1 {color: white; margin: 0; font-size: 2.5em; letter-spacing: -0.5px;}
+.xp-badge {
+    background: rgba(255,255,255,0.25);
+    padding: 1rem 1.8rem;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.2em;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.love-meter {display: flex; align-items: center; gap: 2rem; margin: 2.5rem 0;}
+.love-heart {
+    font-size: 5em;
+    animation: heartbeat 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+}
 .love-info {flex: 1;}
-.level-badge {display: inline-block; background: rgba(255,255,255,0.3); padding: 0.7rem 1.3rem; border-radius: 16px; font-weight: 700; font-size: 1em; margin-bottom: 1rem;}
-.xp-bar {width: 100%; height: 10px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin: 0.8rem 0;}
-.xp-fill {height: 100%; background: white; width: 45%; transition: width 0.3s; border-radius: 10px;}
+.level-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    padding: 0.8rem 1.6rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 1.2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.xp-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1rem 0;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+}
+.xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fff, #f0f0f0);
+    width: 45%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+}
 .relationship-levels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 0.6rem;
-    margin-top: 1rem;
-    font-size: 0.85em;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+    font-size: 0.9em;
 }
-.level-item {text-align: center; padding: 0.6rem; border-radius: 8px; background: rgba(255,255,255,0.15);}
-.level-item.active {background: white; color: #E13D3C; font-weight: 700;}
-.metrics {display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-top: 2rem;}
-.metric-card {background: rgba(255,255,255,0.15); padding: 1.2rem; border-radius: 12px; text-align: center;}
-.metric-num {font-size: 1.8em; font-weight: 700; color: white;}
-.metric-label {font-size: 0.95em; opacity: 0.95; margin-top: 0.5rem;}
-@keyframes heartbeat {0%, 100% {transform: scale(1);} 50% {transform: scale(1.15);}}
+.level-item {
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+}
+.level-item.active {
+    background: white;
+    color: #E13D3C;
+    font-weight: 700;
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+}
+.metric-card {
+    background: rgba(255,255,255,0.15);
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+}
+.metric-card:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-4px);
+}
+.metric-num {font-size: 2em; font-weight: 700; color: white;}
+.metric-label {font-size: 1em; opacity: 0.95; margin-top: 0.6rem;}
+@keyframes heartbeat {
+    0%, 100% {transform: scale(1);}
+    50% {transform: scale(1.2);}
+}
 
-.menu-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1rem; margin-top: 2rem; margin-bottom: 1rem;}
-.menu-item {background: white; border-radius: 14px; padding: 1.5rem 1rem; text-align: center; box-shadow: 0 4px 12px rgba(108, 4, 20, 0.08); cursor: pointer; transition: all 0.3s; text-decoration: none; color: var(--d); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; border: 2px solid transparent; position: relative;}
-.menu-item:hover {transform: translateY(-8px); box-shadow: 0 12px 28px rgba(225, 61, 60, 0.15); border-color: var(--p);}
-.menu-item:active {transform: translateY(-3px);}
-.menu-icon {font-size: 2.5em; margin-bottom: 0.8rem;}
-.menu-title {font-weight: 700; font-size: 0.95em;}
-.badge {position: absolute; top: 8px; right: 8px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em;}
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+.menu-item {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem 1.2rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: var(--d);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 130px;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+.menu-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(225,61,60,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.menu-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(225, 61, 60, 0.15);
+    border-color: var(--p);
+}
+.menu-item:hover::before {opacity: 1;}
+.menu-item:active {transform: translateY(-2px);}
+.menu-icon {font-size: 3em; margin-bottom: 0.8rem; display: block; position: relative; z-index: 1;}
+.menu-title {font-weight: 700; font-size: 1em; position: relative; z-index: 1;}
+.badge {position: absolute; top: 8px; right: 8px; background: #4caf50; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8em; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); z-index: 2;}
 </style>
 
 <div class="welcome-section">
@@ -54,11 +165,11 @@
     <div class="love-meter">
         <div class="love-heart">❤️</div>
         <div class="love-info">
-            <div class="level-badge">{{ ['Новички', 'Влюблённые', 'Родственные\nдуши', 'Идеальная\nпара', 'Легендарная\nпара'][stats.relationship_level - 1 if stats.relationship_level <= 5 else 4] }}</div>
+            <div class="level-badge">{{ ['Newbies', 'In Love', 'Soul Mates', 'Perfect Pair', 'Legendary'][stats.relationship_level - 1 if stats.relationship_level <= 5 else 4] }}</div>
             <div class="xp-bar">
                 <div class="xp-fill" style="width: {{ (stats.couple_xp % 500) / 5 }}%;"></div>
             </div>
-            <small style="opacity: 0.95; font-size: 0.95em;">{{ stats.couple_xp % 500 }}/500 до следующего уровня</small>
+            <small style="opacity: 0.95; font-size: 1em;">{{ stats.couple_xp % 500 }}/500 to next level</small>
             <div class="relationship-levels">
                 <div class="level-item {% if stats.relationship_level >= 1 %}active{% endif %}">🌱</div>
                 <div class="level-item {% if stats.relationship_level >= 2 %}active{% endif %}">🔥</div>
@@ -72,75 +183,75 @@
     <div class="metrics">
         <div class="metric-card">
             <div class="metric-num">{{ stats.days_together }}</div>
-            <div class="metric-label">Дней вместе</div>
+            <div class="metric-label">Days Together</div>
         </div>
         <div class="metric-card">
             <div class="metric-num">{{ stats.stats.diary }}</div>
-            <div class="metric-label">Записей</div>
+            <div class="metric-label">Notes</div>
         </div>
         <div class="metric-card">
             <div class="metric-num">{{ stats.stats.closeness }}%</div>
-            <div class="metric-label">Близость</div>
+            <div class="metric-label">Closeness</div>
         </div>
         <div class="metric-card">
             <div class="metric-num">{{ stats.last_activity or '—' }}</div>
-            <div class="metric-label">Последняя</div>
+            <div class="metric-label">Last Activity</div>
         </div>
     </div>
     {% else %}
-    <p style="font-size: 1.1em;">⚠️ <a href="/settings" style="color: white; text-decoration: underline; font-weight: 700;">Привяжите партнёра</a></p>
+    <p style="font-size: 1.2em;">⚠️ <a href="/settings" style="color: white; text-decoration: underline; font-weight: 700;">Link your partner</a></p>
     {% endif %}
 </div>
 
-<h2>📋 Меню</h2>
+<h2>Menu</h2>
 <div class="menu-grid">
-    <a href="/diary" class="menu-item" style="position: relative;" onmouseover="mark_read('diary')">
-        <div class="menu-icon">📝</div>
-        <div class="menu-title">Дневник</div>
+    <a href="/diary" class="menu-item" onmouseover="mark_read('diary')">
+        <span class="menu-icon">📝</span>
+        <span class="menu-title">Diary</span>
         {% if notifications.diary %}<div class="badge" data-type="diary">{{ notifications.diary }}</div>{% endif %}
     </a>
-    <a href="/mood" class="menu-item" style="position: relative;" onmouseover="mark_read('mood')">
-        <div class="menu-icon">😊</div>
-        <div class="menu-title">Настроение</div>
+    <a href="/mood" class="menu-item" onmouseover="mark_read('mood')">
+        <span class="menu-icon">😊</span>
+        <span class="menu-title">Mood</span>
         {% if notifications.mood %}<div class="badge" data-type="mood">{{ notifications.mood }}</div>{% endif %}
     </a>
-    <a href="/goals" class="menu-item" style="position: relative;" onmouseover="mark_read('goals')">
-        <div class="menu-icon">🎯</div>
-        <div class="menu-title">Цели</div>
+    <a href="/goals" class="menu-item" onmouseover="mark_read('goals')">
+        <span class="menu-icon">🎯</span>
+        <span class="menu-title">Goals</span>
         {% if notifications.goals %}<div class="badge" data-type="goals">{{ notifications.goals }}</div>{% endif %}
     </a>
-    <a href="/places" class="menu-item" style="position: relative;" onmouseover="mark_read('places')">
-        <div class="menu-icon">🗺️</div>
-        <div class="menu-title">Места</div>
+    <a href="/places" class="menu-item" onmouseover="mark_read('places')">
+        <span class="menu-icon">🗺️</span>
+        <span class="menu-title">Places</span>
         {% if notifications.places %}<div class="badge" data-type="places">{{ notifications.places }}</div>{% endif %}
     </a>
-    <a href="/dates" class="menu-item" style="position: relative;" onmouseover="mark_read('dates')">
-        <div class="menu-icon">💋</div>
-        <div class="menu-title">Свидания</div>
+    <a href="/dates" class="menu-item" onmouseover="mark_read('dates')">
+        <span class="menu-icon">💋</span>
+        <span class="menu-title">Dates</span>
         {% if notifications.dates %}<div class="badge" data-type="dates">{{ notifications.dates }}</div>{% endif %}
     </a>
-    <a href="/habits" class="menu-item" style="position: relative;">
-        <div class="menu-icon">💪</div>
-        <div class="menu-title">Привычки</div>
+    <a href="/habits" class="menu-item">
+        <span class="menu-icon">💪</span>
+        <span class="menu-title">Habits</span>
     </a>
-    <a href="/activities" class="menu-item" style="position: relative;" onmouseover="mark_read('activities')">
-        <div class="menu-icon">📋</div>
-        <div class="menu-title">Активности</div>
+    <a href="/activities" class="menu-item" onmouseover="mark_read('activities')">
+        <span class="menu-icon">📋</span>
+        <span class="menu-title">Activity</span>
         {% if notifications.activities %}<div class="badge" data-type="activities">{{ notifications.activities }}</div>{% endif %}
     </a>
-    <a href="/wishes" class="menu-item" style="position: relative;" onmouseover="mark_read('wishes')">
-        <div class="menu-icon">🎁</div>
-        <div class="menu-title">Вишлист</div>
+    <a href="/wishes" class="menu-item" onmouseover="mark_read('wishes')">
+        <span class="menu-icon">🎁</span>
+        <span class="menu-title">Wishes</span>
         {% if notifications.wishes %}<div class="badge" data-type="wishes">{{ notifications.wishes }}</div>{% endif %}
     </a>
-    <a href="/confessions" class="menu-item" style="position: relative;" onmouseover="mark_read('confessions')">
-        <div class="menu-icon">💌</div>
-        <div class="menu-title">Признания</div>
+    <a href="/confessions" class="menu-item" onmouseover="mark_read('confessions')">
+        <span class="menu-icon">💌</span>
+        <span class="menu-title">Confess</span>
         {% if notifications.confessions %}<div class="badge" data-type="confessions">{{ notifications.confessions }}</div>{% endif %}
     </a>
-    <a href="/important-dates" class="menu-item" style="position: relative;">
-        <div class="menu-icon">📅</div>
-        <div class="menu-title">Важные даты</div>
+    <a href="/important-dates" class="menu-item">
+        <span class="menu-icon">📅</span>
+        <span class="menu-title">Dates</span>
     </a>
 </div>
 
@@ -151,7 +262,6 @@ async function mark_read(type) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({type})
     });
-    
     if (r.ok) {
         let badge = document.querySelector('[data-type="' + type + '"]');
         if (badge) {
