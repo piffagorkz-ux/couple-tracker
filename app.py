@@ -54,6 +54,15 @@ TRANSLATIONS = {
         'dates': 'Dates',
         'habits': 'Habits',
         'activity': 'Activity',
+        'activities_title': "Today's Activity",
+        'choose_activity_card': 'Choose an Activity',
+        'recent_activities': 'Recent Activities',
+        'activity_selected': 'Activity selected! +8 XP',
+        'newbies': 'Newbies',
+        'in_love': 'In Love',
+        'soul_mates': 'Soul Mates',
+        'perfect_pair': 'Perfect Pair',
+        'legendary': 'Legendary',
         'wishes': 'Wishes',
         'confess': 'Confess',
         'important': 'Important',
@@ -101,6 +110,15 @@ TRANSLATIONS = {
         'dates': 'Свидания',
         'habits': 'Привычки',
         'activity': 'Активность',
+        'activities_title': 'Активность на сегодня',
+        'choose_activity_card': 'Выберите активность',
+        'recent_activities': 'Последние активности',
+        'activity_selected': 'Активность выбрана! +8 XP',
+        'newbies': 'Новички',
+        'in_love': 'Влюбленные',
+        'soul_mates': 'Родные души',
+        'perfect_pair': 'Идеальная пара',
+        'legendary': 'Легендарная пара',
         'wishes': 'Желания',
         'confess': 'Признания',
         'important': 'Важное',
@@ -384,18 +402,34 @@ def create_app(config_name=None):
             return redirect(url_for('dashboard'))
         mark_section_read('activity')
         activities_list = Activity.query.filter_by(couple_id=couple.id).order_by(Activity.created_at.desc()).all()
-        tasks = [
-            'Support your partner',
-            'Give them a long hug',
-            'Share an intimate moment',
-            'Have a deep conversation',
-            'Surprise them with a gift',
-            'Listen without judging',
-            'Cook dinner together',
-            'Help with chores',
-            'Plan a movie night',
-            'Call them just to talk',
-        ]
+        language = getattr(current_user, 'language', 'en')
+        tasks_by_language = {
+            'ru': [
+                'Поддержать партнера',
+                'Крепко обнять',
+                'Провести время наедине',
+                'Поговорить по душам',
+                'Сделать приятный сюрприз',
+                'Выслушать без осуждения',
+                'Приготовить ужин вместе',
+                'Помочь с делами',
+                'Устроить вечер кино',
+                'Позвонить просто так',
+            ],
+            'en': [
+                'Support your partner',
+                'Give them a long hug',
+                'Share an intimate moment',
+                'Have a deep conversation',
+                'Surprise them with a gift',
+                'Listen without judging',
+                'Cook dinner together',
+                'Help with chores',
+                'Plan a movie night',
+                'Call them just to talk',
+            ],
+        }
+        tasks = tasks_by_language.get(language, tasks_by_language['en'])
         return render_template('activities.html', activities=activities_list, tasks=tasks)
 
     @app.route('/wishes')

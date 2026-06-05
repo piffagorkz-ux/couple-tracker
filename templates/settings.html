@@ -36,15 +36,15 @@
                 <p><strong>{{ tr.couple_xp }}:</strong> {{ couple.xp }}</p>
                 <p><strong>{{ tr.relationship_level }}:</strong>
                     {% if couple.relationship_level.name == 'NEWBIES' %}
-                    Newbies
+                    {{ tr.newbies }}
                     {% elif couple.relationship_level.name == 'IN_LOVE' %}
-                    In Love
+                    {{ tr.in_love }}
                     {% elif couple.relationship_level.name == 'SOUL_MATES' %}
-                    Soul Mates
+                    {{ tr.soul_mates }}
                     {% elif couple.relationship_level.name == 'PERFECT_PAIR' %}
-                    Perfect Pair
+                    {{ tr.perfect_pair }}
                     {% elif couple.relationship_level.name == 'LEGENDARY' %}
-                    Legendary
+                    {{ tr.legendary }}
                     {% endif %}
                 </p>
             </div>

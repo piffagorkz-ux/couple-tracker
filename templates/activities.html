@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Daily Activity - LOVIO{% endblock %}
+{% block title %}{{ tr.activity }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>📋 Today's Activity</h1>
-    
+    <h1>{{ tr.activities_title }}</h1>
+
     <div class="card">
-        <h2>Choose an Activity</h2>
+        <h2>{{ tr.choose_activity_card }}</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0;">
             {% for task in tasks %}
-            <button onclick="selectActivity('{{ task }}')" 
-                    style="padding: 1.5rem; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; background: white; font-weight: 600; transition: all 0.3s;">
+            <button onclick="selectActivity('{{ task }}')"
+                    style="padding: 1.5rem; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; font-weight: 600; transition: all 0.3s;">
                 {{ task }}
             </button>
             {% endfor %}
         </div>
     </div>
-    
+
     {% if activities %}
-    <h2 style="margin-top: 2rem;">Recent Activities</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.recent_activities }}</h2>
     {% for activity in activities %}
     <div class="card">
         <p><strong>{{ activity.user.name }}</strong></p>
@@ -37,7 +37,7 @@ async function selectActivity(task) {
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Activity selected! +8 XP');
+        alert('{{ tr.activity_selected }}');
         location.reload();
     } else {
         alert('Error: ' + data.error);
