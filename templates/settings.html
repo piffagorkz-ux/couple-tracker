@@ -1,76 +1,97 @@
 {% extends "base.html" %}
 
-{% block title %}Settings - LOVIO{% endblock %}
+{% block title %}{{ tr.settings }} - LOVIO{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1>⚙️ Settings</h1>
-    
-    <!-- Profile Card -->
+    <h1>{{ tr.settings }}</h1>
+
     <div class="card">
-        <h2>Profile</h2>
+        <h2>{{ tr.profile }}</h2>
         <div style="padding: 1rem 0; border-bottom: 1px solid #eee;">
-            <p><strong>Username:</strong> {{ current_user.username }}</p>
-            <p><strong>Email:</strong> {{ current_user.email }}</p>
-            <p><strong>Name:</strong> {{ current_user.name }}</p>
-            <p><strong>Total XP:</strong> {{ current_user.xp }}</p>
+            <p><strong>{{ tr.username }}:</strong> {{ current_user.username }}</p>
+            <p><strong>{{ tr.email }}:</strong> {{ current_user.email }}</p>
+            <p><strong>{{ tr.name }}:</strong> {{ current_user.name }}</p>
+            <p><strong>{{ tr.total_xp }}:</strong> {{ current_user.xp }}</p>
         </div>
     </div>
-    
-    <!-- Couple Status -->
+
+    <div class="card">
+        <h2>{{ tr.language }}</h2>
+        <form id="language-form">
+            <select id="language" name="language">
+                <option value="en" {% if current_user.language != 'ru' %}selected{% endif %}>{{ tr.english }}</option>
+                <option value="ru" {% if current_user.language == 'ru' %}selected{% endif %}>{{ tr.russian }}</option>
+            </select>
+            <button type="submit" class="btn">{{ tr.save }}</button>
+        </form>
+    </div>
+
     {% if couple %}
         <div class="card">
-            <h2>💕 Couple Status</h2>
+            <h2>{{ tr.couple_status }}</h2>
             <div style="padding: 1rem 0;">
-                <p><strong>Partner:</strong> {{ partner.name }} (@{{ partner.username }})</p>
-                <p><strong>Together since:</strong> {{ couple.couple_since.strftime('%Y-%m-%d') }}</p>
-                <p><strong>Couple XP:</strong> {{ couple.xp }}</p>
-                <p><strong>Relationship Level:</strong> 
-                    {% if couple.relationship_level == 'NEWBIES' %}
-                    Newbies 🌱
-                    {% elif couple.relationship_level == 'IN_LOVE' %}
-                    In Love 🔥
-                    {% elif couple.relationship_level == 'SOUL_MATES' %}
-                    Soul Mates 👫
-                    {% elif couple.relationship_level == 'PERFECT_PAIR' %}
-                    Perfect Pair 💎
-                    {% elif couple.relationship_level == 'LEGENDARY' %}
-                    Legendary 👑
+                <p><strong>{{ tr.partner }}:</strong> {{ partner.name }} (@{{ partner.username }})</p>
+                <p><strong>{{ tr.together_since }}:</strong> {{ couple.couple_since.strftime('%Y-%m-%d') }}</p>
+                <p><strong>{{ tr.couple_xp }}:</strong> {{ couple.xp }}</p>
+                <p><strong>{{ tr.relationship_level }}:</strong>
+                    {% if couple.relationship_level.name == 'NEWBIES' %}
+                    Newbies
+                    {% elif couple.relationship_level.name == 'IN_LOVE' %}
+                    In Love
+                    {% elif couple.relationship_level.name == 'SOUL_MATES' %}
+                    Soul Mates
+                    {% elif couple.relationship_level.name == 'PERFECT_PAIR' %}
+                    Perfect Pair
+                    {% elif couple.relationship_level.name == 'LEGENDARY' %}
+                    Legendary
                     {% endif %}
                 </p>
             </div>
         </div>
     {% else %}
         <div class="card">
-            <h2>Find Your Partner</h2>
+            <h2>{{ tr.find_partner }}</h2>
             {% if pending_invitations %}
-                <h3>Pending Invitations</h3>
+                <h3>{{ tr.pending_invitations }}</h3>
                 {% for inv in pending_invitations %}
                 <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-bottom: 1rem;">
                     <p><strong>{{ inv.sender.name }}</strong> invited you to be partners!</p>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button onclick="acceptInv({{ inv.id }})" class="btn" style="width: auto;">Accept</button>
-                        <button onclick="declineInv({{ inv.id }})" class="btn btn-secondary" style="width: auto;">Decline</button>
+                        <button onclick="acceptInv({{ inv.id }})" class="btn" style="width: auto;">{{ tr.accept }}</button>
+                        <button onclick="declineInv({{ inv.id }})" class="btn btn-secondary" style="width: auto;">{{ tr.decline }}</button>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color: #666; margin-bottom: 1.5rem;">Send an invitation to your partner from the dashboard!</p>
+                <p style="color: #666; margin-bottom: 1.5rem;">{{ tr.partner_register_first }}</p>
             {% endif %}
         </div>
     {% endif %}
-    
-    <!-- Logout -->
+
     <div class="card" style="text-align: center;">
-        <a href="{{ url_for('logout') }}" class="btn" style="background: #ff3b30;">Log Out</a>
+        <a href="{{ url_for('logout') }}" class="btn" style="background: #ff3b30;">{{ tr.log_out }}</a>
     </div>
 </div>
 
 <script>
+document.getElementById('language-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const language = document.getElementById('language').value;
+    const response = await fetch('/api/settings/language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language })
+    });
+    if (response.ok) {
+        alert('{{ tr.saved }}');
+        location.reload();
+    }
+});
+
 async function acceptInv(invId) {
     const response = await fetch(`/api/invite/${invId}/accept`, { method: 'POST' });
     if (response.ok) {
-        alert('Invitation accepted! You are now a couple!');
         location.reload();
     }
 }
@@ -78,7 +99,6 @@ async function acceptInv(invId) {
 async function declineInv(invId) {
     const response = await fetch(`/api/invite/${invId}/decline`, { method: 'POST' });
     if (response.ok) {
-        alert('Invitation declined.');
         location.reload();
     }
 }

@@ -9,7 +9,7 @@
         <p style="color: #666; margin-bottom: 2rem;">Join LOVIO and celebrate your relationship</p>
         
         <form method="POST">
-            {{ csrf_token() }}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div class="form-group">
                 <label for="username">Username</label>

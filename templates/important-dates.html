@@ -11,6 +11,16 @@
             <button type="submit" class="btn">Add Date</button>
         </form>
     </div>
+
+    {% if important_dates %}
+    <h2 style="margin-top: 2rem;">Saved Dates</h2>
+    {% for item in important_dates %}
+    <div class="card">
+        <p><strong>{{ item.title }}</strong></p>
+        <p style="color: #666;">{{ item.date_value.strftime('%Y-%m-%d') }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
 </div>
 
 <script>

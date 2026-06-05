@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#E13D3C">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-ios.svg') }}">
     <title>{% block title %}LOVIO - For Couples{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,17 +24,26 @@
             --gray-light: #F5F5F7;
             --gray-dark: #333333;
         }
-        
+
+        body.theme-male {
+            --primary: #2563EB;
+            --secondary: #14B8A6;
+            --dark: #17324D;
+            --accent: #3B82F6;
+            --light: #D7EEF8;
+            --bg: #102033;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         html {
             scroll-behavior: smooth;
         }
-        
+
         body {
             font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--gray-light);
@@ -42,53 +52,53 @@
             -webkit-tap-highlight-color: transparent;
             line-height: 1.6;
         }
-        
+
         header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             padding: 1.5rem 1.2rem;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(225, 61, 60, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
-        
+
         header h1 {
             font-size: 2.2em;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: 0;
         }
-        
+
         main {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1.2rem 120px;
             min-height: calc(100vh - 200px);
         }
-        
+
         .container {
             max-width: 600px;
             margin: 2rem auto;
         }
-        
+
         .card {
             background: white;
-            border-radius: 18px;
+            border-radius: 8px;
             padding: 2rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(0, 0, 0, 0.04);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .card:hover {
-            box-shadow: 0 12px 48px rgba(225, 61, 60, 0.15);
-            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
         }
-        
+
         .btn {
             display: inline-block;
             padding: 14px 28px;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -97,102 +107,101 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
             font-size: 1em;
-            box-shadow: 0 4px 16px rgba(225, 61, 60, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
             width: 100%;
             text-align: center;
         }
-        
+
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(225, 61, 60, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
         }
-        
+
         .btn:active {
             transform: scale(0.98);
         }
-        
+
         .btn-secondary {
             background: white;
             color: var(--primary);
             border: 2px solid var(--primary);
         }
-        
+
         .btn-secondary:hover {
             background: var(--primary);
             color: white;
         }
-        
+
         input, textarea, select {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e5e5e7;
-            border-radius: 12px;
+            border-radius: 8px;
             font-family: inherit;
             margin-bottom: 1.2rem;
             font-size: 1em;
             line-height: 1.5;
             transition: all 0.3s;
         }
-        
+
         input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 6px rgba(225, 61, 60, 0.08);
+            box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.08);
         }
-        
+
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--gray-dark);
         }
-        
+
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         h1 {
             color: var(--dark);
             font-weight: 700;
             font-size: 2em;
             margin-bottom: 1.5rem;
-            letter-spacing: -0.5px;
+            letter-spacing: 0;
         }
-        
+
         h2 {
             color: var(--dark);
             font-weight: 700;
             font-size: 1.5em;
             margin-bottom: 1.2rem;
-            letter-spacing: -0.3px;
+            letter-spacing: 0;
         }
-        
+
         .alert {
             padding: 1rem;
-            border-radius: 12px;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
             font-weight: 500;
         }
-        
+
         .alert-error {
             background: #FEE;
             color: #C33;
             border: 1px solid #FCC;
         }
-        
+
         .alert-success {
             background: #EFE;
             color: #3C3;
             border: 1px solid #CFC;
         }
-        
+
         .alert-info {
             background: #EEF;
             color: #33C;
             border: 1px solid #CCF;
         }
-        
-        /* Bottom Navigation */
+
         nav.bottom-nav {
             position: fixed;
             bottom: 0;
@@ -202,67 +211,95 @@
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(0, 0, 0, 0.08);
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 0;
             z-index: 1000;
-            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            padding: 0.25rem 0 max(0.85rem, env(safe-area-inset-bottom));
             box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
         }
-        
+
         nav.bottom-nav a {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.8rem;
+            padding: 0.75rem 0.8rem 0.45rem;
             text-decoration: none;
-            color: #999;
+            color: #777;
             font-size: 0.8em;
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             border-top: 3px solid transparent;
         }
-        
+
         nav.bottom-nav a .icon {
-            font-size: 1.8em;
-            margin-bottom: 0.4rem;
+            font-size: 2rem;
+            line-height: 1;
             display: block;
         }
-        
-        nav.bottom-nav a:hover {
-            color: var(--primary);
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
-        
+
+        nav.bottom-nav a:hover,
         nav.bottom-nav a.active {
             color: var(--primary);
             border-top-color: var(--primary);
         }
-        
+
         @media (max-width: 768px) {
             main {
                 padding: 1.5rem 0.8rem 100px;
             }
+
             header {
                 padding: 1.2rem 1rem;
             }
+
             .card {
                 padding: 1.5rem;
             }
+
             h1 {
                 font-size: 1.6em;
             }
         }
     </style>
     {% block extra_css %}{% endblock %}
+    <script>
+        (() => {
+            const originalFetch = window.fetch;
+            window.fetch = (input, init = {}) => {
+                const method = (init.method || 'GET').toUpperCase();
+                if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                    const headers = new Headers(init.headers || {});
+                    if (token && !headers.has('X-CSRFToken')) {
+                        headers.set('X-CSRFToken', token);
+                    }
+                    init = { ...init, headers };
+                }
+                return originalFetch(input, init);
+            };
+        })();
+    </script>
 </head>
-<body>
+<body class="{% if current_user.is_authenticated and current_user.gender == 'male' %}theme-male{% endif %}">
     {% if current_user.is_authenticated %}
     <header>
-        <h1>💕 LOVIO</h1>
+        <h1>LOVIO</h1>
     </header>
     {% endif %}
-    
+
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -271,31 +308,26 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
         {% block content %}{% endblock %}
     </main>
-    
+
     {% if current_user.is_authenticated %}
     <nav class="bottom-nav">
-        <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}">
-            <span class="icon">📱</span>
-            Home
+        <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}" aria-label="{{ tr.home }}">
+            <span class="icon" aria-hidden="true">&#8962;</span>
+            <span class="sr-only">{{ tr.home }}</span>
         </a>
-        <a href="{{ url_for('diary') }}" class="{% if request.path.startswith('/diary') %}active{% endif %}">
-            <span class="icon">📝</span>
-            Diary
+        <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}" aria-label="{{ tr.settings }}">
+            <span class="icon" aria-hidden="true">&#9881;</span>
+            <span class="sr-only">{{ tr.settings }}</span>
         </a>
-        <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}">
-            <span class="icon">⚙️</span>
-            Settings
-        </a>
-        <a href="{{ url_for('logout') }}" style="color: #ff3b30;">
-            <span class="icon">↗️</span>
-            Exit
+        <a href="{{ url_for('logout') }}" style="color: #ff3b30;" aria-label="{{ tr.exit }}">
+            <span class="icon" aria-hidden="true">&#8599;</span>
+            <span class="sr-only">{{ tr.exit }}</span>
         </a>
     </nav>
     {% endif %}
-    
+
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}');

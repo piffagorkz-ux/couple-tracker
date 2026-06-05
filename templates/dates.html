@@ -19,7 +19,18 @@
     <div class="card">
         <p><strong>{{ date.title }}</strong></p>
         <p>{{ date.planned_date.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if date.description %}
+        <p>{{ date.description }}</p>
+        {% endif %}
         <p style="color: #999;">Status: {{ date.status }}</p>
+        {% if date.status == 'pending' and date.proposer_id != current_user.id %}
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button onclick="respondDate({{ date.id }}, 'accepted')" class="btn" style="width: auto;">Accept</button>
+            <button onclick="respondDate({{ date.id }}, 'declined')" class="btn btn-secondary" style="width: auto;">Decline</button>
+        </div>
+        {% elif date.status == 'pending' and date.proposer_id == current_user.id %}
+        <p style="color: #666;">Waiting for your partner's answer.</p>
+        {% endif %}
     </div>
     {% endfor %}
     {% endif %}
@@ -44,5 +55,20 @@ document.getElementById('date-form').addEventListener('submit', async (e) => {
         alert('Error: ' + data.error);
     }
 });
+
+async function respondDate(dateId, status) {
+    const response = await fetch(`/api/dates/${dateId}/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        alert(status === 'accepted' ? 'Date accepted!' : 'Date declined.');
+        location.reload();
+    } else {
+        alert('Error: ' + data.error);
+    }
+}
 </script>
 {% endblock %}

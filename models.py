@@ -22,6 +22,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     gender = db.Column(db.String(10), default='female')  # male, female, other
+    language = db.Column(db.String(2), default='en')
     avatar_url = db.Column(db.String(255), default='')
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
     last_check_in = db.Column(db.Date)
@@ -73,7 +74,8 @@ class Couple(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    users = db.relationship('User', backref='couple_data', foreign_keys=[user1_id, user2_id])
+    user1 = db.relationship('User', foreign_keys=[user1_id])
+    user2 = db.relationship('User', foreign_keys=[user2_id])
     goals = db.relationship('Goal', backref='couple', cascade='all, delete-orphan')
     diaries = db.relationship('Diary', backref='couple', cascade='all, delete-orphan')
     moods = db.relationship('Mood', backref='couple', cascade='all, delete-orphan')
@@ -199,6 +201,16 @@ class Confession(db.Model):
     couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ImportantDate(db.Model):
+    __tablename__ = 'important_dates'
+
+    id = db.Column(db.Integer, primary_key=True)
+    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    date_value = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Activity(db.Model):

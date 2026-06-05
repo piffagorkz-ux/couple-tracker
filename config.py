@@ -1,11 +1,14 @@
 import os
 from datetime import timedelta
 
+def get_database_url():
+    url = os.getenv('DATABASE_URL', 'sqlite:///lovio.db')
+    if url.startswith('postgres://'):
+        return url.replace('postgres://', 'postgresql://', 1)
+    return url
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL',
-        'postgresql://lovio_user:lovio_password@localhost:5432/lovio_db'
-    )
+    SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     
