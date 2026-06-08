@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lovio-v1';
+const CACHE_NAME = 'lovio-v2';
 const urlsToCache = [
     '/',
     '/dashboard',

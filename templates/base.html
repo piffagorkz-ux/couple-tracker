@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-ios.svg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <title>{% block title %}LOVIO - For Couples{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -71,6 +71,14 @@
             color: inherit;
             text-decoration: none;
             display: inline-block;
+        }
+
+        .brand-logo {
+            display: block;
+            width: min(168px, 52vw);
+            height: auto;
+            margin: 0 auto;
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.12));
         }
 
         main {
@@ -303,7 +311,7 @@
     {% if current_user.is_authenticated %}
     <header>
         <a href="{{ url_for('dashboard') }}" class="brand-link" aria-label="{{ tr.home }}">
-            <h1>LOVIO</h1>
+            <img src="{{ url_for('static', filename='lovio-logo.png') }}" alt="Lovio" class="brand-logo">
         </a>
     </header>
     {% endif %}
