@@ -73,14 +73,6 @@
             display: inline-block;
         }
 
-        .brand-logo {
-            display: block;
-            width: min(168px, 52vw);
-            height: auto;
-            margin: 0 auto;
-            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.12));
-        }
-
         main {
             max-width: 1200px;
             margin: 0 auto;
@@ -311,7 +303,7 @@
     {% if current_user.is_authenticated %}
     <header>
         <a href="{{ url_for('dashboard') }}" class="brand-link" aria-label="{{ tr.home }}">
-            <img src="{{ url_for('static', filename='lovio-logo.png') }}" alt="Lovio" class="brand-logo">
+            <h1>LOVIO</h1>
         </a>
     </header>
     {% endif %}
