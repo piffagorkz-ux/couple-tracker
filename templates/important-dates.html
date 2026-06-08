@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Important Dates - LOVIO{% endblock %}
+{% block title %}{{ tr.important_page_title }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>📅 Important Dates</h1>
+    <h1>{{ tr.important_heading }}</h1>
     <div class="card">
-        <h2>Add Important Date</h2>
+        <h2>{{ tr.important_add_title }}</h2>
         <form id="date-form">
-            <input type="text" id="title" placeholder="Birthday, Anniversary, etc." required maxlength="200">
+            <input type="text" id="title" placeholder="{{ tr.important_placeholder }}" required maxlength="200">
             <input type="date" id="date" required>
-            <button type="submit" class="btn">Add Date</button>
+            <button type="submit" class="btn">{{ tr.important_add_button }}</button>
         </form>
     </div>
 
     {% if important_dates %}
-    <h2 style="margin-top: 2rem;">Saved Dates</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.important_list_title }}</h2>
     {% for item in important_dates %}
     <div class="card">
         <p><strong>{{ item.title }}</strong></p>
@@ -35,10 +35,10 @@ document.getElementById('date-form').addEventListener('submit', async (e) => {
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Date added!');
+        alert('{{ tr.important_added }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 });
 </script>

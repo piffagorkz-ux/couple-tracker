@@ -1,29 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Goals - LOVIO{% endblock %}
+{% block title %}{{ tr.goals_page_title }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>🎯 Goals</h1>
+    <h1>{{ tr.goals_heading }}</h1>
     <div class="card">
-        <h2>Add a Goal</h2>
+        <h2>{{ tr.goals_add_title }}</h2>
         <form id="goal-form">
             <div class="form-group">
-                <textarea id="text" placeholder="What goal do you want to achieve together?" 
-                          required maxlength="500"></textarea>
+                <textarea id="text" placeholder="{{ tr.goals_placeholder }}" required maxlength="500"></textarea>
             </div>
-            <button type="submit" class="btn">Add Goal</button>
+            <button type="submit" class="btn">{{ tr.goals_add_button }}</button>
         </form>
     </div>
-    
+
     {% if goals %}
-    <h2 style="margin-top: 2rem;">Your Goals</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.goals_list_title }}</h2>
     {% for goal in goals %}
     <div class="card" style="{% if goal.completed %}opacity: 0.6;{% endif %}">
         <p><strong>{{ goal.creator.name }}</strong></p>
         <p style="font-size: 1.1em;">{{ goal.text }}</p>
         {% if not goal.completed %}
-        <button onclick="completeGoal({{ goal.id }})" style="margin-top: 1rem; padding: 0.8rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">Complete Goal</button>
+        <button onclick="completeGoal({{ goal.id }})" class="btn" style="margin-top: 1rem; width: auto;">{{ tr.goals_complete_button }}</button>
         {% else %}
-        <p style="color: #4caf50; margin-top: 1rem; font-weight: 600;">✓ Completed</p>
+        <p style="color: #4caf50; margin-top: 1rem; font-weight: 600;">{{ tr.goals_completed }}</p>
         {% endif %}
     </div>
     {% endfor %}
@@ -41,17 +40,17 @@ document.getElementById('goal-form').addEventListener('submit', async (e) => {
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Goal added! +2 XP');
+        alert('{{ tr.goal_added }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 });
 
 async function completeGoal(goalId) {
     const response = await fetch(`/api/goals/complete/${goalId}`, { method: 'POST' });
     if (response.ok) {
-        alert('Goal completed! +25 XP');
+        alert('{{ tr.goal_completed }}');
         location.reload();
     }
 }

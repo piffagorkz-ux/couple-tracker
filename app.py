@@ -229,6 +229,63 @@ LEVEL_LABELS = {
         "SOUL_MATES": "Родные души",
         "PERFECT_PAIR": "Идеальная пара",
         "LEGENDARY": "Легендарная пара",
+        "goals_page_title": "Цели",
+        "goals_heading": "Цели",
+        "goals_add_title": "Добавить цель",
+        "goals_placeholder": "Какой цели вы хотите достичь вместе?",
+        "goals_add_button": "Добавить цель",
+        "goals_list_title": "Ваши цели",
+        "goals_complete_button": "Завершить цель",
+        "goals_completed": "Завершено",
+        "goal_added": "Цель добавлена! +2 XP",
+        "goal_completed": "Цель завершена! +25 XP",
+        "places_page_title": "Места",
+        "places_heading": "Места",
+        "places_add_title": "Добавить место",
+        "places_placeholder": "Название места",
+        "places_add_button": "Добавить место",
+        "places_list_title": "Места, которые хотите посетить",
+        "places_visit_button": "Отметить как посещенное",
+        "places_visited": "Посещено",
+        "place_added": "Место добавлено! +2 XP",
+        "place_visited": "Место отмечено как посещенное! +10 XP",
+        "dates_page_title": "Свидания",
+        "dates_heading": "Запланировать свидание",
+        "dates_add_title": "Предложить свидание",
+        "dates_title_placeholder": "Название свидания",
+        "dates_description_placeholder": "Описание (необязательно)",
+        "dates_add_button": "Предложить свидание",
+        "dates_list_title": "Свидания",
+        "dates_status": "Статус",
+        "dates_waiting": "Ждем ответа партнера.",
+        "dates_accept": "Принять",
+        "dates_decline": "Отклонить",
+        "dates_proposed": "Свидание предложено! +5 XP",
+        "dates_accepted": "Свидание принято!",
+        "dates_declined": "Свидание отклонено.",
+        "dates_timer": "Осталось времени",
+        "status_pending": "Ожидает ответа",
+        "status_accepted": "Принято",
+        "status_declined": "Отклонено",
+        "status_completed": "Завершено",
+        "wishes_page_title": "Желания",
+        "wishes_heading": "Список желаний",
+        "wishes_add_title": "Добавить желание",
+        "wishes_placeholder": "Что ты хочешь?",
+        "wishes_price_placeholder": "Цена (необязательно)",
+        "wishes_add_button": "Добавить желание",
+        "wishes_list_title": "Желания",
+        "wishes_gift_button": "Отметить как подаренное",
+        "wishes_gifted": "Подарено!",
+        "wish_added": "Желание добавлено! +2 XP",
+        "wish_gifted": "Желание отмечено как подаренное! +30 XP",
+        "important_page_title": "Важные даты",
+        "important_heading": "Важные даты",
+        "important_add_title": "Добавить важную дату",
+        "important_placeholder": "День рождения, годовщина и т.д.",
+        "important_add_button": "Добавить дату",
+        "important_list_title": "Сохраненные даты",
+        "important_added": "Дата добавлена!",
     },
 }
 
@@ -292,6 +349,63 @@ TRANSLATIONS = {
         "waiting_activity": "You already picked an activity today.",
         "error_prefix": "Error: ",
         "invitation_sent": "Invitation sent! Wait for your partner to accept.",
+        "goals_page_title": "Goals",
+        "goals_heading": "Goals",
+        "goals_add_title": "Add a Goal",
+        "goals_placeholder": "What goal do you want to achieve together?",
+        "goals_add_button": "Add Goal",
+        "goals_list_title": "Your Goals",
+        "goals_complete_button": "Complete Goal",
+        "goals_completed": "Completed",
+        "goal_added": "Goal added! +2 XP",
+        "goal_completed": "Goal completed! +25 XP",
+        "places_page_title": "Places",
+        "places_heading": "Places",
+        "places_add_title": "Add a Place",
+        "places_placeholder": "Place name",
+        "places_add_button": "Add Place",
+        "places_list_title": "Places to Visit",
+        "places_visit_button": "Mark as Visited",
+        "places_visited": "Visited",
+        "place_added": "Place added! +2 XP",
+        "place_visited": "Place marked as visited! +10 XP",
+        "dates_page_title": "Dates",
+        "dates_heading": "Plan a Date",
+        "dates_add_title": "Propose a Date",
+        "dates_title_placeholder": "Date title",
+        "dates_description_placeholder": "Description (optional)",
+        "dates_add_button": "Propose Date",
+        "dates_list_title": "Dates",
+        "dates_status": "Status",
+        "dates_waiting": "Waiting for your partner's answer.",
+        "dates_accept": "Accept",
+        "dates_decline": "Decline",
+        "dates_proposed": "Date proposed! +5 XP",
+        "dates_accepted": "Date accepted!",
+        "dates_declined": "Date declined.",
+        "dates_timer": "Time left",
+        "status_pending": "Pending",
+        "status_accepted": "Accepted",
+        "status_declined": "Declined",
+        "status_completed": "Completed",
+        "wishes_page_title": "Wishes",
+        "wishes_heading": "Wishlist",
+        "wishes_add_title": "Add to Wishlist",
+        "wishes_placeholder": "What do you want?",
+        "wishes_price_placeholder": "Price (optional)",
+        "wishes_add_button": "Add Wish",
+        "wishes_list_title": "Wishes",
+        "wishes_gift_button": "Mark as Gifted",
+        "wishes_gifted": "Gifted!",
+        "wish_added": "Wish added! +2 XP",
+        "wish_gifted": "Wish marked as gifted! +30 XP",
+        "important_page_title": "Important Dates",
+        "important_heading": "Important Dates",
+        "important_add_title": "Add Important Date",
+        "important_placeholder": "Birthday, Anniversary, etc.",
+        "important_add_button": "Add Date",
+        "important_list_title": "Saved Dates",
+        "important_added": "Date added!",
     },
     "ru": {
         "home": "Главная",
@@ -355,6 +469,127 @@ TRANSLATIONS = {
     },
 }
 
+EXTRA_UI_TEXT = {
+    "en": {
+        "goals_page_title": "Goals",
+        "goals_heading": "Goals",
+        "goals_add_title": "Add a Goal",
+        "goals_placeholder": "What goal do you want to achieve together?",
+        "goals_add_button": "Add Goal",
+        "goals_list_title": "Your Goals",
+        "goals_complete_button": "Complete Goal",
+        "goals_completed": "Completed",
+        "goal_added": "Goal added! +2 XP",
+        "goal_completed": "Goal completed! +25 XP",
+        "places_page_title": "Places",
+        "places_heading": "Places",
+        "places_add_title": "Add a Place",
+        "places_placeholder": "Place name",
+        "places_add_button": "Add Place",
+        "places_list_title": "Places to Visit",
+        "places_visit_button": "Mark as Visited",
+        "places_visited": "Visited",
+        "place_added": "Place added! +2 XP",
+        "place_visited": "Place marked as visited! +10 XP",
+        "dates_page_title": "Dates",
+        "dates_heading": "Plan a Date",
+        "dates_add_title": "Propose a Date",
+        "dates_title_placeholder": "Date title",
+        "dates_description_placeholder": "Description (optional)",
+        "dates_add_button": "Propose Date",
+        "dates_list_title": "Dates",
+        "dates_status": "Status",
+        "dates_waiting": "Waiting for your partner's answer.",
+        "dates_accept": "Accept",
+        "dates_decline": "Decline",
+        "dates_proposed": "Date proposed! +5 XP",
+        "dates_accepted": "Date accepted!",
+        "dates_declined": "Date declined.",
+        "dates_timer": "Time left",
+        "status_pending": "Pending",
+        "status_accepted": "Accepted",
+        "status_declined": "Declined",
+        "status_completed": "Completed",
+        "wishes_page_title": "Wishes",
+        "wishes_heading": "Wishlist",
+        "wishes_add_title": "Add to Wishlist",
+        "wishes_placeholder": "What do you want?",
+        "wishes_price_placeholder": "Price (optional)",
+        "wishes_add_button": "Add Wish",
+        "wishes_list_title": "Wishes",
+        "wishes_gift_button": "Mark as Gifted",
+        "wishes_gifted": "Gifted!",
+        "wish_added": "Wish added! +2 XP",
+        "wish_gifted": "Wish marked as gifted! +30 XP",
+        "important_page_title": "Important Dates",
+        "important_heading": "Important Dates",
+        "important_add_title": "Add Important Date",
+        "important_placeholder": "Birthday, Anniversary, etc.",
+        "important_add_button": "Add Date",
+        "important_list_title": "Saved Dates",
+        "important_added": "Date added!",
+    },
+    "ru": {
+        "goals_page_title": "Цели",
+        "goals_heading": "Цели",
+        "goals_add_title": "Добавить цель",
+        "goals_placeholder": "Какой цели вы хотите достичь вместе?",
+        "goals_add_button": "Добавить цель",
+        "goals_list_title": "Ваши цели",
+        "goals_complete_button": "Завершить цель",
+        "goals_completed": "Завершено",
+        "goal_added": "Цель добавлена! +2 XP",
+        "goal_completed": "Цель завершена! +25 XP",
+        "places_page_title": "Места",
+        "places_heading": "Места",
+        "places_add_title": "Добавить место",
+        "places_placeholder": "Название места",
+        "places_add_button": "Добавить место",
+        "places_list_title": "Места, которые хотите посетить",
+        "places_visit_button": "Отметить как посещенное",
+        "places_visited": "Посещено",
+        "place_added": "Место добавлено! +2 XP",
+        "place_visited": "Место отмечено как посещенное! +10 XP",
+        "dates_page_title": "Свидания",
+        "dates_heading": "Запланировать свидание",
+        "dates_add_title": "Предложить свидание",
+        "dates_title_placeholder": "Название свидания",
+        "dates_description_placeholder": "Описание (необязательно)",
+        "dates_add_button": "Предложить свидание",
+        "dates_list_title": "Свидания",
+        "dates_status": "Статус",
+        "dates_waiting": "Ждем ответа партнера.",
+        "dates_accept": "Принять",
+        "dates_decline": "Отклонить",
+        "dates_proposed": "Свидание предложено! +5 XP",
+        "dates_accepted": "Свидание принято!",
+        "dates_declined": "Свидание отклонено.",
+        "dates_timer": "Осталось времени",
+        "status_pending": "Ожидает ответа",
+        "status_accepted": "Принято",
+        "status_declined": "Отклонено",
+        "status_completed": "Завершено",
+        "wishes_page_title": "Желания",
+        "wishes_heading": "Список желаний",
+        "wishes_add_title": "Добавить желание",
+        "wishes_placeholder": "Что ты хочешь?",
+        "wishes_price_placeholder": "Цена (необязательно)",
+        "wishes_add_button": "Добавить желание",
+        "wishes_list_title": "Желания",
+        "wishes_gift_button": "Отметить как подаренное",
+        "wishes_gifted": "Подарено!",
+        "wish_added": "Желание добавлено! +2 XP",
+        "wish_gifted": "Желание отмечено как подаренное! +30 XP",
+        "important_page_title": "Важные даты",
+        "important_heading": "Важные даты",
+        "important_add_title": "Добавить важную дату",
+        "important_placeholder": "День рождения, годовщина и т.д.",
+        "important_add_button": "Добавить дату",
+        "important_list_title": "Сохраненные даты",
+        "important_added": "Дата добавлена!",
+    },
+}
+
 
 def create_app(config_name=None):
     config_name = config_name or os.getenv("FLASK_ENV", "development")
@@ -379,6 +614,10 @@ def create_app(config_name=None):
 
     def tr(language, key):
         language = normalize_language(language)
+        if key in EXTRA_UI_TEXT[language]:
+            return EXTRA_UI_TEXT[language][key]
+        if key in EXTRA_UI_TEXT["en"]:
+            return EXTRA_UI_TEXT["en"][key]
         return TRANSLATIONS[language].get(key, TRANSLATIONS["en"].get(key, key))
 
     def current_couple():
@@ -483,6 +722,47 @@ def create_app(config_name=None):
                 return item[language]
         return code
 
+    def get_date_status_label(status_value, language):
+        return tr(language, f"status_{status_value}")
+
+    def get_visible_dates(couple):
+        accepted_cutoff = datetime.utcnow() - timedelta(days=1)
+        accepted_rows = DatePlan.query.filter_by(couple_id=couple.id, status="accepted").all()
+        changed = False
+        for row in accepted_rows:
+            accepted_at = row.updated_at or row.created_at
+            if accepted_at and accepted_at <= accepted_cutoff:
+                row.status = "completed"
+                changed = True
+        if changed:
+            db.session.commit()
+
+        visible_rows = DatePlan.query.filter(
+            DatePlan.couple_id == couple.id,
+            DatePlan.status != "completed",
+        ).order_by(DatePlan.created_at.desc()).all()
+
+        prepared = []
+        for row in visible_rows:
+            expires_in_seconds = None
+            if row.status == "accepted":
+                accepted_at = row.updated_at or row.created_at
+                remaining = timedelta(days=1) - (datetime.utcnow() - accepted_at)
+                expires_in_seconds = max(0, int(remaining.total_seconds()))
+            prepared.append(
+                {
+                    "id": row.id,
+                    "title": row.title,
+                    "description": row.description,
+                    "planned_date": row.planned_date,
+                    "status": row.status,
+                    "status_label": get_date_status_label(row.status, current_user.language),
+                    "proposer_id": row.proposer_id,
+                    "expires_in_seconds": expires_in_seconds,
+                }
+            )
+        return prepared
+
     def get_daily_activity_choices(couple):
         today = date.today()
         recent_cutoff = today - timedelta(days=6)
@@ -502,6 +782,8 @@ def create_app(config_name=None):
     @flask_app.context_processor
     def inject_globals():
         language = normalize_language(getattr(current_user, "language", "en")) if current_user.is_authenticated else "en"
+        merged_translations = dict(TRANSLATIONS[language])
+        merged_translations.update(EXTRA_UI_TEXT[language])
         notification_counts = {}
         if current_user.is_authenticated:
             unread_notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
@@ -509,9 +791,15 @@ def create_app(config_name=None):
                 notification_counts[notification.notif_type] = notification_counts.get(notification.notif_type, 0) + 1
         return {
             "lang": language,
-            "tr": TRANSLATIONS[language],
+            "tr": merged_translations,
             "notification_counts": notification_counts,
             "level_labels": LEVEL_LABELS[language],
+            "date_status_labels": {
+                "pending": merged_translations["status_pending"],
+                "accepted": merged_translations["status_accepted"],
+                "declined": merged_translations["status_declined"],
+                "completed": merged_translations["status_completed"],
+            },
         }
 
     @flask_app.route("/")
@@ -642,7 +930,7 @@ def create_app(config_name=None):
         if not couple:
             return redirect(url_for("dashboard"))
         mark_section_read("date")
-        dates_list = DatePlan.query.filter_by(couple_id=couple.id).order_by(DatePlan.created_at.desc()).all()
+        dates_list = get_visible_dates(couple)
         return render_template("dates.html", dates=dates_list)
 
     @flask_app.route("/activities")

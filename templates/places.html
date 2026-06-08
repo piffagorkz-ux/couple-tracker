@@ -1,25 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Places - LOVIO{% endblock %}
+{% block title %}{{ tr.places_page_title }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>🗺️ Places</h1>
+    <h1>{{ tr.places_heading }}</h1>
     <div class="card">
-        <h2>Add a Place</h2>
+        <h2>{{ tr.places_add_title }}</h2>
         <form id="place-form">
-            <input type="text" id="name" placeholder="Place name" required maxlength="200">
-            <button type="submit" class="btn">Add Place</button>
+            <input type="text" id="name" placeholder="{{ tr.places_placeholder }}" required maxlength="200">
+            <button type="submit" class="btn">{{ tr.places_add_button }}</button>
         </form>
     </div>
-    
+
     {% if places %}
-    <h2 style="margin-top: 2rem;">Places to Visit</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.places_list_title }}</h2>
     {% for place in places %}
     <div class="card">
         <p><strong>{{ place.name }}</strong></p>
         {% if not place.visited %}
-        <button onclick="visitPlace('{{ place.name }}')" class="btn" style="margin-top: 1rem; width: auto;">Mark as Visited</button>
+        <button onclick='visitPlace({{ place.name|tojson }})' class="btn" style="margin-top: 1rem; width: auto;">{{ tr.places_visit_button }}</button>
         {% else %}
-        <p style="color: #4caf50; margin-top: 1rem;">✓ Visited</p>
+        <p style="color: #4caf50; margin-top: 1rem;">{{ tr.places_visited }}</p>
         {% endif %}
     </div>
     {% endfor %}
@@ -37,10 +37,10 @@ document.getElementById('place-form').addEventListener('submit', async (e) => {
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Place added! +2 XP');
+        alert('{{ tr.place_added }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 });
 
@@ -51,7 +51,7 @@ async function visitPlace(name) {
         body: JSON.stringify({ name })
     });
     if (response.ok) {
-        alert('Place marked as visited! +10 XP');
+        alert('{{ tr.place_visited }}');
         location.reload();
     }
 }

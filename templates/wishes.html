@@ -1,27 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Wishes - LOVIO{% endblock %}
+{% block title %}{{ tr.wishes_page_title }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>🎁 Wishlist</h1>
+    <h1>{{ tr.wishes_heading }}</h1>
     <div class="card">
-        <h2>Add to Wishlist</h2>
+        <h2>{{ tr.wishes_add_title }}</h2>
         <form id="wish-form">
-            <input type="text" id="text" placeholder="What do you want?" required maxlength="300">
-            <input type="number" id="price" placeholder="Price (optional)" min="0">
-            <button type="submit" class="btn">Add Wish</button>
+            <input type="text" id="text" placeholder="{{ tr.wishes_placeholder }}" required maxlength="300">
+            <input type="number" id="price" placeholder="{{ tr.wishes_price_placeholder }}" min="0">
+            <button type="submit" class="btn">{{ tr.wishes_add_button }}</button>
         </form>
     </div>
-    
+
     {% if wishes %}
-    <h2 style="margin-top: 2rem;">Wishes</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.wishes_list_title }}</h2>
     {% for wish in wishes %}
     <div class="card">
         <p><strong>{{ wish.text }}</strong></p>
-        {% if wish.price %}<p>💰 {{ wish.price }}</p>{% endif %}
+        {% if wish.price %}<p>{{ wish.price }}</p>{% endif %}
         {% if not wish.gifted %}
-        <button onclick="giftWish('{{ wish.text }}')" class="btn" style="width: auto; margin-top: 1rem;">Mark as Gifted</button>
+        <button onclick='giftWish({{ wish.text|tojson }})' class="btn" style="width: auto; margin-top: 1rem;">{{ tr.wishes_gift_button }}</button>
         {% else %}
-        <p style="color: #4caf50;">✓ Gifted!</p>
+        <p style="color: #4caf50;">{{ tr.wishes_gifted }}</p>
         {% endif %}
     </div>
     {% endfor %}
@@ -36,14 +36,14 @@ document.getElementById('wish-form').addEventListener('submit', async (e) => {
     const response = await fetch('/api/wishes/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, price: parseInt(price) })
+        body: JSON.stringify({ text, price: parseInt(price, 10) })
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Wish added! +2 XP');
+        alert('{{ tr.wish_added }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 });
 
@@ -54,7 +54,7 @@ async function giftWish(text) {
         body: JSON.stringify({ text })
     });
     if (response.ok) {
-        alert('Wish marked as gifted! +30 XP');
+        alert('{{ tr.wish_gifted }}');
         location.reload();
     }
 }

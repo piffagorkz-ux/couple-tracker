@@ -1,35 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Dates - LOVIO{% endblock %}
+{% block title %}{{ tr.dates_page_title }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
-    <h1>💋 Plan a Date</h1>
+    <h1>{{ tr.dates_heading }}</h1>
     <div class="card">
-        <h2>Propose a Date</h2>
+        <h2>{{ tr.dates_add_title }}</h2>
         <form id="date-form">
-            <input type="text" id="title" placeholder="Date title" required maxlength="200">
+            <input type="text" id="title" placeholder="{{ tr.dates_title_placeholder }}" required maxlength="200">
             <input type="datetime-local" id="datetime" required>
-            <textarea id="description" placeholder="Description (optional)" maxlength="1000"></textarea>
-            <button type="submit" class="btn">Propose Date</button>
+            <textarea id="description" placeholder="{{ tr.dates_description_placeholder }}" maxlength="1000"></textarea>
+            <button type="submit" class="btn">{{ tr.dates_add_button }}</button>
         </form>
     </div>
-    
+
     {% if dates %}
-    <h2 style="margin-top: 2rem;">Dates</h2>
+    <h2 style="margin-top: 2rem;">{{ tr.dates_list_title }}</h2>
     {% for date in dates %}
-    <div class="card">
+    <div class="card" {% if date.expires_in_seconds is not none %}data-expiry-seconds="{{ date.expires_in_seconds }}"{% endif %}>
         <p><strong>{{ date.title }}</strong></p>
         <p>{{ date.planned_date.strftime('%Y-%m-%d %H:%M') }}</p>
         {% if date.description %}
         <p>{{ date.description }}</p>
         {% endif %}
-        <p style="color: #999;">Status: {{ date.status }}</p>
+        <p style="color: #999;">{{ tr.dates_status }}: {{ date.status_label }}</p>
+        {% if date.expires_in_seconds is not none %}
+        <p class="date-timer" style="color: #666;">{{ tr.dates_timer }}: --:--</p>
+        {% endif %}
         {% if date.status == 'pending' and date.proposer_id != current_user.id %}
         <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-            <button onclick="respondDate({{ date.id }}, 'accepted')" class="btn" style="width: auto;">Accept</button>
-            <button onclick="respondDate({{ date.id }}, 'declined')" class="btn btn-secondary" style="width: auto;">Decline</button>
+            <button onclick="respondDate({{ date.id }}, 'accepted')" class="btn" style="width: auto;">{{ tr.dates_accept }}</button>
+            <button onclick="respondDate({{ date.id }}, 'declined')" class="btn btn-secondary" style="width: auto;">{{ tr.dates_decline }}</button>
         </div>
         {% elif date.status == 'pending' and date.proposer_id == current_user.id %}
-        <p style="color: #666;">Waiting for your partner's answer.</p>
+        <p style="color: #666;">{{ tr.dates_waiting }}</p>
         {% endif %}
     </div>
     {% endfor %}
@@ -49,10 +52,10 @@ document.getElementById('date-form').addEventListener('submit', async (e) => {
     });
     const data = await response.json();
     if (response.ok) {
-        alert('Date proposed! +5 XP');
+        alert('{{ tr.dates_proposed }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 });
 
@@ -64,11 +67,32 @@ async function respondDate(dateId, status) {
     });
     const data = await response.json();
     if (response.ok) {
-        alert(status === 'accepted' ? 'Date accepted!' : 'Date declined.');
+        alert(status === 'accepted' ? '{{ tr.dates_accepted }}' : '{{ tr.dates_declined }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 }
+
+function formatCountdown(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+document.querySelectorAll('[data-expiry-seconds]').forEach((card) => {
+    let remaining = parseInt(card.dataset.expirySeconds, 10);
+    const timerNode = card.querySelector('.date-timer');
+    const tick = () => {
+        if (remaining <= 0) {
+            location.reload();
+            return;
+        }
+        timerNode.textContent = '{{ tr.dates_timer }}: ' + formatCountdown(remaining);
+        remaining -= 60;
+    };
+    tick();
+    setInterval(tick, 60000);
+});
 </script>
 {% endblock %}
