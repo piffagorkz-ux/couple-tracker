@@ -2,7 +2,11 @@ import os
 from datetime import timedelta
 
 def get_database_url():
-    url = os.getenv('DATABASE_URL', 'sqlite:///lovio.db')
+    url = os.getenv('DATABASE_URL')
+    if not url:
+        if os.getenv('REQUIRE_DATABASE_URL') == '1':
+            raise RuntimeError('DATABASE_URL is required for this environment')
+        return 'sqlite:///lovio.db'
     if url.startswith('postgres://'):
         return url.replace('postgres://', 'postgresql://', 1)
     return url

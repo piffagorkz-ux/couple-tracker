@@ -34,19 +34,7 @@
                 <p><strong>{{ tr.partner }}:</strong> {{ partner.name }} (@{{ partner.username }})</p>
                 <p><strong>{{ tr.together_since }}:</strong> {{ couple.couple_since.strftime('%Y-%m-%d') }}</p>
                 <p><strong>{{ tr.couple_xp }}:</strong> {{ couple.xp }}</p>
-                <p><strong>{{ tr.relationship_level }}:</strong>
-                    {% if couple.relationship_level.name == 'NEWBIES' %}
-                    {{ tr.newbies }}
-                    {% elif couple.relationship_level.name == 'IN_LOVE' %}
-                    {{ tr.in_love }}
-                    {% elif couple.relationship_level.name == 'SOUL_MATES' %}
-                    {{ tr.soul_mates }}
-                    {% elif couple.relationship_level.name == 'PERFECT_PAIR' %}
-                    {{ tr.perfect_pair }}
-                    {% elif couple.relationship_level.name == 'LEGENDARY' %}
-                    {{ tr.legendary }}
-                    {% endif %}
-                </p>
+                <p><strong>{{ tr.relationship_level }}:</strong> {{ level_labels.get(couple.relationship_level.name, couple.relationship_level.name) }}</p>
             </div>
         </div>
     {% else %}
@@ -56,7 +44,7 @@
                 <h3>{{ tr.pending_invitations }}</h3>
                 {% for inv in pending_invitations %}
                 <div style="padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-bottom: 1rem;">
-                    <p><strong>{{ inv.sender.name }}</strong> invited you to be partners!</p>
+                    <p><strong>{{ inv.sender.name }}</strong> {% if lang == 'ru' %}приглашает тебя в пару.{% else %}invited you to be partners!{% endif %}</p>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                         <button onclick="acceptInv({{ inv.id }})" class="btn" style="width: auto;">{{ tr.accept }}</button>
                         <button onclick="declineInv({{ inv.id }})" class="btn btn-secondary" style="width: auto;">{{ tr.decline }}</button>

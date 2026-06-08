@@ -32,14 +32,10 @@ class User(UserMixin, db.Model):
     
     # Relationships
     couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'))
-    diaries = db.relationship('Diary', backref='author', lazy='dynamic', cascade='all, delete-orphan')
-    moods = db.relationship('Mood', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     goals = db.relationship('Goal', backref='creator', lazy='dynamic', cascade='all, delete-orphan')
     places = db.relationship('Place', backref='creator', lazy='dynamic', cascade='all, delete-orphan')
     dates_proposed = db.relationship('DatePlan', backref='proposer', lazy='dynamic', cascade='all, delete-orphan')
-    habits = db.relationship('Habit', backref='creator', lazy='dynamic', cascade='all, delete-orphan')
     wishes = db.relationship('Wish', backref='creator', lazy='dynamic', cascade='all, delete-orphan')
-    confessions = db.relationship('Confession', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     activities = db.relationship('Activity', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     sent_invitations = db.relationship('CoupleInvitation', foreign_keys='CoupleInvitation.sender_id', 
@@ -77,13 +73,9 @@ class Couple(db.Model):
     user1 = db.relationship('User', foreign_keys=[user1_id])
     user2 = db.relationship('User', foreign_keys=[user2_id])
     goals = db.relationship('Goal', backref='couple', cascade='all, delete-orphan')
-    diaries = db.relationship('Diary', backref='couple', cascade='all, delete-orphan')
-    moods = db.relationship('Mood', backref='couple', cascade='all, delete-orphan')
     places = db.relationship('Place', backref='couple', cascade='all, delete-orphan')
     dates = db.relationship('DatePlan', backref='couple', cascade='all, delete-orphan')
-    habits = db.relationship('Habit', backref='couple', cascade='all, delete-orphan')
     wishes = db.relationship('Wish', backref='couple', cascade='all, delete-orphan')
-    confessions = db.relationship('Confession', backref='couple', cascade='all, delete-orphan')
     activities = db.relationship('Activity', backref='couple', cascade='all, delete-orphan')
     
     def get_partner(self, current_user_id):
@@ -124,29 +116,6 @@ class Goal(db.Model):
         self.completed_at = datetime.utcnow()
         db.session.commit()
 
-class Diary(db.Model):
-    __tablename__ = 'diaries'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    text = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Mood(db.Model):
-    __tablename__ = 'moods'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    level = db.Column(db.Integer, nullable=False)  # 1-10
-    mood_date = db.Column(db.Date, default=date.today, unique=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    __table_args__ = (
-        db.UniqueConstraint('author_id', 'mood_date', name='unique_mood_per_day'),
-    )
-
 class Place(db.Model):
     __tablename__ = 'places'
     
@@ -171,17 +140,6 @@ class DatePlan(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class Habit(db.Model):
-    __tablename__ = 'habits'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
-    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    text = db.Column(db.String(300), nullable=False)
-    streak = db.Column(db.Integer, default=0)
-    last_completed = db.Column(db.Date)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 class Wish(db.Model):
     __tablename__ = 'wishes'
     
@@ -192,15 +150,6 @@ class Wish(db.Model):
     price = db.Column(db.Integer, default=0)
     gifted = db.Column(db.Boolean, default=False)
     gifted_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Confession(db.Model):
-    __tablename__ = 'confessions'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    text = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ImportantDate(db.Model):
@@ -225,6 +174,22 @@ class Activity(db.Model):
     
     __table_args__ = (
         db.UniqueConstraint('user_id', 'activity_date', name='unique_activity_per_day'),
+    )
+
+class DailyPromptResponse(db.Model):
+    __tablename__ = 'daily_prompt_responses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    couple_id = db.Column(db.Integer, db.ForeignKey('couples.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    question_date = db.Column(db.Date, nullable=False)
+    question_text = db.Column(db.String(500), nullable=False)
+    answer_text = db.Column(db.Text, nullable=False)
+    mood_level = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'question_date', name='unique_daily_prompt_response'),
     )
 
 class Notification(db.Model):

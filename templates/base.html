@@ -67,6 +67,12 @@
             letter-spacing: 0;
         }
 
+        .brand-link {
+            color: inherit;
+            text-decoration: none;
+            display: inline-block;
+        }
+
         main {
             max-width: 1200px;
             margin: 0 auto;
@@ -262,7 +268,7 @@
             }
 
             header {
-                padding: 1.2rem 1rem;
+                padding: calc(1.1rem + env(safe-area-inset-top)) 1rem 1rem;
             }
 
             .card {
@@ -296,7 +302,9 @@
 <body class="{% if current_user.is_authenticated and current_user.gender == 'male' %}theme-male{% endif %}">
     {% if current_user.is_authenticated %}
     <header>
-        <h1>LOVIO</h1>
+        <a href="{{ url_for('dashboard') }}" class="brand-link" aria-label="{{ tr.home }}">
+            <h1>LOVIO</h1>
+        </a>
     </header>
     {% endif %}
 

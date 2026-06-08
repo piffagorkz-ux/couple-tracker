@@ -62,6 +62,60 @@
         margin-top: 0.35rem;
     }
 
+    .ritual-card,
+    .reveal-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ritual-question {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .mood-scale {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.6rem;
+        margin: 1rem 0 1.3rem;
+    }
+
+    .mood-option {
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 8px;
+        padding: 0.8rem 0.2rem;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .mood-option.active {
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+
+    .answer-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1.1rem;
+    }
+
+    .answer-block {
+        background: #f8f8fb;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .answer-name {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
     .menu-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -77,7 +131,6 @@
         padding: 1.25rem 0.75rem;
         text-align: center;
         box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-        cursor: pointer;
         transition: all 0.22s ease;
         text-decoration: none;
         color: var(--gray-dark);
@@ -126,13 +179,36 @@
         box-shadow: 0 8px 18px rgba(34, 197, 94, 0.3);
     }
 
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 24, 35, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 1200;
+    }
+
+    .modal-card {
+        width: min(100%, 560px);
+        background: white;
+        border-radius: 8px;
+        padding: 1.4rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .modal-card textarea {
+        min-height: 120px;
+    }
+
     @media (min-width: 760px) {
         .stats-grid {
             grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
         .menu-grid {
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
 </style>
@@ -145,6 +221,7 @@
 {%- endmacro %}
 
 {% block content %}
+{% set ritual = prompt_state|default(None) %}
 {% if partner %}
     <div class="welcome-section">
         <div class="welcome-header">
@@ -158,7 +235,7 @@
                 <div class="stat-label">{{ tr.days_together }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-num">{{ diary_count }}</div>
+                <div class="stat-num">{{ daily_answers_count }}</div>
                 <div class="stat-label">{{ tr.memories }}</div>
             </div>
             <div class="stat-card">
@@ -172,18 +249,36 @@
         </div>
     </div>
 
-    <h2>{{ tr.choose_activity }}</h2>
+    <div class="card ritual-card">
+        <h2>{{ tr.daily_ritual }}</h2>
+        {% if ritual %}
+        <div class="ritual-question">{{ ritual.question_text }}</div>
+        {% if ritual.revealed %}
+            <div style="color: #22c55e; font-weight: 700;">{{ tr.answers_revealed }}</div>
+            <div class="answer-grid">
+                <div class="answer-block">
+                    <div class="answer-name">{{ tr.you }}</div>
+                    <div>{{ ritual.current_response.answer_text }}</div>
+                    <div style="margin-top: 0.7rem; color: #666;">{{ 'Настроение' if lang == 'ru' else 'Mood' }}: {{ ritual.current_response.mood_level }}/10</div>
+                </div>
+                <div class="answer-block">
+                    <div class="answer-name">{{ partner.name }}</div>
+                    <div>{{ ritual.partner_response.answer_text }}</div>
+                    <div style="margin-top: 0.7rem; color: #666;">{{ 'Настроение' if lang == 'ru' else 'Mood' }}: {{ ritual.partner_response.mood_level }}/10</div>
+                </div>
+            </div>
+        {% elif ritual.current_response %}
+            <div style="font-weight: 700; margin-bottom: 0.6rem;">{{ tr.waiting_partner }}</div>
+            <div>{{ ritual.current_response.answer_text }}</div>
+            <div style="margin-top: 0.7rem; color: #666;">{{ 'Настроение' if lang == 'ru' else 'Mood' }}: {{ ritual.current_response.mood_level }}/10</div>
+        {% else %}
+            <div style="color: #666;">{{ tr.daily_question }}</div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <h2>{{ tr.choose_focus }}</h2>
     <div class="menu-grid">
-        <a href="/diary" class="menu-item">
-            {{ badge('diary') }}
-            <div class="menu-icon">&#9998;</div>
-            <div class="menu-title">{{ tr.diary }}</div>
-        </a>
-        <a href="/mood" class="menu-item">
-            {{ badge('mood') }}
-            <div class="menu-icon">&#9786;</div>
-            <div class="menu-title">{{ tr.mood }}</div>
-        </a>
         <a href="/goals" class="menu-item">
             {{ badge('goal') }}
             <div class="menu-icon">&#9673;</div>
@@ -199,25 +294,15 @@
             <div class="menu-icon">&#9825;</div>
             <div class="menu-title">{{ tr.dates }}</div>
         </a>
-        <a href="/habits" class="menu-item">
-            {{ badge('habit') }}
-            <div class="menu-icon">&#10003;</div>
-            <div class="menu-title">{{ tr.habits }}</div>
-        </a>
         <a href="/activities" class="menu-item">
             {{ badge('activity') }}
             <div class="menu-icon">&#9776;</div>
-            <div class="menu-title">{{ tr.activity }}</div>
+            <div class="menu-title">{{ tr.activities }}</div>
         </a>
         <a href="/wishes" class="menu-item">
             {{ badge('wish') }}
             <div class="menu-icon">&#9734;</div>
             <div class="menu-title">{{ tr.wishes }}</div>
-        </a>
-        <a href="/confessions" class="menu-item">
-            {{ badge('confession') }}
-            <div class="menu-icon">&#9993;</div>
-            <div class="menu-title">{{ tr.confess }}</div>
         </a>
         <a href="/important-dates" class="menu-item">
             {{ badge('important_date') }}
@@ -225,6 +310,52 @@
             <div class="menu-title">{{ tr.important }}</div>
         </a>
     </div>
+
+    {% if ritual and ritual.show_prompt %}
+    <div class="modal-backdrop" id="daily-prompt-modal">
+        <div class="modal-card">
+            <h2>{{ tr.daily_question }}</h2>
+            <p class="ritual-question">{{ ritual.question_text }}</p>
+            <textarea id="daily-answer" placeholder="{{ tr.answer_placeholder }}" maxlength="2000"></textarea>
+            <div style="font-weight: 700; margin-top: 0.8rem;">{{ tr.your_mood }}</div>
+            <div class="mood-scale">
+                {% for value in range(1, 11) %}
+                <button type="button" class="mood-option{% if value == 7 %} active{% endif %}" data-level="{{ value }}">{{ value }}</button>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn" onclick="submitDailyPrompt()">{{ tr.send_answer }}</button>
+        </div>
+    </div>
+    <script>
+        let selectedMood = 7;
+
+        document.querySelectorAll('.mood-option').forEach((button) => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.mood-option').forEach((item) => item.classList.remove('active'));
+                button.classList.add('active');
+                selectedMood = parseInt(button.dataset.level, 10);
+            });
+        });
+
+        async function submitDailyPrompt() {
+            const answerText = document.getElementById('daily-answer').value.trim();
+            if (!answerText) {
+                return;
+            }
+            const response = await fetch('/api/daily-prompt/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer_text: answerText, mood_level: selectedMood })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('{{ tr.error_prefix }}' + data.error);
+            }
+        }
+    </script>
+    {% endif %}
 {% else %}
     <div class="card">
         <h2>{{ tr.welcome }}</h2>
@@ -232,7 +363,6 @@
 
         <div style="margin: 2rem 0;">
             <p style="margin-bottom: 1.5rem; font-weight: 600;">{{ tr.send_invitation_label }}</p>
-
             <form id="invite-form">
                 <div class="form-group">
                     <input type="text" id="partner-username" placeholder="{{ tr.partner_username }}" required>
@@ -250,22 +380,17 @@
         document.getElementById('invite-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('partner-username').value;
-
             const response = await fetch('/api/invite/send', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
             });
-
             const data = await response.json();
-
             if (response.ok) {
-                alert('Invitation sent! Wait for your partner to accept.');
+                alert('{{ tr.invitation_sent }}');
                 document.getElementById('invite-form').reset();
             } else {
-                alert('Error: ' + data.error);
+                alert('{{ tr.error_prefix }}' + data.error);
             }
         });
     </script>

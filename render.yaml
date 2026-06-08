@@ -16,6 +16,8 @@ services:
         fromDatabase:
           name: lovio-db
           property: connectionString
+      - key: REQUIRE_DATABASE_URL
+        value: "1"
 
 databases:
   - name: lovio-db

@@ -1,16 +1,20 @@
 {% extends "base.html" %}
-{% block title %}{{ tr.activity }} - LOVIO{% endblock %}
+{% block title %}{{ tr.activities }} - LOVIO{% endblock %}
 {% block content %}
 <div class="container">
     <h1>{{ tr.activities_title }}</h1>
 
     <div class="card">
         <h2>{{ tr.choose_activity_card }}</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0;">
+        {% if already_selected %}
+        <p style="margin-bottom: 1rem; color: #666;">{{ tr.waiting_activity }}</p>
+        {% endif %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.4rem 0 0;">
             {% for task in tasks %}
-            <button onclick="selectActivity('{{ task }}')"
-                    style="padding: 1.5rem; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; font-weight: 600; transition: all 0.3s;">
-                {{ task }}
+            <button onclick="selectActivity('{{ task.code }}')"
+                    {% if already_selected %}disabled{% endif %}
+                    style="padding: 1.2rem; border: 2px solid #ddd; border-radius: 8px; cursor: {% if already_selected %}default{% else %}pointer{% endif %}; background: white; font-weight: 600; transition: all 0.3s; opacity: {% if already_selected %}0.55{% else %}1{% endif %};">
+                {{ task.label }}
             </button>
             {% endfor %}
         </div>
@@ -20,8 +24,8 @@
     <h2 style="margin-top: 2rem;">{{ tr.recent_activities }}</h2>
     {% for activity in activities %}
     <div class="card">
-        <p><strong>{{ activity.user.name }}</strong></p>
-        <p>{{ activity.task }}</p>
+        <p><strong>{{ activity.user_name }}</strong></p>
+        <p>{{ activity.task_label }}</p>
         <p style="color: #999; font-size: 0.9em;">{{ activity.activity_date }}</p>
     </div>
     {% endfor %}
@@ -29,18 +33,18 @@
 </div>
 
 <script>
-async function selectActivity(task) {
+async function selectActivity(taskCode) {
     const response = await fetch('/api/activity/select', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task })
+        body: JSON.stringify({ task: taskCode })
     });
     const data = await response.json();
     if (response.ok) {
         alert('{{ tr.activity_selected }}');
         location.reload();
     } else {
-        alert('Error: ' + data.error);
+        alert('{{ tr.error_prefix }}' + data.error);
     }
 }
 </script>
