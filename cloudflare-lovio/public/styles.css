@@ -1119,6 +1119,19 @@ select {
   width: 100%;
 }
 
+.settings-partner-card {
+  min-height: 84px;
+  display: grid;
+  align-content: center;
+}
+
+.settings-logout-strong {
+  min-height: 54px;
+  border-color: rgba(255, 124, 150, 0.26);
+  color: #ffd8e1;
+  background: rgba(255, 124, 150, 0.08);
+}
+
 .onboarding-card {
   overflow: hidden;
 }

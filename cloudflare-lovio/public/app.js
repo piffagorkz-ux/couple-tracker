@@ -666,8 +666,22 @@ function renderSettings(data, t) {
   const ux = getUxCopy();
   const notificationsAvailable = hasNotificationSupport();
   const notificationsEnabled = isNotificationsEnabled();
+  const partnerName = data.partner?.name || data.partner?.username || ux.noPartnerLinked;
   return `
     <div class="stack">
+      <section class="panel glass">
+        <div class="panel-header">
+          <div>
+            <div class="section-kicker">${escapeHtml(ux.relationshipKicker)}</div>
+            <h3>${escapeHtml(ux.relationshipTitle)}</h3>
+            <p class="muted panel-copy">${escapeHtml(ux.relationshipCopy)}</p>
+          </div>
+        </div>
+        <div class="item settings-partner-card">
+          <strong>${escapeHtml(partnerName)}</strong>
+          <div class="muted">${escapeHtml(data.partner ? ux.relationshipConnected : ux.relationshipWaiting)}</div>
+        </div>
+      </section>
       <section class="panel glass">
         <div class="panel-header">
           <div>
@@ -706,7 +720,13 @@ function renderSettings(data, t) {
         ` : ""}
       </section>
       <section class="panel glass">
-        <button class="ghost-btn settings-logout" data-action="logout">${escapeHtml(t.logout)}</button>
+        <div class="panel-header">
+          <div>
+            <div class="section-kicker">${escapeHtml(ux.sessionKicker)}</div>
+            <h3>${escapeHtml(ux.sessionTitle)}</h3>
+          </div>
+        </div>
+        <button class="ghost-btn settings-logout settings-logout-strong" data-action="logout">${escapeHtml(t.logout)}</button>
       </section>
     </div>
   `;
@@ -1381,6 +1401,14 @@ function getUxCopy() {
         emptyImportantDatesTitle: "Здесь еще нет важных дат",
         emptyImportantDatesCopy: "Добавьте годовщину, день рождения или любой особенный день.",
         emptyImportantDatesPrimary: "Добавить дату",
+        relationshipKicker: "Пара",
+        relationshipTitle: "С кем ты в паре",
+        relationshipCopy: "Здесь видно, подключен ли уже партнер к вашему общему пространству.",
+        relationshipConnected: "Пара подключена",
+        relationshipWaiting: "Партнер пока не подключен",
+        noPartnerLinked: "Пока без пары",
+        sessionKicker: "Аккаунт",
+        sessionTitle: "Выход из приложения",
         browserInviteTitle: "Lovio",
         browserInviteBody: "У вас новое приглашение.",
         browserUpdateTitle: "Lovio: новое обновление",
@@ -1438,6 +1466,14 @@ function getUxCopy() {
         emptyImportantDatesTitle: "No important dates yet",
         emptyImportantDatesCopy: "Save an anniversary, birthday, or any meaningful day.",
         emptyImportantDatesPrimary: "Add date",
+        relationshipKicker: "Couple",
+        relationshipTitle: "Who you're paired with",
+        relationshipCopy: "See whether your partner is already connected to your shared space.",
+        relationshipConnected: "Connected",
+        relationshipWaiting: "Partner not connected yet",
+        noPartnerLinked: "No partner yet",
+        sessionKicker: "Account",
+        sessionTitle: "Log out",
         browserInviteTitle: "Lovio",
         browserInviteBody: "You have a new invitation.",
         browserUpdateTitle: "Lovio: new update",
