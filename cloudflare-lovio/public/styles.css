@@ -27,6 +27,8 @@
   --glow-right: rgba(255, 255, 255, 0.2);
   --glass-top: rgba(255, 255, 255, 0.82);
   --glass-bottom: rgba(248, 249, 253, 0.74);
+  --accent-soft: rgba(255, 130, 190, 0.14);
+  --accent-soft-2: rgba(255, 192, 223, 0.18);
 }
 
 body.theme-female {
@@ -49,6 +51,8 @@ body.theme-female {
   --glow-right: rgba(255, 244, 249, 0.22);
   --glass-top: rgba(255, 255, 255, 0.84);
   --glass-bottom: rgba(252, 246, 250, 0.78);
+  --accent-soft: rgba(255, 137, 194, 0.16);
+  --accent-soft-2: rgba(255, 194, 224, 0.2);
 }
 
 body.theme-male {
@@ -72,6 +76,8 @@ body.theme-male {
   --glow-right: rgba(255, 255, 255, 0.2);
   --glass-top: rgba(255, 255, 255, 0.84);
   --glass-bottom: rgba(242, 246, 252, 0.8);
+  --accent-soft: rgba(45, 109, 246, 0.12);
+  --accent-soft-2: rgba(150, 191, 255, 0.2);
 }
 
 * {
@@ -138,8 +144,9 @@ body::after {
   justify-content: center;
   gap: 10px;
   margin: 0 0 12px;
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .brand-button {
@@ -151,12 +158,12 @@ body::after {
 }
 
 .brand-mark {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
   transform: rotate(45deg);
   background: linear-gradient(135deg, var(--accent-2), var(--accent), var(--accent-3));
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 24%, rgba(15, 23, 42, 0.08));
 }
 
 .glass {
@@ -212,9 +219,10 @@ body::after {
 
 .auth-title {
   margin: 18px 0 8px;
-  font-size: clamp(30px, 8vw, 42px);
+  font-size: clamp(32px, 8vw, 44px);
   line-height: 1;
-  font-weight: 720;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .auth-subtitle {
@@ -303,13 +311,15 @@ select {
 }
 
 .primary-btn {
-  font-weight: 650;
+  font-weight: 720;
+  letter-spacing: -0.01em;
 }
 
 .ghost-btn {
   color: var(--text);
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.74);
+  font-weight: 600;
 }
 
 .icon-btn {
@@ -470,13 +480,15 @@ select {
 
 .topbar-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .topbar-copy {
   margin: 4px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .topbar .actions {
@@ -542,6 +554,12 @@ select {
   padding: 16px;
 }
 
+.panel > .panel-header h3,
+.panel > .panel-header h4 {
+  font-weight: 780;
+  letter-spacing: -0.015em;
+}
+
 .panel-header {
   display: flex;
   align-items: center;
@@ -590,6 +608,7 @@ select {
   border-radius: 18px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 .item,
@@ -765,6 +784,9 @@ select {
 
 .insight {
   padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.7)),
+    radial-gradient(circle at top right, var(--accent-soft), transparent 55%);
 }
 
 .insight-label {
@@ -775,8 +797,9 @@ select {
 }
 
 .insight-value {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .block-grid {
@@ -794,8 +817,10 @@ select {
   text-align: left;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
+    radial-gradient(circle at top right, var(--accent-soft-2), transparent 56%);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .block-badge {
@@ -820,11 +845,14 @@ select {
   display: block;
   color: var(--muted);
   font-size: 13px;
+  font-weight: 600;
   margin-bottom: 12px;
 }
 
 .block-card strong {
-  font-size: 26px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text);
 }
 
@@ -974,7 +1002,7 @@ select {
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--line);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
 }
 
 .footer-nav .inner.nav-minimal {
@@ -989,6 +1017,7 @@ select {
   gap: 4px;
   padding: 8px 4px;
   color: var(--muted);
+  border-radius: 16px;
 }
 
 .nav-btn svg {
@@ -1002,8 +1031,12 @@ select {
 
 .nav-btn.active {
   color: var(--accent);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.05);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.88)),
+    radial-gradient(circle at top, var(--accent-soft), transparent 70%);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 24, 40, 0.05),
+    0 6px 16px rgba(15, 23, 42, 0.08);
 }
 
 .minimal-dashboard {
@@ -1023,7 +1056,9 @@ select {
   padding: 12px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.78);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78)),
+    radial-gradient(circle at top right, var(--accent-soft), transparent 54%);
 }
 
 .ring-card {
@@ -1050,7 +1085,7 @@ select {
   display: grid;
   place-items: center;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--line);
 }
@@ -1058,6 +1093,7 @@ select {
 .stat-card-label {
   color: var(--muted);
   font-size: 12px;
+  font-weight: 600;
 }
 
 .center-pill {
@@ -1071,7 +1107,7 @@ select {
   font-weight: 700;
   color: white;
   background: linear-gradient(180deg, var(--accent), var(--accent-3));
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 28%, rgba(15, 23, 42, 0.06));
 }
 
 .heart-pill {
@@ -1104,7 +1140,8 @@ select {
 }
 
 .stats-card strong {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 780;
   line-height: 1.2;
 }
 
@@ -1133,6 +1170,7 @@ select {
   border-color: rgba(255, 124, 150, 0.22);
   color: #c24867;
   background: rgba(255, 255, 255, 0.82);
+  font-weight: 700;
 }
 
 .onboarding-card {
@@ -1152,6 +1190,7 @@ select {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid var(--line);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .onboarding-step.done {
@@ -1193,7 +1232,9 @@ select {
 }
 
 .onboarding-step-head strong {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 780;
+  letter-spacing: -0.01em;
 }
 
 .onboarding-step-body p {
@@ -1232,8 +1273,9 @@ select {
 }
 
 .empty-state-title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .empty-state-copy {
