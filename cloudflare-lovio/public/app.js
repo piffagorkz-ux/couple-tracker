@@ -105,12 +105,19 @@ function renderAuth(t) {
   return `
     <section class="auth-shell glass">
       <div class="auth-content">
-        <div class="auth-badge">
-          <span class="brand-mark"></span>
-          <span>${escapeHtml(t.authBadge)}</span>
+        <div class="auth-hero">
+          <div class="auth-badge">
+            <span class="brand-mark"></span>
+            <span>${escapeHtml(t.authBadge)}</span>
+          </div>
+          <h1 class="auth-title">${escapeHtml(t.authTitle)}</h1>
+          <p class="auth-subtitle">${escapeHtml(t.authSubtitle)}</p>
+          <div class="auth-highlights">
+            <span class="mini-pill">${escapeHtml(t.previewAnswers)}</span>
+            <span class="mini-pill">${escapeHtml(t.previewChoices)}</span>
+            <span class="mini-pill">${escapeHtml(t.answerQuestion)}</span>
+          </div>
         </div>
-        <h1 class="auth-title">${escapeHtml(t.authTitle)}</h1>
-        <p class="auth-subtitle">${escapeHtml(t.authSubtitle)}</p>
         <div class="tabs">
           <button class="tab-btn ${state.mode === "login" ? "active" : ""}" data-mode="login">${escapeHtml(t.login)}</button>
           <button class="tab-btn ${state.mode === "register" ? "active" : ""}" data-mode="register">${escapeHtml(t.register)}</button>
@@ -179,8 +186,14 @@ function renderAuthPreview(t) {
           <span class="mini-pill">${escapeHtml(t.previewLabel)}</span>
           <span class="preview-time">09:41</span>
         </div>
-        <div class="preview-orbit">
-          <div class="preview-orbit-inner"></div>
+        <div class="preview-hero-card">
+          <div class="preview-orbit">
+            <div class="preview-orbit-inner"></div>
+          </div>
+          <div class="preview-hero-copy">
+            <strong>Lovio</strong>
+            <span>${escapeHtml(t.authSubtitle)}</span>
+          </div>
         </div>
         <div class="preview-stats">
           <div class="preview-stat">
@@ -240,10 +253,37 @@ function renderHome(data, t) {
   const closeness = getClosenessScore(data);
   const answers = countAnswers(data.prompt);
   const bothAnswers = data.prompt?.bothAnswered ? 2 : answers;
+  const openGoals = (data.goals || []).filter((item) => !item.completed).length;
+  const nextDate = (data.dates || [])[0];
+  const activityReady = Boolean(data.activities?.mySelection);
 
   return `
     <div class="stack">
       ${onboarding}
+      <section class="panel glass home-hero-card">
+        <div class="home-hero-top">
+          <div>
+            <div class="section-kicker">${escapeHtml(t.closeness)}</div>
+            <h3 class="hero-main-title">${closeness}%</h3>
+            <p class="muted panel-copy">${escapeHtml(screenSubtitleText("home", t, true))}</p>
+          </div>
+          <button class="center-pill heart-pill hero-heart" data-send-heart="1">
+            <span class="heart-pill-icon">${icons.heart}</span>
+          </button>
+        </div>
+        <div class="hero-summary-grid">
+          ${renderHeroMetric(t.answerQuestion, `${bothAnswers}/2`)}
+          ${renderHeroMetric(t.goals, `${openGoals}`)}
+          ${renderHeroMetric(t.activities, activityReady ? "1" : "0")}
+        </div>
+        <div class="hero-inline-card">
+          <div>
+            <strong>${escapeHtml(nextDate ? nextDate.title : t.dates)}</strong>
+            <span>${escapeHtml(nextDate ? `${t.plannedFor}: ${nextDate.planned_date}` : ux.emptyDatesCopy)}</span>
+          </div>
+          <button class="ghost-btn hero-inline-action" data-page="dates">${escapeHtml(nextDate ? t.dates : ux.emptyDatesPrimary)}</button>
+        </div>
+      </section>
       <section class="panel glass minimal-dashboard">
         <div class="dashboard-top">
           <button class="stat-card ring-card" data-page="stats">
@@ -252,9 +292,10 @@ function renderHome(data, t) {
             </div>
             <span class="stat-card-label">${escapeHtml(t.closeness)}</span>
           </button>
-          <button class="center-pill heart-pill" data-send-heart="1">
-            <span class="heart-pill-icon">${icons.heart}</span>
-          </button>
+          <div class="stat-card hero-status-card">
+            <strong>${escapeHtml(data.partner?.name || data.partner?.username || "Lovio")}</strong>
+            <span>${escapeHtml(activityReady ? t.activityLocked : t.answerQuestion)}</span>
+          </div>
           <div class="stat-card stats-card">
             <strong>${escapeHtml(t.answerQuestion)}</strong>
             <span>${bothAnswers}/2</span>
@@ -286,11 +327,15 @@ function renderStats(data, t) {
   return `
     <div class="stack">
       <section class="panel glass stats-hero">
-        <div class="panel-header">
+        <div class="stats-header-inline">
           <div>
             <div class="section-kicker">${escapeHtml(t.closeness || "Близость")}</div>
             <h3>${escapeHtml(t.statsTitle || "Статистика отношений")}</h3>
             <p class="muted panel-copy">${escapeHtml(t.statsSubtitle || "Короткий срез вашей общей динамики и ритма.")}</p>
+          </div>
+          <div class="stats-badge-card">
+            <strong>${closeness}%</strong>
+            <span>${escapeHtml(t.closeness || "Близость")}</span>
           </div>
         </div>
         <div class="stats-hero-grid">
@@ -323,6 +368,12 @@ function renderStats(data, t) {
         </div>
       </section>
       <section class="panel glass">
+        <div class="panel-header">
+          <div>
+            <div class="section-kicker">${escapeHtml(t.statsTitle || "Статистика отношений")}</div>
+            <h3>${escapeHtml(t.statsPromptTogether || "Ваш ритм вместе")}</h3>
+          </div>
+        </div>
         <div class="stats-progress-list">
           ${renderStatRow(t.statsPromptTogether || "Вопросы дня вместе", answeredTogether, 1)}
           ${renderStatRow(t.statsGoalsDone || "Выполненные цели", completedGoals, Math.max((data.goals || []).length, 1))}
@@ -354,13 +405,21 @@ function renderHomeEmpty(data, t, ux, onboarding = "") {
   return `
     <div class="stack">
       ${onboarding}
-      <section class="panel glass">
-        <div class="panel-header">
+      <section class="panel glass home-hero-card">
+        <div class="home-hero-top">
           <div>
             <div class="section-kicker">${escapeHtml(t.partner)}</div>
-            <h3>${escapeHtml(t.inviteTitle)}</h3>
+            <h3 class="hero-main-title">${escapeHtml(t.inviteTitle)}</h3>
             <p class="muted panel-copy">${escapeHtml(t.noCouple)}</p>
           </div>
+          <div class="hero-avatar-stack">
+            <span class="hero-avatar-bubble">${icons.heart}</span>
+          </div>
+        </div>
+        <div class="hero-summary-grid">
+          ${renderHeroMetric(t.answerQuestion, "0/2")}
+          ${renderHeroMetric(t.goals, "0")}
+          ${renderHeroMetric(t.dates, "0")}
         </div>
         <form id="invite-form" class="stack">
           <div class="field">
@@ -392,6 +451,15 @@ function renderHomeEmpty(data, t, ux, onboarding = "") {
           </div>
         </section>
       ` : ""}
+    </div>
+  `;
+}
+
+function renderHeroMetric(label, value) {
+  return `
+    <div class="hero-metric-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
     </div>
   `;
 }
