@@ -1,0 +1,12 @@
+name = "lovio-cloudflare"
+main = "src/worker.js"
+compatibility_date = "2026-06-15"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lovio-db"
+database_id = "328bac62-98a3-403b-a19f-966ab053fddd"

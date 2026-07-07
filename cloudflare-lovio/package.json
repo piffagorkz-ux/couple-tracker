@@ -1,0 +1,14 @@
+{
+  "name": "lovio-cloudflare",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute lovio-db --local --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.21.0"
+  }
+}
