@@ -1,6 +1,7 @@
 :root {
   --bg: #090611;
   --bg-secondary: #130b21;
+  --bg-solid: #0a0612;
   --surface: rgba(17, 18, 36, 0.74);
   --surface-strong: rgba(20, 18, 42, 0.92);
   --surface-soft: rgba(255, 255, 255, 0.04);
@@ -17,12 +18,57 @@
   --radius-lg: 28px;
   --radius-md: 20px;
   --radius-sm: 16px;
+  --bg-grad-1: rgba(113, 48, 255, 0.28);
+  --bg-grad-2: rgba(49, 202, 255, 0.18);
+  --bg-grad-3: #100a1b;
+  --bg-grad-4: #08050f;
+  --glow-top: rgba(112, 78, 255, 0.5);
+  --glow-left: rgba(48, 196, 255, 0.18);
+  --glow-right: rgba(216, 79, 255, 0.22);
+  --glass-top: rgba(28, 23, 54, 0.88);
+  --glass-bottom: rgba(14, 14, 28, 0.8);
+}
+
+body.theme-female {
+  --bg: #090611;
+  --bg-secondary: #130b21;
+  --bg-solid: #0a0612;
+  --accent: #ff73b5;
+  --accent-2: #ffb2d9;
+  --accent-3: #d965ff;
+  --muted: #b4a6c6;
+  --bg-grad-1: rgba(168, 78, 255, 0.34);
+  --bg-grad-2: rgba(255, 122, 196, 0.18);
+  --bg-grad-3: #130a1f;
+  --bg-grad-4: #08050f;
+  --glow-top: rgba(186, 101, 255, 0.5);
+  --glow-left: rgba(255, 151, 214, 0.24);
+  --glow-right: rgba(216, 79, 255, 0.24);
+  --glass-top: rgba(36, 24, 54, 0.88);
+  --glass-bottom: rgba(18, 13, 30, 0.84);
 }
 
 body.theme-male {
-  --accent: #ff7cb9;
-  --accent-2: #a68bff;
-  --accent-3: #ff9dd5;
+  --bg: #06101d;
+  --bg-secondary: #0d1a2c;
+  --bg-solid: #07111d;
+  --surface: rgba(12, 21, 40, 0.78);
+  --surface-strong: rgba(12, 21, 40, 0.92);
+  --text: #eef4ff;
+  --muted: #8ea3c4;
+  --accent: #4ea3ff;
+  --accent-2: #8fd0ff;
+  --accent-3: #2358d8;
+  --danger: #ff8ea8;
+  --bg-grad-1: rgba(37, 88, 216, 0.34);
+  --bg-grad-2: rgba(78, 163, 255, 0.22);
+  --bg-grad-3: #0d1a2c;
+  --bg-grad-4: #060c16;
+  --glow-top: rgba(64, 116, 255, 0.44);
+  --glow-left: rgba(78, 163, 255, 0.24);
+  --glow-right: rgba(39, 82, 182, 0.18);
+  --glass-top: rgba(13, 27, 50, 0.9);
+  --glass-bottom: rgba(8, 16, 30, 0.84);
 }
 
 * {
@@ -32,7 +78,7 @@ body.theme-male {
 html,
 body {
   min-height: 100%;
-  background-color: #0a0612;
+  background-color: var(--bg-solid);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -43,9 +89,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background:
-    linear-gradient(145deg, rgba(113, 48, 255, 0.28), transparent 28%),
-    linear-gradient(210deg, rgba(49, 202, 255, 0.18), transparent 22%),
-    linear-gradient(180deg, #0a0612 0%, #100a1b 35%, #08050f 100%);
+    linear-gradient(145deg, var(--bg-grad-1), transparent 28%),
+    linear-gradient(210deg, var(--bg-grad-2), transparent 22%),
+    linear-gradient(180deg, var(--bg-solid) 0%, var(--bg-grad-3) 35%, var(--bg-grad-4) 100%);
   letter-spacing: 0;
 }
 
@@ -60,9 +106,9 @@ body::after {
 
 body::before {
   background:
-    radial-gradient(90% 55% at 50% -10%, rgba(112, 78, 255, 0.5), transparent 55%),
-    radial-gradient(55% 35% at 15% 18%, rgba(48, 196, 255, 0.18), transparent 68%),
-    radial-gradient(55% 35% at 85% 12%, rgba(216, 79, 255, 0.22), transparent 68%);
+    radial-gradient(90% 55% at 50% -10%, var(--glow-top), transparent 55%),
+    radial-gradient(55% 35% at 15% 18%, var(--glow-left), transparent 68%),
+    radial-gradient(55% 35% at 85% 12%, var(--glow-right), transparent 68%);
   opacity: 0.95;
 }
 
@@ -114,7 +160,7 @@ body::after {
 }
 
 .glass {
-  background: linear-gradient(180deg, rgba(28, 23, 54, 0.88), rgba(14, 14, 28, 0.8));
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   backdrop-filter: blur(26px);

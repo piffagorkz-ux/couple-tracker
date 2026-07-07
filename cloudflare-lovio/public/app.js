@@ -58,7 +58,7 @@ async function refreshSession() {
 function render() {
   const user = state.data?.user;
   const t = state.data?.t || fallbackT();
-  document.body.className = user?.gender === "male" ? "theme-male" : "";
+  document.body.className = user?.gender === "male" ? "theme-male" : "theme-female";
 
   app.innerHTML = `
     ${state.toast ? `<div class="toast">${escapeHtml(state.toast)}</div>` : ""}
